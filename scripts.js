@@ -1,29 +1,154 @@
+const KILL_TEAM_LIBRARY = [
+  {
+    key: 'necron',
+    name: 'Иеротековый Круг',
+    originalName: 'Hierotek Circle',
+    faction: 'Некроны',
+    alignment: 'Ксенос',
+    href: 'necron-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Иеротек Круг (Hierotek Circle)',
+    summary: 'Элитный отряд некронов с акцентом на стойкость и контроль поля боя.',
+    focus: ['Стойкость', 'Поддержка', 'Стрельба']
+  },
+  {
+    key: 'vespid',
+    name: 'Веспид-Стингвинг',
+    originalName: 'Vespid Stingwing',
+    faction: 'Тау',
+    alignment: 'Ксенос',
+    href: 'vespid-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Веспид-Стингвинг (Vespid Stingwing)',
+    summary: 'Подвижная команда разведчиков-снайперов Империи Тау, полагающаяся на манёвры.',
+    focus: ['Мобильность', 'Стрельба', 'Альфа-удары']
+  },
+  {
+    key: 'adepta-sororitas',
+    name: 'Новициаты Сороритас (классический лист)',
+    originalName: 'Adepta Sororitas Novitiate',
+    faction: 'Адепта Сороритас',
+    alignment: 'Империум',
+    href: 'adepta-sororitas-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)',
+    summary: 'Ревностные послушницы Экклезиархии с молитвенной поддержкой и огнём веры.',
+    focus: ['Рукопашный бой', 'Поддержка', 'Тактические приёмы']
+  },
+  {
+    key: 'adepta-sororitas-novitiate',
+    name: 'Новициаты Сороритас (обновлённый лист)',
+    originalName: 'Adepta Sororitas Novitiate — обновлённый лист',
+    faction: 'Адепта Сороритас',
+    alignment: 'Империум',
+    href: 'adepta-sororitas-novitiate-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)',
+    summary: 'Актуализированная версия листа с переработанными профилями и доктринами.',
+    focus: ['Поддержка', 'Гибкость', 'Контроль миссий']
+  },
+  {
+    key: 'plague-marines',
+    name: 'Чумные морпехи',
+    originalName: 'Plague Marines',
+    faction: 'Гвардия Смерти',
+    alignment: 'Хаос',
+    href: 'plague-marines-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Чумные морпехи (Plague Marines)',
+    summary: 'Непробиваемые воины Нургла, доминирующие в затяжных схватках.',
+    focus: ['Стойкость', 'Рукопашный бой', 'Зоны заражения']
+  },
+  {
+    key: 'kommandos',
+    name: 'Коммандосы',
+    originalName: 'Kommandos',
+    faction: 'Орки',
+    alignment: 'Ксенос',
+    href: 'kommandos-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Коммандосы (Kommandos)',
+    summary: 'Грубые, но изобретательные орки-диверсанты с упором на скрытность.',
+    focus: ['Маскировка', 'Взрывы', 'Рукопашный бой']
+  },
+  {
+    key: 'inquisitorial-agents',
+    name: 'Инквизиторские агенты',
+    originalName: 'Inquisitorial Agents',
+    faction: 'Инквизиция',
+    alignment: 'Империум',
+    status: 'planned',
+    navLabel: 'Инквизиторские агенты (Inquisitorial Agents)',
+    summary: 'Заготовка для гибкой команды агентов с особыми поручениями Инквизиции.',
+    focus: ['Специалисты', 'Контроль угроз', 'Адаптация']
+  },
+  {
+    key: 'voidscarred',
+    name: 'Корсары Варпа',
+    originalName: 'Voidscarred',
+    faction: 'Эльдары',
+    alignment: 'Ксенос',
+    status: 'planned',
+    navLabel: 'Корсары Варпа (Voidscarred)',
+    summary: 'Планируемый модуль для подвижных эльдарских рейдеров, делающих ставку на хитрость.',
+    focus: ['Мобильность', 'Хитрость', 'Псионика']
+  }
+];
+
+const REFERENCE_LINKS = [
+  { key: 'rules', href: 'rule.html', label: 'Правила (Rules)' },
+  { key: 'equipment', href: 'unique-equipment.html', label: 'Уникальное снаряжение (Unique Equipment)' },
+  { key: 'tacops', href: 'TACOP.html', label: 'Tac Ops' },
+  { key: 'critops', href: 'critop.html', label: 'Критические операции (Crit Ops)' }
+];
+
+const PERSONAL_LINKS = [
+  { key: 'favorites', href: 'favorites.html', label: 'Избранное (Favorites)' }
+];
+
+function buildKillTeamNavLinks(list) {
+  const available = [];
+  const planned = [];
+  list.forEach((team) => {
+    if (!team) {
+      return;
+    }
+    if ((team.status || 'available') === 'planned') {
+      planned.push(team);
+    } else {
+      available.push(team);
+    }
+  });
+
+  const toNavLink = (team) => ({
+    key: team.key,
+    href: team.href || null,
+    label: team.navLabel || `${team.name}${team.originalName ? ` (${team.originalName})` : ''}`,
+    status: team.status || 'available',
+    badge: (team.status || 'available') === 'planned' ? 'Скоро' : null
+  });
+
+  return available.concat(planned).map(toNavLink);
+}
+
 const NAV_SECTIONS = [
   {
-    label: 'Kill teams',
+    label: 'Обзор',
     links: [
-      { key: 'necron', href: 'necron-cheatsheet.html', label: 'Иеротек Круг (Hierotek Circle)' },
-      { key: 'vespid', href: 'vespid-cheatsheet.html', label: 'Веспид-Стингвинг (Vespid Stingwing)' },
-      { key: 'adepta-sororitas', href: 'adepta-sororitas-cheatsheet.html', label: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)' },
-      { key: 'adepta-sororitas-novitiate', href: 'adepta-sororitas-novitiate-cheatsheet.html', label: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)' },
-      { key: 'plague-marines', href: 'plague-marines-cheatsheet.html', label: 'Чумные морпехи (Plague Marines)' },
-      { key: 'kommandos', href: 'kommandos-cheatsheet.html', label: 'Коммандосы (Kommandos)' }
+      { key: 'home', href: 'index.html', label: 'Обзор Kill Team HQ' }
     ]
+  },
+  {
+    label: 'Kill teams',
+    links: buildKillTeamNavLinks(KILL_TEAM_LIBRARY)
   },
   {
     label: 'Справочники',
-    links: [
-      { key: 'rules', href: 'rule.html', label: 'Правила (Rules)' },
-      { key: 'equipment', href: 'unique-equipment.html', label: 'Уникальное снаряжение (Unique Equipment)' },
-      { key: 'tacops', href: 'TACOP.html', label: 'Tac Ops' },
-      { key: 'critops', href: 'critop.html', label: 'Критические операции (Crit Ops)' }
-    ]
+    links: REFERENCE_LINKS
   },
   {
     label: 'Личное',
-    links: [
-      { key: 'favorites', href: 'favorites.html', label: 'Избранное (Favorites)' }
-    ]
+    links: PERSONAL_LINKS
   }
 ];
 function renderGlobalNav() {
@@ -33,6 +158,11 @@ function renderGlobalNav() {
   }
   nav.innerHTML = '';
   const currentPage = document.body.dataset.page || '';
+
+  const brand = document.querySelector('.brand');
+  if (brand && brand.tagName === 'A') {
+    brand.setAttribute('href', 'index.html');
+  }
 
   NAV_SECTIONS.forEach((section, index) => {
     if (!section || !Array.isArray(section.links) || !section.links.length) {
@@ -59,16 +189,29 @@ function renderGlobalNav() {
       if (!link) {
         return;
       }
-      const anchor = document.createElement('a');
-      anchor.href = link.href;
-      anchor.textContent = link.label;
+      const isDisabled = !link.href || link.status === 'planned';
+      const node = document.createElement(isDisabled ? 'span' : 'a');
+      node.className = 'site-nav__link';
+      node.textContent = link.label;
       if (link.key) {
-        anchor.dataset.navKey = link.key;
-        if (link.key === currentPage) {
-          anchor.setAttribute('aria-current', 'page');
-        }
+        node.dataset.navKey = link.key;
       }
-      linksWrapper.appendChild(anchor);
+      if (!isDisabled) {
+        node.setAttribute('href', link.href);
+        if (link.key === currentPage) {
+          node.setAttribute('aria-current', 'page');
+        }
+      } else {
+        node.classList.add('site-nav__link--disabled');
+        node.setAttribute('aria-disabled', 'true');
+      }
+      if (link.badge) {
+        const badge = document.createElement('span');
+        badge.className = 'site-nav__badge';
+        badge.textContent = link.badge;
+        node.appendChild(badge);
+      }
+      linksWrapper.appendChild(node);
     });
 
     if (!linksWrapper.childElementCount) {
@@ -78,6 +221,281 @@ function renderGlobalNav() {
     group.appendChild(linksWrapper);
     nav.appendChild(group);
   });
+}
+
+const KILL_TEAM_STATUS_LABELS = {
+  available: 'Готово',
+  planned: 'Скоро'
+};
+
+function createKillTeamCard(team) {
+  const card = document.createElement('article');
+  card.className = 'killteam-card';
+  card.dataset.teamKey = team.key || '';
+  card.dataset.status = team.status;
+  if (team.status === 'planned') {
+    card.classList.add('killteam-card--planned');
+  }
+
+  const header = document.createElement('div');
+  header.className = 'killteam-card__header';
+
+  const faction = document.createElement('span');
+  faction.className = 'killteam-card__faction';
+  const factionParts = [team.alignment, team.faction].filter(Boolean);
+  faction.textContent = factionParts.join(' • ');
+  header.appendChild(faction);
+
+  const statusLabel = document.createElement('span');
+  statusLabel.className = 'killteam-card__status';
+  statusLabel.textContent = KILL_TEAM_STATUS_LABELS[team.status] || KILL_TEAM_STATUS_LABELS.available;
+  if (team.status === 'planned') {
+    statusLabel.classList.add('killteam-card__status--planned');
+  } else {
+    statusLabel.classList.add('killteam-card__status--ready');
+  }
+  header.appendChild(statusLabel);
+
+  card.appendChild(header);
+
+  const title = document.createElement('h3');
+  title.className = 'killteam-card__title';
+  const titleMain = document.createElement('span');
+  titleMain.className = 'killteam-card__title-main';
+  titleMain.textContent = team.name;
+  title.appendChild(titleMain);
+  if (team.originalName) {
+    const subtitle = document.createElement('span');
+    subtitle.className = 'killteam-card__subtitle';
+    subtitle.textContent = team.originalName;
+    title.appendChild(subtitle);
+  }
+  card.appendChild(title);
+
+  if (team.summary) {
+    const summary = document.createElement('p');
+    summary.className = 'killteam-card__summary';
+    summary.textContent = team.summary;
+    card.appendChild(summary);
+  }
+
+  if (team.focus && team.focus.length) {
+    const tags = document.createElement('ul');
+    tags.className = 'killteam-card__tags';
+    team.focus.forEach((tagText) => {
+      if (!tagText) {
+        return;
+      }
+      const item = document.createElement('li');
+      item.textContent = tagText;
+      tags.appendChild(item);
+    });
+    if (tags.childElementCount) {
+      card.appendChild(tags);
+    }
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'killteam-card__actions';
+  if (team.status === 'planned') {
+    const planned = document.createElement('span');
+    planned.className = 'button button--disabled';
+    planned.textContent = 'Материалы в разработке';
+    planned.setAttribute('aria-disabled', 'true');
+    actions.appendChild(planned);
+  } else if (team.href) {
+    const link = document.createElement('a');
+    link.className = 'button button--primary';
+    link.href = team.href;
+    link.textContent = 'Открыть шпаргалку';
+    if (team.key) {
+      link.dataset.navKey = team.key;
+    }
+    link.setAttribute('title', `Открыть шпаргалку для отряда «${team.name}»`);
+    actions.appendChild(link);
+  } else {
+    const note = document.createElement('span');
+    note.className = 'button button--disabled';
+    note.textContent = 'Ссылка появится позже';
+    actions.appendChild(note);
+  }
+  card.appendChild(actions);
+
+  return card;
+}
+
+function initKillTeamLibrary() {
+  const list = document.querySelector('[data-killteam-list]');
+  if (!list) {
+    return;
+  }
+
+  const searchInput = document.querySelector('[data-killteam-search]');
+  const clearButton = document.querySelector('[data-killteam-clear]');
+  const summary = document.querySelector('[data-killteam-summary]');
+  const emptyState = document.querySelector('[data-killteam-empty]');
+  const filtersContainer = document.querySelector('[data-killteam-filters]');
+  const readyCountNode = document.querySelector('[data-killteam-ready-count]');
+  const plannedCountNode = document.querySelector('[data-killteam-planned-count]');
+
+  const teams = KILL_TEAM_LIBRARY.map((team) => {
+    const focus = Array.isArray(team.focus) ? team.focus.filter(Boolean) : [];
+    const status = team.status || 'available';
+    const searchChunks = [
+      team.name,
+      team.originalName,
+      team.faction,
+      team.alignment,
+      focus.join(' '),
+      team.summary
+    ].filter(Boolean);
+    return {
+      ...team,
+      focus,
+      status,
+      searchableText: searchChunks.join(' ').toLowerCase()
+    };
+  });
+
+  const readyCount = teams.filter((team) => team.status !== 'planned').length;
+  const plannedCount = teams.filter((team) => team.status === 'planned').length;
+  if (readyCountNode) {
+    readyCountNode.textContent = readyCount.toString();
+  }
+  if (plannedCountNode) {
+    plannedCountNode.textContent = plannedCount.toString();
+    const plannedWrapper = plannedCountNode.closest('[data-planned-wrapper]');
+    if (plannedWrapper) {
+      plannedWrapper.classList.toggle('is-hidden', plannedCount === 0);
+    }
+  }
+
+  let activeAlignment = 'all';
+  let filterButtons = [];
+
+  function updateSummary(total) {
+    if (!summary) {
+      return;
+    }
+    summary.textContent = `Показано ${total} из ${teams.length} килл-тимов`;
+  }
+
+  function updateClearButton(value) {
+    if (!clearButton) {
+      return;
+    }
+    const hasValue = Boolean(value);
+    clearButton.hidden = !hasValue;
+    clearButton.disabled = !hasValue;
+  }
+
+  function updateFilterButtons() {
+    filterButtons.forEach((button) => {
+      const value = button.dataset.filterValue || 'all';
+      const isActive = (value === 'all' && activeAlignment === 'all') || (value !== 'all' && activeAlignment === value);
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  function renderFilters() {
+    if (!filtersContainer) {
+      return;
+    }
+    const alignments = Array.from(new Set(teams.map((team) => team.alignment).filter(Boolean)));
+    filtersContainer.innerHTML = '';
+    if (!alignments.length) {
+      filtersContainer.hidden = true;
+      return;
+    }
+    filtersContainer.hidden = false;
+    filterButtons = [];
+
+    const createButton = (value, label) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'chip';
+      button.dataset.filterValue = value;
+      button.textContent = label;
+      button.addEventListener('click', () => {
+        if (value === 'all') {
+          activeAlignment = 'all';
+        } else {
+          activeAlignment = activeAlignment === value ? 'all' : value;
+        }
+        updateFilterButtons();
+        applyFilters();
+      });
+      filterButtons.push(button);
+      filtersContainer.appendChild(button);
+    };
+
+    createButton('all', 'Все');
+    alignments
+      .sort((a, b) => a.localeCompare(b, 'ru'))
+      .forEach((alignment) => {
+        createButton(alignment, alignment);
+      });
+
+    updateFilterButtons();
+  }
+
+  function renderList(items) {
+    list.innerHTML = '';
+    if (!items.length) {
+      if (emptyState) {
+        emptyState.hidden = false;
+      }
+      return;
+    }
+    if (emptyState) {
+      emptyState.hidden = true;
+    }
+    const fragment = document.createDocumentFragment();
+    items.forEach((team) => {
+      fragment.appendChild(createKillTeamCard(team));
+    });
+    list.appendChild(fragment);
+  }
+
+  function applyFilters() {
+    const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    updateClearButton(searchValue);
+    const filtered = teams.filter((team) => {
+      const matchesSearch = !searchValue || team.searchableText.includes(searchValue);
+      const matchesAlignment = activeAlignment === 'all' || team.alignment === activeAlignment;
+      return matchesSearch && matchesAlignment;
+    });
+    renderList(filtered);
+    updateSummary(filtered.length);
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      applyFilters();
+    });
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        searchInput.value = '';
+        applyFilters();
+      }
+    });
+  }
+
+  if (clearButton && searchInput) {
+    clearButton.addEventListener('click', () => {
+      if (!searchInput.value) {
+        searchInput.focus();
+        return;
+      }
+      searchInput.value = '';
+      searchInput.focus();
+      applyFilters();
+    });
+  }
+
+  renderFilters();
+  applyFilters();
 }
 const ruleHandlers = [
   {
@@ -1092,6 +1510,7 @@ registerFavoritesConfig('rules', { selectors: ['.rules h2'] });
 
 PAGE_INITIALIZERS.add('common', initFavoritesModule);
 PAGE_INITIALIZERS.add('common', initPageTocFromMarkup);
+PAGE_INITIALIZERS.add('home', initKillTeamLibrary);
 
 document.addEventListener('DOMContentLoaded', () => {
   renderGlobalNav();
