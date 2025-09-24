@@ -14,61 +14,132 @@
   </div>
 </header>
 <main class="page page--landing">
-  <section class="hero">
+  <section class="hero hero--dashboard">
     <div class="hero__content">
-      <h1 class="hero__title">Kill Team HQ</h1>
-      <p class="hero__lead">Единая панель с актуальными шпаргалками, правилами и избранными материалами для Kill Team. Настройте подборку под свою команду и планируйте следующие обновления.</p>
+      <p class="hero__eyebrow">Командный центр Kill Team</p>
+      <h1 class="hero__title">Всё, что нужно игроку, на одном экране</h1>
+      <p class="hero__lead">Следите за готовыми шпаргалками, контролируйте планы по новым килл-тимам и держите рядом ключевые справочники.
+      Персональные закладки и быстрые фильтры экономят время при подготовке к партии или турниру.</p>
       <div class="hero__actions">
-        <a class="button button--primary" href="#killteam-library">Открыть библиотеку</a>
-        <a class="button button--ghost" href="favorites.html">Перейти в избранное</a>
+        <a class="button button--primary" href="#killteam-library">Перейти к библиотеке</a>
+        <a class="button button--ghost" href="favorites.html">Открыть избранное</a>
       </div>
+      <ul class="hero__features">
+        <li>🔎 Поиск по названию, роли и особенностям отряда</li>
+        <li>⚙️ Быстрый доступ к правилам, снаряжению и Tac Ops</li>
+        <li>⭐ Синхронизация с личными закладками и планами</li>
+      </ul>
     </div>
-    <ul class="hero__stats">
-      <li><span data-killteam-ready-count>0</span> готовых килл-тимов</li>
-      <li data-planned-wrapper><span data-killteam-planned-count>0</span> в разработке</li>
-    </ul>
+    <aside class="hero__panel" aria-label="Сводка по библиотеке">
+      <div class="hero__stats-grid">
+        <article class="stat-card">
+          <p class="stat-card__label">Готовых килл-тимов</p>
+          <p class="stat-card__value"><span data-killteam-ready-count>0</span></p>
+          <p class="stat-card__hint">Переходите к карточке, чтобы открыть профиль и приёмы.</p>
+        </article>
+        <article class="stat-card" data-planned-wrapper>
+          <p class="stat-card__label">В разработке</p>
+          <p class="stat-card__value"><span data-killteam-planned-count>0</span></p>
+          <p class="stat-card__hint">Следите за прогрессом и добавляйте заметки в избранное.</p>
+        </article>
+      </div>
+      <div class="hero__panel-divider" role="presentation"></div>
+      <div class="hero__next-up">
+        <h2 class="hero__next-up-title">Ближайшие обновления</h2>
+        <p class="hero__next-up-description">Команды со статусом «Скоро» автоматически появятся в библиотеке. Добавьте их в отслеживание, чтобы не пропустить релиз.</p>
+        <ul class="hero__next-up-list" data-killteam-upcoming></ul>
+      </div>
+    </aside>
   </section>
 
-  <section class="library" id="killteam-library">
-    <header class="library__header">
-      <h2 class="library__title">Библиотека килл-тимов</h2>
-      <p class="library__description">Используйте поиск и фильтры, чтобы быстро найти нужный отряд. Заготовки помогают отслеживать будущие обновления.</p>
+  <section class="dashboard" id="killteam-library">
+    <header class="dashboard__header">
+      <div>
+        <p class="dashboard__eyebrow">Библиотека</p>
+        <h2 class="dashboard__title">Выберите килл-тим и откройте нужную шпаргалку</h2>
+        <p class="dashboard__description">Фильтры по альянсу, быстрый поиск и теги специализаций помогают мгновенно найти нужный отряд или составить план тренировок.</p>
+      </div>
+      <div class="dashboard__shortcuts">
+        <a class="dashboard__shortcut" href="rule.html">
+          <span class="dashboard__shortcut-icon" aria-hidden="true">📘</span>
+          <span>
+            <strong>Правила</strong>
+            <span>Справочник по ключевым фазам и действиям</span>
+          </span>
+        </a>
+        <a class="dashboard__shortcut" href="unique-equipment.html">
+          <span class="dashboard__shortcut-icon" aria-hidden="true">🛠️</span>
+          <span>
+            <strong>Уникальное снаряжение</strong>
+            <span>Карточки артефактов и редких улучшений</span>
+          </span>
+        </a>
+        <a class="dashboard__shortcut" href="TACOP.html">
+          <span class="dashboard__shortcut-icon" aria-hidden="true">🎯</span>
+          <span>
+            <strong>Tac Ops</strong>
+            <span>Тактические операции с условиями победы</span>
+          </span>
+        </a>
+        <a class="dashboard__shortcut" href="critop.html">
+          <span class="dashboard__shortcut-icon" aria-hidden="true">⚡</span>
+          <span>
+            <strong>Crit Ops</strong>
+            <span>Набор миссий и дополнительные правила</span>
+          </span>
+        </a>
+      </div>
     </header>
-    <div class="library__controls">
-      <div class="search-field">
-        <label class="search-field__label" for="killteam-search">Поиск по названию, ключевым словам или фракции</label>
-        <div class="search-field__control">
-          <span class="search-field__icon" aria-hidden="true">🔍</span>
-          <input class="search-field__input" type="search" id="killteam-search" placeholder="Например, некроны или мобильность" autocomplete="off" data-killteam-search>
-          <button class="search-field__clear" type="button" aria-label="Очистить поиск" data-killteam-clear hidden>×</button>
-        </div>
-      </div>
-      <div class="library__filters" data-killteam-filters role="group" aria-label="Фильтр по альянсу"></div>
-    </div>
-    <p class="library__summary" data-killteam-summary></p>
-    <div class="killteam-grid" data-killteam-list></div>
-    <p class="library__empty" data-killteam-empty hidden>По выбранным условиям ничего не найдено. Сбросьте фильтры или измените поиск.</p>
-  </section>
 
-  <section class="quick-links">
-    <h2 class="quick-links__title">Полезные материалы</h2>
-    <div class="quick-links__grid">
-      <a class="quick-links__card" href="rule.html">
-        <h3>Правила</h3>
-        <p>Полный справочник правил с быстрыми ссылками на ключевые разделы.</p>
-      </a>
-      <a class="quick-links__card" href="unique-equipment.html">
-        <h3>Уникальное снаряжение</h3>
-        <p>Карточки редкого вооружения и артефактов для разных килл-тимов.</p>
-      </a>
-      <a class="quick-links__card" href="TACOP.html">
-        <h3>Tac Ops</h3>
-        <p>Тактические операции с описаниями и условиями выполнения.</p>
-      </a>
-      <a class="quick-links__card" href="favorites.html">
-        <h3>Избранное</h3>
-        <p>Ваши персональные закладки для быстрого доступа на турнирах.</p>
-      </a>
+    <div class="dashboard__layout">
+      <aside class="dashboard__filters" aria-label="Поиск и фильтры">
+        <div class="search-field">
+          <label class="search-field__label" for="killteam-search">Поиск по названию, ключевым словам или фракции</label>
+          <div class="search-field__control">
+            <span class="search-field__icon" aria-hidden="true">🔍</span>
+            <input class="search-field__input" type="search" id="killteam-search" placeholder="Например, некроны или мобильность" autocomplete="off" data-killteam-search>
+            <button class="search-field__clear" type="button" aria-label="Очистить поиск" data-killteam-clear hidden>×</button>
+          </div>
+        </div>
+        <div class="library__filters" data-killteam-filters role="group" aria-label="Фильтр по альянсу"></div>
+        <div class="dashboard__note">
+          <h3>Как пользоваться панелью</h3>
+          <ul>
+            <li>Сочетайте поиск и фильтр альянсов, чтобы сузить выдачу.</li>
+            <li>Клики по тегам специализаций подсказывают сильные стороны команды.</li>
+            <li>Добавляйте страницы в закладки браузера — ссылки стабильны.</li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="dashboard__content">
+        <div class="dashboard__summary-line">
+          <p class="library__summary" data-killteam-summary></p>
+          <a class="dashboard__favorites-link" href="favorites.html">Управление избранным</a>
+        </div>
+        <div class="killteam-grid" data-killteam-list></div>
+        <p class="library__empty" data-killteam-empty hidden>По выбранным условиям ничего не найдено. Сбросьте фильтры или измените поиск.</p>
+      </div>
+
+      <aside class="dashboard__insights" aria-label="Контекст и заметки">
+        <section class="insight-card">
+          <h3>Фильтрация по альянсам</h3>
+          <p>Фракции сгруппированы по трём ключевым блокам — Империум, Хаос и Ксенос. Используйте подсветку активного фильтра, чтобы отслеживать контр-пики в кампании.</p>
+        </section>
+        <section class="insight-card">
+          <h3>Подготовка к турниру</h3>
+          <p>Соберите «короткий список» из трёх команд: основной состав, ответ на бронированные цели и мобильную группу. Карточки в библиотеке уже содержат ключевые теги для такого планирования.</p>
+        </section>
+        <section class="insight-card insight-card--links" aria-label="Быстрые ссылки">
+          <h3>Быстрые ссылки</h3>
+          <ul>
+            <li><a href="unique-equipment.html">Каталог уникального снаряжения</a></li>
+            <li><a href="rule.html">Правила и фазы игры</a></li>
+            <li><a href="TACOP.html">Подборка Tac Ops для миссий</a></li>
+            <li><a href="critop.html">Критические операции</a></li>
+          </ul>
+        </section>
+      </aside>
     </div>
   </section>
 </main>

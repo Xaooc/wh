@@ -13,10 +13,45 @@
             <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
   </div>
 </header>
-<main class="page">
+<main class="page page--sheet">
+  <header class="page-hero page-hero--split">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Боевой лист Kill Team</p>
+      <h1 class="page-hero__title">Иеротековый Круг</h1>
+      <p class="page-hero__subtitle">Hierotek Circle Cheat Sheet</p>
+    </div>
+    <div class="page-hero__body">
+      <p class="page-hero__lead">Элитный отряд некронов с упором на живучесть и контроль ключевых точек. Карточки помогают быстро напомнить правила реанимации, уникальные плои и снаряжение криптеков.</p>
+      <ul class="page-hero__tags">
+        <li class="page-hero__tag">Стойкость</li>
+        <li class="page-hero__tag">Поддержка</li>
+        <li class="page-hero__tag">Стрельба</li>
+      </ul>
+      <div class="page-hero__actions">
+        <a class="button button--primary" href="#faction-rules">К фракционным правилам</a>
+        <a class="button button--ghost" href="favorites.html">Открыть избранное</a>
+      </div>
+    </div>
+    <dl class="page-hero__meta">
+      <div class="page-hero__stat">
+        <dt>Фракция</dt>
+        <dd>Некроны</dd>
+        <small>Альянс: Ксенос</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Акценты</dt>
+        <dd>Контроль и реанимация</dd>
+        <small>Правила восстановления и поддержка стрелков делают команду стабильной.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Формат</dt>
+        <dd>Карточки Kill Team</dd>
+        <small>Секции: правила, плои, снаряжение и профили оперативников.</small>
+      </div>
+    </dl>
+  </header>
+  <div class="page__layout">
 <div class="sheet">
-<h1>Карточки-шпаргалки Иеротекового Круга (Hierotek Circle Cheat Cards)</h1>
-<p class="intro">Подборка ключевых правил и профилей отряда <strong>Иеротекового Круга (Hierotek Circle)</strong> для Kill Team, оформленная в виде карточек для удобного чтения и печати. Все важные термины приведены с оригинальными названиями в скобках.</p>
 
 <section>
 <h2 id="faction-rules" class="section-title">Фракционные правила (Faction Rules)</h2>
@@ -514,10 +549,11 @@
 <hr class="section-divider">
 
 </div>
-<nav class="page-nav" aria-label="Навигация по странице" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="necron" data-toc-levels=".section-title:2; .cards .card h3:3">
-  <h2>Разделы</h2>
-  <ul class="page-nav-list" data-page-toc-list></ul>
-</nav>
+    <nav class="page-nav" aria-label="Навигация по странице" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="necron" data-toc-levels=".section-title:2; .cards .card h3:3">
+      <h2>Разделы</h2>
+      <ul class="page-nav-list" data-page-toc-list></ul>
+    </nav>
+  </div>
 </main>
   <script src="scripts.js" defer></script>
 </body>

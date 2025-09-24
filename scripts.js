@@ -714,6 +714,7 @@ function initKillTeamLibrary() {
   const filtersContainer = document.querySelector('[data-killteam-filters]');
   const readyCountNode = document.querySelector('[data-killteam-ready-count]');
   const plannedCountNode = document.querySelector('[data-killteam-planned-count]');
+  const upcomingListNode = document.querySelector('[data-killteam-upcoming]');
 
   const teams = KILL_TEAM_LIBRARY.map((team) => {
     const focus = Array.isArray(team.focus) ? team.focus.filter(Boolean) : [];
@@ -734,8 +735,9 @@ function initKillTeamLibrary() {
     };
   });
 
+  const plannedTeams = teams.filter((team) => team.status === 'planned');
   const readyCount = teams.filter((team) => team.status !== 'planned').length;
-  const plannedCount = teams.filter((team) => team.status === 'planned').length;
+  const plannedCount = plannedTeams.length;
   if (readyCountNode) {
     readyCountNode.textContent = readyCount.toString();
   }
@@ -744,6 +746,42 @@ function initKillTeamLibrary() {
     const plannedWrapper = plannedCountNode.closest('[data-planned-wrapper]');
     if (plannedWrapper) {
       plannedWrapper.classList.toggle('is-hidden', plannedCount === 0);
+    }
+  }
+  if (upcomingListNode) {
+    upcomingListNode.innerHTML = '';
+    if (!plannedTeams.length) {
+      const emptyState = document.createElement('li');
+      emptyState.className = 'hero__next-up-empty';
+      emptyState.textContent = 'Сейчас все доступные материалы опубликованы. Добавьте готовые команды в избранное, чтобы получить быстрый доступ.';
+      upcomingListNode.appendChild(emptyState);
+    } else {
+      const formatter = (team) => {
+        const item = document.createElement('li');
+        item.className = 'hero__next-up-item';
+        const title = document.createElement('strong');
+        title.textContent = team.name;
+        item.appendChild(title);
+        const description = document.createElement('span');
+        if (team.summary) {
+          description.textContent = team.summary;
+        } else if (team.focus && team.focus.length) {
+          description.textContent = `Ключевые акценты: ${team.focus.slice(0, 3).join(', ')}`;
+        } else if (team.faction) {
+          description.textContent = team.faction;
+        }
+        if (description.textContent) {
+          item.appendChild(description);
+        }
+        return item;
+      };
+
+      plannedTeams
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+        .forEach((team) => {
+          upcomingListNode.appendChild(formatter(team));
+        });
     }
   }
 
