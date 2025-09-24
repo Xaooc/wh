@@ -151,6 +151,34 @@ const NAV_SECTIONS = [
     links: PERSONAL_LINKS
   }
 ];
+
+const collapsibleSectionsRegistry = new Map();
+const collapsibleAnchors = new Set();
+const collapsibleContentAnchors = new Set();
+const pageNavControllers = new Map();
+let pageNavIdCounter = 0;
+
+function registerPageNavController(id, controller) {
+  if (!id || !controller) {
+    return;
+  }
+  if (!pageNavControllers.has(id)) {
+    pageNavControllers.set(id, new Set());
+  }
+  pageNavControllers.get(id).add(controller);
+}
+
+function notifyPageNavControllers(id, expanded) {
+  if (!id || !pageNavControllers.has(id)) {
+    return;
+  }
+  const controllers = pageNavControllers.get(id);
+  controllers.forEach((controller) => {
+    if (typeof controller.setExpanded === 'function') {
+      controller.setExpanded(expanded);
+    }
+  });
+}
 function renderGlobalNav() {
   const nav = document.querySelector('[data-nav]');
   if (!nav) {
@@ -186,11 +214,23 @@ function renderGlobalNav() {
     }
   }
 
+  const sectionControllers = [];
+
+  const closeAllSections = (exceptController = null) => {
+    sectionControllers.forEach((controller) => {
+      if (controller !== exceptController) {
+        controller.setOpen(false);
+      }
+    });
+  };
+
   const closeMobileMenu = () => {
     if (!nav.classList.contains('is-open')) {
+      closeAllSections();
       return;
     }
     nav.classList.remove('is-open');
+    closeAllSections();
     if (menuToggle) {
       menuToggle.classList.remove('is-active');
       menuToggle.setAttribute('aria-expanded', 'false');
@@ -202,6 +242,9 @@ function renderGlobalNav() {
       const isOpen = nav.classList.toggle('is-open');
       menuToggle.classList.toggle('is-active', isOpen);
       menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (!isOpen) {
+        closeAllSections();
+      }
     });
     menuToggle.dataset.navReady = 'true';
   }
@@ -224,55 +267,60 @@ function renderGlobalNav() {
     nav.dataset.navMediaBound = 'true';
   }
 
+  if (!nav.dataset.navOutsideBound) {
+    document.addEventListener('click', (event) => {
+      if (!nav.contains(event.target) && (!menuToggle || event.target !== menuToggle)) {
+        closeAllSections();
+        if (!nav.classList.contains('is-open')) {
+          return;
+        }
+        if (menuToggle) {
+          menuToggle.classList.remove('is-active');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+        nav.classList.remove('is-open');
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeMobileMenu();
+      }
+    });
+    nav.dataset.navOutsideBound = 'true';
+  }
+
   NAV_SECTIONS.forEach((section, index) => {
     if (!section || !Array.isArray(section.links) || !section.links.length) {
       return;
     }
 
-    const group = document.createElement('details');
-    group.className = 'site-nav__group';
+    const sectionNode = document.createElement('div');
+    sectionNode.className = 'site-nav__section';
+    sectionNode.setAttribute('data-nav-section', 'true');
 
-    const shouldOpen = section.links.some((link) => link && link.key === currentPage);
-    if (shouldOpen || index === 0) {
-      group.open = true;
-    }
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'site-nav__trigger';
+    const panelId = `${nav.id}-panel-${index + 1}`;
+    trigger.setAttribute('aria-controls', panelId);
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.innerHTML = `<span class="site-nav__trigger-label">${section.label || 'Навигация'}</span><span class="site-nav__trigger-icon" aria-hidden="true"></span>`;
+    sectionNode.appendChild(trigger);
 
-    group.addEventListener('toggle', () => {
-      if (!group.open) {
-        return;
-      }
-      nav.querySelectorAll('.site-nav__group').forEach((other) => {
-        if (other !== group) {
-          other.open = false;
-        }
-      });
-    });
+    const panel = document.createElement('div');
+    panel.className = 'site-nav__panel';
+    panel.id = panelId;
 
-    const summary = document.createElement('summary');
-    summary.className = 'site-nav__summary';
-    summary.textContent = section.label || 'Навигация';
-    group.appendChild(summary);
-
-    if (desktopMedia) {
-      summary.addEventListener('mouseenter', () => {
-        if (desktopMedia.matches) {
-          group.open = true;
-        }
-      });
-      group.addEventListener('mouseleave', () => {
-        if (desktopMedia.matches) {
-          group.open = false;
-        }
-      });
-    }
-
-    const linksWrapper = document.createElement('div');
-    linksWrapper.className = 'site-nav__links';
+    const list = document.createElement('ul');
+    list.className = 'site-nav__list';
 
     section.links.forEach((link) => {
       if (!link) {
         return;
       }
+      const item = document.createElement('li');
+      item.className = 'site-nav__item';
+
       const isDisabled = !link.href || link.status === 'planned';
       const node = document.createElement(isDisabled ? 'span' : 'a');
       node.className = 'site-nav__link';
@@ -298,15 +346,245 @@ function renderGlobalNav() {
         badge.textContent = link.badge;
         node.appendChild(badge);
       }
-      linksWrapper.appendChild(node);
+      item.appendChild(node);
+      list.appendChild(item);
     });
 
-    if (!linksWrapper.childElementCount) {
+    if (!list.childElementCount) {
       return;
     }
 
-    group.appendChild(linksWrapper);
-    nav.appendChild(group);
+    panel.appendChild(list);
+    sectionNode.appendChild(panel);
+    nav.appendChild(sectionNode);
+
+    let isOpen = false;
+    const controller = {
+      setOpen(open) {
+        const shouldOpen = Boolean(open);
+        if (isOpen === shouldOpen) {
+          return;
+        }
+        isOpen = shouldOpen;
+        sectionNode.classList.toggle('is-open', isOpen);
+        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      },
+      isOpen() {
+        return isOpen;
+      }
+    };
+
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      const nextState = !controller.isOpen();
+      if (nextState) {
+        closeAllSections(controller);
+      }
+      controller.setOpen(nextState);
+    });
+
+    sectionControllers.push(controller);
+
+    const shouldAutoOpen = section.links.some((link) => link && link.key === currentPage);
+    if (shouldAutoOpen) {
+      controller.setOpen(true);
+    }
+  });
+}
+
+function ensureCollapsibleAnchor(heading) {
+  if (!heading) {
+    return '';
+  }
+  if (heading.id) {
+    collapsibleAnchors.add(heading.id);
+    return heading.id;
+  }
+  const label = (heading.textContent || '').trim();
+  const slug = slugify(label || 'section');
+  const anchor = generateUniqueValue(slug || 'section', collapsibleAnchors);
+  heading.id = anchor;
+  return anchor;
+}
+
+function initCollapsibleSections() {
+  collapsibleSectionsRegistry.clear();
+  collapsibleAnchors.clear();
+  collapsibleContentAnchors.clear();
+
+  const configs = [
+    { scope: '.sheet', triggerSelector: '.section-title', stopSelector: '.section-title', containerSelector: 'section' },
+    { scope: '.rules', triggerSelector: 'h2', stopSelector: 'h2' },
+    { scope: '.tacops', triggerSelector: '.group-title', stopSelector: '.group-title' }
+  ];
+
+  const normalizeSelectors = (selector) => (selector || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  configs.forEach((config) => {
+    const scope = document.querySelector(config.scope);
+    if (!scope) {
+      return;
+    }
+    const triggers = Array.from(scope.querySelectorAll(config.triggerSelector));
+    if (!triggers.length) {
+      return;
+    }
+    const stopSelectors = normalizeSelectors(config.stopSelector || config.triggerSelector);
+
+    const matchesStop = (element) => {
+      if (!element || element.nodeType !== 1) {
+        return false;
+      }
+      return stopSelectors.some((selector) => {
+        try {
+          return element.matches(selector);
+        } catch (error) {
+          return false;
+        }
+      });
+    };
+
+    triggers.forEach((heading) => {
+      if (!heading || heading.dataset.collapsibleReady === 'true') {
+        return;
+      }
+
+      let wrapper = null;
+      if (config.containerSelector) {
+        const container = heading.closest(config.containerSelector);
+        if (container && scope.contains(container)) {
+          wrapper = container;
+        }
+      }
+
+      let content = null;
+
+      if (!wrapper) {
+        const parent = heading.parentElement;
+        if (!parent) {
+          return;
+        }
+        const nodesToMove = [];
+        let node = heading.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && matchesStop(node)) {
+            break;
+          }
+          nodesToMove.push(node);
+          node = node.nextSibling;
+        }
+        wrapper = document.createElement('section');
+        wrapper.className = 'collapsible-section';
+        parent.insertBefore(wrapper, heading);
+        wrapper.appendChild(heading);
+        content = document.createElement('div');
+        content.className = 'collapsible-section__content';
+        wrapper.appendChild(content);
+        nodesToMove.forEach((nodeToMove) => {
+          content.appendChild(nodeToMove);
+        });
+      } else {
+        wrapper.classList.add('collapsible-section');
+        if (heading.parentElement !== wrapper) {
+          wrapper.insertBefore(heading, wrapper.firstChild);
+        }
+        content = wrapper.querySelector(':scope > .collapsible-section__content');
+        if (!content) {
+          content = document.createElement('div');
+          content.className = 'collapsible-section__content';
+          const nodesToMove = [];
+          let node = heading.nextSibling;
+          while (node) {
+            const next = node.nextSibling;
+            nodesToMove.push(node);
+            node = next;
+          }
+          nodesToMove.forEach((nodeToMove) => {
+            content.appendChild(nodeToMove);
+          });
+          wrapper.appendChild(content);
+        }
+      }
+
+      if (!content) {
+        return;
+      }
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'collapsible-section__toggle';
+      button.setAttribute('aria-expanded', 'true');
+      button.setAttribute('data-collapsible-toggle', 'true');
+
+      const label = document.createElement('span');
+      label.className = 'collapsible-section__label';
+      while (heading.firstChild) {
+        label.appendChild(heading.firstChild);
+      }
+      button.appendChild(label);
+
+      const icon = document.createElement('span');
+      icon.className = 'collapsible-section__icon';
+      icon.setAttribute('aria-hidden', 'true');
+      button.appendChild(icon);
+
+      heading.appendChild(button);
+      heading.classList.add('collapsible-section__heading');
+      heading.dataset.collapsibleReady = 'true';
+
+      const anchorId = ensureCollapsibleAnchor(heading);
+      if (!content.id) {
+        content.id = generateUniqueValue(`${anchorId}-content`, collapsibleContentAnchors);
+      } else {
+        collapsibleContentAnchors.add(content.id);
+      }
+      button.setAttribute('aria-controls', content.id);
+
+      let expanded = true;
+
+      const updateState = (notify = false) => {
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        wrapper.classList.toggle('is-collapsed', !expanded);
+        content.hidden = !expanded;
+        if (notify) {
+          document.dispatchEvent(new CustomEvent('collapsible:change', {
+            detail: { id: anchorId, expanded }
+          }));
+        }
+      };
+
+      const setExpanded = (value, notify = true) => {
+        const next = Boolean(value);
+        if (expanded === next) {
+          return;
+        }
+        expanded = next;
+        updateState(notify);
+      };
+
+      button.addEventListener('click', () => {
+        setExpanded(!expanded);
+      });
+
+      collapsibleSectionsRegistry.set(anchorId, {
+        id: anchorId,
+        heading,
+        content,
+        button,
+        isExpanded: () => expanded,
+        setExpanded(value) {
+          setExpanded(value);
+        },
+        toggle() {
+          setExpanded(!expanded);
+        }
+      });
+
+      updateState(false);
+    });
   });
 }
 
@@ -1864,17 +2142,96 @@ function buildTocTree(entries, minLevel) {
 
 function renderTocTree(items, list) {
   items.forEach((item) => {
+    if (!item) {
+      return;
+    }
     const li = document.createElement('li');
+    li.className = 'page-nav__item';
+    if (item.anchorId) {
+      li.dataset.anchorId = item.anchorId;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'page-nav__row';
+    li.appendChild(row);
+
     const link = document.createElement('a');
     link.href = `#${item.anchorId}`;
     link.textContent = item.label;
-    li.appendChild(link);
-    if (item.children && item.children.length) {
-      const childList = document.createElement('ul');
+    row.appendChild(link);
+
+    const collapsible = item.anchorId ? collapsibleSectionsRegistry.get(item.anchorId) : null;
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+
+    let childList = null;
+    if (hasChildren) {
+      childList = document.createElement('ul');
       childList.className = 'page-nav-sublist';
+      pageNavIdCounter += 1;
+      const childListId = `${item.anchorId || 'toc'}-sublist-${pageNavIdCounter}`;
+      childList.id = childListId;
       renderTocTree(item.children, childList);
       li.appendChild(childList);
     }
+
+    if (hasChildren || collapsible) {
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'page-nav__toggle';
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Переключить раздел');
+      const icon = document.createElement('span');
+      icon.className = 'page-nav__toggle-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      toggle.appendChild(icon);
+      row.appendChild(toggle);
+
+      if (childList && childList.id) {
+        toggle.setAttribute('aria-controls', childList.id);
+      } else if (collapsible && collapsible.content && collapsible.content.id) {
+        toggle.setAttribute('aria-controls', collapsible.content.id);
+      }
+
+      const controller = {
+        setExpanded(expanded) {
+          const isExpanded = Boolean(expanded);
+          toggle.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+          li.classList.toggle('is-collapsed', !isExpanded);
+          if (hasChildren && childList) {
+            childList.hidden = !isExpanded;
+          }
+        }
+      };
+
+      const getCurrentState = () => {
+        if (collapsible) {
+          return collapsible.isExpanded();
+        }
+        if (hasChildren && childList) {
+          return !childList.hidden;
+        }
+        return !li.classList.contains('is-collapsed');
+      };
+
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const next = !getCurrentState();
+        if (collapsible) {
+          collapsible.setExpanded(next);
+        } else {
+          controller.setExpanded(next);
+        }
+      });
+
+      if (collapsible) {
+        registerPageNavController(item.anchorId, controller);
+        controller.setExpanded(collapsible.isExpanded());
+      } else {
+        controller.setExpanded(true);
+      }
+    }
+
     list.appendChild(li);
   });
 }
@@ -1884,6 +2241,8 @@ function initPageTocFromMarkup() {
   if (!navs.length) {
     return;
   }
+  pageNavControllers.clear();
+  pageNavIdCounter = 0;
   const globalAnchors = new Set();
 
   navs.forEach((nav) => {
@@ -1975,6 +2334,14 @@ function initPageTocFromMarkup() {
   });
 }
 
+document.addEventListener('collapsible:change', (event) => {
+  if (!event || !event.detail) {
+    return;
+  }
+  const { id, expanded } = event.detail;
+  notifyPageNavControllers(id, expanded);
+});
+
 const PAGE_INITIALIZERS = (() => {
   const registry = new Map();
 
@@ -2021,6 +2388,7 @@ registerFavoritesConfig('critops', { selectors: ['.critop .card-critop'] });
 registerFavoritesConfig('tacops', { selectors: ['.tacops .card'] });
 registerFavoritesConfig('rules', { selectors: ['.rules h2'] });
 
+PAGE_INITIALIZERS.add('common', initCollapsibleSections);
 PAGE_INITIALIZERS.add('common', initFavoritesModule);
 PAGE_INITIALIZERS.add('common', initPageTocFromMarkup);
 PAGE_INITIALIZERS.add('home', initKillTeamLibrary);
