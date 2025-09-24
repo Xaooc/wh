@@ -36,26 +36,14 @@ const KILL_TEAM_LIBRARY = [
     focus: ['Стрельба', 'Поддержка', 'Маркерсветы']
   },
   {
-    key: 'adepta-sororitas',
-    name: 'Новициаты Сороритас (классический лист)',
-    originalName: 'Adepta Sororitas Novitiate',
-    faction: 'Адепта Сороритас',
-    alignment: 'Империум',
-    href: 'adepta-sororitas-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)',
-    summary: 'Ревностные послушницы Экклезиархии с молитвенной поддержкой и огнём веры.',
-    focus: ['Рукопашный бой', 'Поддержка', 'Тактические приёмы']
-  },
-  {
     key: 'adepta-sororitas-novitiate',
-    name: 'Новициаты Сороритас (обновлённый лист)',
-    originalName: 'Adepta Sororitas Novitiate — обновлённый лист',
+    name: 'Новициаты Сороритас ',
+    originalName: 'Adepta Sororitas Novitiate',
     faction: 'Адепта Сороритас',
     alignment: 'Империум',
     href: 'adepta-sororitas-novitiate-cheatsheet.html',
     status: 'available',
-    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)',
+    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate)',
     summary: 'Актуализированная версия листа с переработанными профилями и доктринами.',
     focus: ['Поддержка', 'Гибкость', 'Контроль миссий']
   },
