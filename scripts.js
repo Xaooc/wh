@@ -1,10 +1,11 @@
-﻿const NAV_SECTIONS = [
+const NAV_SECTIONS = [
   {
     label: 'Kill teams',
     links: [
       { key: 'necron', href: 'necron-cheatsheet.html', label: 'Иеротек Круг (Hierotek Circle)' },
       { key: 'vespid', href: 'vespid-cheatsheet.html', label: 'Веспид-Стингвинг (Vespid Stingwing)' },
       { key: 'adepta-sororitas', href: 'adepta-sororitas-cheatsheet.html', label: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)' },
+      { key: 'adepta-sororitas-novitiate', href: 'adepta-sororitas-novitiate-cheatsheet.html', label: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)' },
       { key: 'plague-marines', href: 'plague-marines-cheatsheet.html', label: 'Чумные морпехи (Plague Marines)' },
       { key: 'kommandos', href: 'kommandos-cheatsheet.html', label: 'Коммандосы (Kommandos)' }
     ]
