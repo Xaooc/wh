@@ -13,12 +13,49 @@
         <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
   </div>
 </header>
-<main class="page">
-  <article class="critop">
-<header>
-  <h1>Критические операции (Crit Ops)</h1>
-  <p class="lead">Стандартные первичные задания Kill Team. сточник: миссии спецопераций.</p>
-</header>
+<main class="page page--reference">
+  <header class="page-hero page-hero--split">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Первичные задания</p>
+      <h1 class="page-hero__title">Критические операции (Crit Ops)</h1>
+      <p class="page-hero__subtitle">Набор миссий для стандартного сезона Kill Team</p>
+    </div>
+    <div class="page-hero__body">
+      <p class="page-hero__lead">Используйте карточки Crit Ops, чтобы быстро готовить стол, назначать специальные действия и отслеживать начисление VP. Формат карточек упрощает печать и заметки для турниров.</p>
+      <div class="page-hero__actions">
+        <a class="button button--primary" href="TACOP.html">Подобрать Tac Ops</a>
+        <a class="button button--ghost" href="unique-equipment.html">Добавить снаряжение</a>
+      </div>
+    </div>
+    <dl class="page-hero__meta">
+      <div class="page-hero__stat">
+        <dt>Количество миссий</dt>
+        <dd>10 карточек</dd>
+        <small>Каждая миссия с условиями размещения, действиями и подсчётом VP.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Источники</dt>
+        <dd>Спецоперации</dd>
+        <small>Обновлены в соответствии с текущим сезоном критических операций.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Использование</dt>
+        <dd>Перед матчем</dd>
+        <small>Выбирайте миссию до расстановки и закрепляйте условия для обоих игроков.</small>
+      </div>
+    </dl>
+  </header>
+  <div class="page-toolbar" data-page-toolbar data-toolbar-scope=".critop" data-compact-target="body">
+    <div class="page-toolbar__group">
+      <button class="toolbar-button" type="button" data-toolbar-collapse>Свернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-expand>Развернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-compact aria-pressed="false">Компактный режим</button>
+      <button class="toolbar-button" type="button" data-toolbar-print>Печать</button>
+    </div>
+    <p class="page-toolbar__status" data-toolbar-stats>Секции загружаются…</p>
+  </div>
+  <div class="page__layout">
+    <article class="critop">
 
 <div class="grid critop-grid">
 
@@ -215,12 +252,13 @@
   </section>
 
 </div>
-  </article>
+    </article>
 
-<nav class="page-nav" aria-label="Навигация по разделу" data-page-toc data-toc-scope=".critop" data-toc-target=".critop .card-critop" data-toc-title=".title" data-toc-prefix="critop">
-  <h2>Разделы</h2>
-  <ul class="page-nav-list" data-page-toc-list></ul>
-</nav>
+    <nav class="page-nav" aria-label="Навигация по разделу" data-page-toc data-toc-scope=".critop" data-toc-target=".critop .card-critop" data-toc-title=".title" data-toc-prefix="critop">
+      <h2>Разделы</h2>
+      <ul class="page-nav-list" data-page-toc-list></ul>
+    </nav>
+  </div>
 </main>
   <script src="scripts.js" defer></script>
 </body>

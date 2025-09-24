@@ -13,10 +13,54 @@
             <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
   </div>
 </header>
-<main class="page">
+<main class="page page--sheet">
+  <header class="page-hero page-hero--split">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Боевой лист Kill Team</p>
+      <h1 class="page-hero__title">Патфайндеры Т’ау</h1>
+      <p class="page-hero__subtitle">Pathfinder Kill Team Cheat Sheet</p>
+    </div>
+    <div class="page-hero__body">
+      <p class="page-hero__lead">Разведывательный отряд Империи Т’ау, сочетающий маркерсветы, беспилотники поддержки и дисциплинированный огонь. Карточки ускоряют подготовку к партии и помогают отслеживать ключевые комбинации.</p>
+      <ul class="page-hero__tags">
+        <li class="page-hero__tag">Стрельба</li>
+        <li class="page-hero__tag">Поддержка</li>
+        <li class="page-hero__tag">Маркерсветы</li>
+      </ul>
+      <div class="page-hero__actions">
+        <a class="button button--primary" href="#faction-rules">К правилам фракции</a>
+        <a class="button button--ghost" href="favorites.html">Открыть избранное</a>
+      </div>
+    </div>
+    <dl class="page-hero__meta">
+      <div class="page-hero__stat">
+        <dt>Фракция</dt>
+        <dd>Империя Т’ау</dd>
+        <small>Альянс: Ксенос</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Акценты</dt>
+        <dd>Согласованный огонь</dd>
+        <small>Маркерсветы усиливают стрельбу, дроны закрывают уязвимости.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Формат</dt>
+        <dd>Карточки Kill Team</dd>
+        <small>Разделы: правила, плои, снаряжение и профили оперативников.</small>
+      </div>
+    </dl>
+  </header>
+  <div class="page-toolbar" data-page-toolbar data-toolbar-scope=".sheet" data-compact-target="body">
+    <div class="page-toolbar__group">
+      <button class="toolbar-button" type="button" data-toolbar-collapse>Свернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-expand>Развернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-compact aria-pressed="false">Компактный режим</button>
+      <button class="toolbar-button" type="button" data-toolbar-print>Печать</button>
+    </div>
+    <p class="page-toolbar__status" data-toolbar-stats>Секции загружаются…</p>
+  </div>
+  <div class="page__layout">
 <div class="sheet">
-<h1>Патфайндеры Т'ау (Pathfinder Kill Team Cheat Cards)</h1>
-<p class="intro">Этот лист поможет быстро находить правила и профили килл-тима <strong>Патфайндеры Т'ау (Pathfinder Kill Team)</strong>. Здесь собраны переводы с оригинальными терминами в скобках для удобства работы на русском языке.</p>
 
 <section>
 <h2 id="faction-rules" class="section-title">Правила фракции (Faction Rules)</h2>
@@ -678,10 +722,11 @@
 </div>
 </section>
 </div>
-<nav class="page-nav" aria-label="Навигация по листу" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="pathfinder" data-toc-levels=".section-title:2; .cards .card h3:3">
-  <h2>Разделы</h2>
-  <ul class="page-nav-list" data-page-toc-list></ul>
-</nav>
+    <nav class="page-nav" aria-label="Навигация по листу" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="pathfinder" data-toc-levels=".section-title:2; .cards .card h3:3">
+      <h2>Разделы</h2>
+      <ul class="page-nav-list" data-page-toc-list></ul>
+    </nav>
+  </div>
 
 </main>
 <script src="scripts.js" defer></script>

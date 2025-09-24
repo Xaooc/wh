@@ -13,11 +13,50 @@
         <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
   </div>
 </header>
-<main class="page">
-  <article class="rules">
-
-<h1>Kill Team ’24 — Справка по правилам (Rules Reference)</h1>
-<p class="note">Термины приведены с оригинальными названиями в скобках.</p>
+<main class="page page--reference">
+  <header class="page-hero page-hero--split">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Базовый справочник</p>
+      <h1 class="page-hero__title">Kill Team ’24 — краткая памятка</h1>
+      <p class="page-hero__subtitle">Все ключевые шаги матча на одном экране</p>
+    </div>
+    <div class="page-hero__body">
+      <p class="page-hero__lead">Следуйте пошаговой структуре подготовки к бою, быстро сверяйте действия оперативников и не забывайте о фазах поворота. Справочник удобно раскрывать на планшете или печатать для турниров.</p>
+      <p class="page-hero__note">Термины приведены с оригинальными названиями в скобках для удобства сверки с официальными источниками.</p>
+      <div class="page-hero__actions">
+        <a class="button button--primary" href="TACOP.html">Перейти к Tac Ops</a>
+        <a class="button button--ghost" href="critop.html">Посмотреть Crit Ops</a>
+      </div>
+    </div>
+    <dl class="page-hero__meta">
+      <div class="page-hero__stat">
+        <dt>Структура боя</dt>
+        <dd>6 этапов</dd>
+        <small>Подготовка, выбор сил, развёртывание, разведка, бой и завершение.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Формат</dt>
+        <dd>Карточки и таблицы</dd>
+        <small>Основные действия вынесены в списки, базовые значения — в таблицу.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Обновление</dt>
+        <dd>Сезон 2024</dd>
+        <small>Содержит термины и последовательность из текущей редакции правил.</small>
+      </div>
+    </dl>
+  </header>
+  <div class="page-toolbar" data-page-toolbar data-toolbar-scope=".rules" data-compact-target="body">
+    <div class="page-toolbar__group">
+      <button class="toolbar-button" type="button" data-toolbar-collapse>Свернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-expand>Развернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-compact aria-pressed="false">Компактный режим</button>
+      <button class="toolbar-button" type="button" data-toolbar-print>Печать</button>
+    </div>
+    <p class="page-toolbar__status" data-toolbar-stats>Секции загружаются…</p>
+  </div>
+  <div class="page__layout">
+    <article class="rules">
 
 <h2 id="setup-battle">1. Подготовка к бою (Set Up the Battle)</h2>
 <ul>
@@ -281,11 +320,12 @@
   <li><strong>Готовые отряды врага (Ready Ops) при Engage:</strong> каждый отряд может выполнить это только один раз за TP.</li>
 </ul>
 
-  </article>
-<nav class="page-nav" aria-label="Навигация по разделу" data-page-toc data-toc-scope=".rules" data-toc-target=".rules h2, .rules h3" data-toc-prefix="rules">
-  <h2>Разделы</h2>
-  <ul class="page-nav-list" data-page-toc-list></ul>
-</nav>
+    </article>
+    <nav class="page-nav" aria-label="Навигация по разделу" data-page-toc data-toc-scope=".rules" data-toc-target=".rules h2, .rules h3" data-toc-prefix="rules">
+      <h2>Разделы</h2>
+      <ul class="page-nav-list" data-page-toc-list></ul>
+    </nav>
+  </div>
 </main>
   <script src="scripts.js" defer></script>
 </body>
