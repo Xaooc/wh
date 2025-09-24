@@ -1,29 +1,154 @@
+const KILL_TEAM_LIBRARY = [
+  {
+    key: 'necron',
+    name: 'Иеротековый Круг',
+    originalName: 'Hierotek Circle',
+    faction: 'Некроны',
+    alignment: 'Ксенос',
+    href: 'necron-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Иеротек Круг (Hierotek Circle)',
+    summary: 'Элитный отряд некронов с акцентом на стойкость и контроль поля боя.',
+    focus: ['Стойкость', 'Поддержка', 'Стрельба']
+  },
+  {
+    key: 'vespid',
+    name: 'Веспид-Стингвинг',
+    originalName: 'Vespid Stingwing',
+    faction: 'Тау',
+    alignment: 'Ксенос',
+    href: 'vespid-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Веспид-Стингвинг (Vespid Stingwing)',
+    summary: 'Подвижная команда разведчиков-снайперов Империи Тау, полагающаяся на манёвры.',
+    focus: ['Мобильность', 'Стрельба', 'Альфа-удары']
+  },
+  {
+    key: 'adepta-sororitas',
+    name: 'Новициаты Сороритас (классический лист)',
+    originalName: 'Adepta Sororitas Novitiate',
+    faction: 'Адепта Сороритас',
+    alignment: 'Империум',
+    href: 'adepta-sororitas-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)',
+    summary: 'Ревностные послушницы Экклезиархии с молитвенной поддержкой и огнём веры.',
+    focus: ['Рукопашный бой', 'Поддержка', 'Тактические приёмы']
+  },
+  {
+    key: 'adepta-sororitas-novitiate',
+    name: 'Новициаты Сороритас (обновлённый лист)',
+    originalName: 'Adepta Sororitas Novitiate — обновлённый лист',
+    faction: 'Адепта Сороритас',
+    alignment: 'Империум',
+    href: 'adepta-sororitas-novitiate-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)',
+    summary: 'Актуализированная версия листа с переработанными профилями и доктринами.',
+    focus: ['Поддержка', 'Гибкость', 'Контроль миссий']
+  },
+  {
+    key: 'plague-marines',
+    name: 'Чумные морпехи',
+    originalName: 'Plague Marines',
+    faction: 'Гвардия Смерти',
+    alignment: 'Хаос',
+    href: 'plague-marines-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Чумные морпехи (Plague Marines)',
+    summary: 'Непробиваемые воины Нургла, доминирующие в затяжных схватках.',
+    focus: ['Стойкость', 'Рукопашный бой', 'Зоны заражения']
+  },
+  {
+    key: 'kommandos',
+    name: 'Коммандосы',
+    originalName: 'Kommandos',
+    faction: 'Орки',
+    alignment: 'Ксенос',
+    href: 'kommandos-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Коммандосы (Kommandos)',
+    summary: 'Грубые, но изобретательные орки-диверсанты с упором на скрытность.',
+    focus: ['Маскировка', 'Взрывы', 'Рукопашный бой']
+  },
+  {
+    key: 'inquisitorial-agents',
+    name: 'Инквизиторские агенты',
+    originalName: 'Inquisitorial Agents',
+    faction: 'Инквизиция',
+    alignment: 'Империум',
+    status: 'planned',
+    navLabel: 'Инквизиторские агенты (Inquisitorial Agents)',
+    summary: 'Заготовка для гибкой команды агентов с особыми поручениями Инквизиции.',
+    focus: ['Специалисты', 'Контроль угроз', 'Адаптация']
+  },
+  {
+    key: 'voidscarred',
+    name: 'Корсары Варпа',
+    originalName: 'Voidscarred',
+    faction: 'Эльдары',
+    alignment: 'Ксенос',
+    status: 'planned',
+    navLabel: 'Корсары Варпа (Voidscarred)',
+    summary: 'Планируемый модуль для подвижных эльдарских рейдеров, делающих ставку на хитрость.',
+    focus: ['Мобильность', 'Хитрость', 'Псионика']
+  }
+];
+
+const REFERENCE_LINKS = [
+  { key: 'rules', href: 'rule.html', label: 'Правила (Rules)' },
+  { key: 'equipment', href: 'unique-equipment.html', label: 'Уникальное снаряжение (Unique Equipment)' },
+  { key: 'tacops', href: 'TACOP.html', label: 'Tac Ops' },
+  { key: 'critops', href: 'critop.html', label: 'Критические операции (Crit Ops)' }
+];
+
+const PERSONAL_LINKS = [
+  { key: 'favorites', href: 'favorites.html', label: 'Избранное (Favorites)' }
+];
+
+function buildKillTeamNavLinks(list) {
+  const available = [];
+  const planned = [];
+  list.forEach((team) => {
+    if (!team) {
+      return;
+    }
+    if ((team.status || 'available') === 'planned') {
+      planned.push(team);
+    } else {
+      available.push(team);
+    }
+  });
+
+  const toNavLink = (team) => ({
+    key: team.key,
+    href: team.href || null,
+    label: team.navLabel || `${team.name}${team.originalName ? ` (${team.originalName})` : ''}`,
+    status: team.status || 'available',
+    badge: (team.status || 'available') === 'planned' ? 'Скоро' : null
+  });
+
+  return available.concat(planned).map(toNavLink);
+}
+
 const NAV_SECTIONS = [
   {
-    label: 'Kill teams',
+    label: 'Обзор',
     links: [
-      { key: 'necron', href: 'necron-cheatsheet.html', label: 'Иеротек Круг (Hierotek Circle)' },
-      { key: 'vespid', href: 'vespid-cheatsheet.html', label: 'Веспид-Стингвинг (Vespid Stingwing)' },
-      { key: 'adepta-sororitas', href: 'adepta-sororitas-cheatsheet.html', label: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)' },
-      { key: 'adepta-sororitas-novitiate', href: 'adepta-sororitas-novitiate-cheatsheet.html', label: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)' },
-      { key: 'plague-marines', href: 'plague-marines-cheatsheet.html', label: 'Чумные морпехи (Plague Marines)' },
-      { key: 'kommandos', href: 'kommandos-cheatsheet.html', label: 'Коммандосы (Kommandos)' }
+      { key: 'home', href: 'index.html', label: 'Обзор Kill Team HQ' }
     ]
+  },
+  {
+    label: 'Kill teams',
+    links: buildKillTeamNavLinks(KILL_TEAM_LIBRARY)
   },
   {
     label: 'Справочники',
-    links: [
-      { key: 'rules', href: 'rule.html', label: 'Правила (Rules)' },
-      { key: 'equipment', href: 'unique-equipment.html', label: 'Уникальное снаряжение (Unique Equipment)' },
-      { key: 'tacops', href: 'TACOP.html', label: 'Tac Ops' },
-      { key: 'critops', href: 'critop.html', label: 'Критические операции (Crit Ops)' }
-    ]
+    links: REFERENCE_LINKS
   },
   {
     label: 'Личное',
-    links: [
-      { key: 'favorites', href: 'favorites.html', label: 'Избранное (Favorites)' }
-    ]
+    links: PERSONAL_LINKS
   }
 ];
 function renderGlobalNav() {
@@ -31,126 +156,636 @@ function renderGlobalNav() {
   if (!nav) {
     return;
   }
-  nav.innerHTML = '';
-  const currentPage = document.body.dataset.page || '';
 
-  NAV_SECTIONS.forEach((section, index) => {
+  const currentPage = document.body.dataset.page || '';
+  const panelId = 'global-nav-panel';
+  const brand = document.querySelector('.brand');
+  if (brand && brand.tagName === 'A') {
+    brand.setAttribute('href', 'index.html');
+  }
+
+  nav.innerHTML = '';
+  nav.dataset.navReady = 'true';
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'site-nav__menu-toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', panelId);
+  toggle.innerHTML = '<span class="site-nav__menu-icon" aria-hidden="true"></span><span class="site-nav__menu-text">Меню</span>';
+  nav.appendChild(toggle);
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'site-nav__backdrop';
+  nav.appendChild(backdrop);
+
+  const panel = document.createElement('div');
+  panel.className = 'site-nav__panel';
+  panel.id = panelId;
+  panel.setAttribute('aria-label', 'Разделы сайта');
+  nav.appendChild(panel);
+
+  const createLinkNode = (link) => {
+    if (!link) {
+      return null;
+    }
+    const item = document.createElement('li');
+    item.className = 'site-nav__item';
+    const isDisabled = !link.href || link.status === 'planned';
+    const node = document.createElement(isDisabled ? 'span' : 'a');
+    node.className = 'site-nav__link';
+    if (link.key) {
+      node.dataset.navKey = link.key;
+    }
+    if (isDisabled) {
+      node.classList.add('site-nav__link--disabled');
+      node.setAttribute('aria-disabled', 'true');
+    } else {
+      node.setAttribute('href', link.href);
+      if (link.key === currentPage) {
+        node.setAttribute('aria-current', 'page');
+      }
+    }
+
+    if (link.badge) {
+      const label = document.createElement('span');
+      label.className = 'site-nav__label';
+      label.textContent = link.label;
+      node.appendChild(label);
+
+      const badge = document.createElement('span');
+      badge.className = 'site-nav__badge';
+      badge.textContent = link.badge;
+      node.appendChild(badge);
+    } else {
+      node.textContent = link.label;
+    }
+
+    item.appendChild(node);
+    return item;
+  };
+
+  NAV_SECTIONS.forEach((section) => {
     if (!section || !Array.isArray(section.links) || !section.links.length) {
       return;
     }
 
-    const group = document.createElement('details');
-    group.className = 'site-nav__group';
+    const sectionNode = document.createElement('section');
+    sectionNode.className = 'site-nav__section';
+    const heading = document.createElement('h3');
+    heading.className = 'site-nav__heading';
+    heading.textContent = section.label || 'Раздел';
+    sectionNode.appendChild(heading);
 
-    const shouldOpen = section.links.some((link) => link && link.key === currentPage);
-    if (shouldOpen || index === 0) {
-      group.open = true;
+    const list = document.createElement('ul');
+    list.className = 'site-nav__links';
+    if (section.label && section.label.toLowerCase().includes('kill')) {
+      list.classList.add('site-nav__links--grid');
     }
 
-    const summary = document.createElement('summary');
-    summary.className = 'site-nav__summary';
-    summary.textContent = section.label || 'Навигация';
-    group.appendChild(summary);
-
-    const linksWrapper = document.createElement('div');
-    linksWrapper.className = 'site-nav__links';
-
     section.links.forEach((link) => {
-      if (!link) {
-        return;
+      const node = createLinkNode(link);
+      if (node) {
+        list.appendChild(node);
       }
-      const anchor = document.createElement('a');
-      anchor.href = link.href;
-      anchor.textContent = link.label;
-      if (link.key) {
-        anchor.dataset.navKey = link.key;
-        if (link.key === currentPage) {
-          anchor.setAttribute('aria-current', 'page');
-        }
-      }
-      linksWrapper.appendChild(anchor);
     });
 
-    if (!linksWrapper.childElementCount) {
+    if (!list.childElementCount) {
       return;
     }
 
-    group.appendChild(linksWrapper);
-    nav.appendChild(group);
+    sectionNode.appendChild(list);
+    panel.appendChild(sectionNode);
   });
-}
-const ruleHandlers = [
-  {
-    pattern: /^Blast\s+([\d.]+)"$/i,
-    describe(match) {
-      const range = match[1];
-      return `Р’Р·СЂС‹РІ ${range}" вЂ” РїРѕСЃР»Рµ Р°С‚Р°РєРё РїРѕ РѕСЃРЅРѕРІРЅРѕР№ С†РµР»Рё Р°С‚Р°РєСѓР№ РІСЃРµС… РІРёРґРёРјС‹С… РІСЂР°РіРѕРІ РІ РїСЂРµРґРµР»Р°С… ${range}" РѕС‚ РЅРµС‘ РїРѕ РѕС‡РµСЂРµРґРё; РєР°Р¶РґС‹Р№ Р±СЂРѕСЃРѕРє РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕ. Р’С‚РѕСЂРёС‡РЅС‹Рµ С†РµР»Рё РїРѕР»СѓС‡Р°СЋС‚ С‚Р°РєРѕРµ Р¶Рµ СѓРєСЂС‹С‚РёРµ, РєР°Рє Рё РѕСЃРЅРѕРІРЅР°СЏ.`;
-    }
-  },
-  {
-    pattern: /^Devastating\s+(\d+)/i,
-    describe(match) {
-      const damage = match[1];
-      return `РћРїСѓСЃС‚РѕС€Р°СЋС‰РёР№ ${damage} вЂ” РєР°Р¶РґРѕРµ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРµ РєСЂРёС‚РёС‡РµСЃРєРѕРµ РїРѕРїР°РґР°РЅРёРµ СЃСЂР°Р·Сѓ РЅР°РЅРѕСЃРёС‚ С†РµР»Рё ${damage} СѓСЂРѕРЅР°. РЈСЃРїРµС… РѕСЃС‚Р°С‘С‚СЃСЏ Рё РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅ РїРѕР·Р¶Рµ; РµСЃР»Рё РїСЂР°РІРёР»Рѕ СѓРєР°Р·Р°РЅРѕ СЃ РґРёСЃС‚Р°РЅС†РёРµР№, РїРѕСЂР°Р¶Р°РµС‚ РІСЃРµС… РІРёРґРёРјС‹С… РІСЂР°РіРѕРІ РІ СЌС‚РѕРј СЂР°РґРёСѓСЃРµ.`;
-    }
-  },
-  {
-    pattern: /^Piercing\s+(\d+)/i,
-    describe(match) {
-      const reduction = match[1];
-      return `РџСЂРѕР±РёРІР°СЋС‰РёР№ ${reduction} вЂ” Р·Р°С‰РёС‰Р°СЋС‰РёР№СЃСЏ Р±СЂРѕСЃР°РµС‚ РЅР° ${reduction} РєСѓР±(Р°) Р·Р°С‰РёС‚С‹ РјРµРЅСЊС€Рµ. Р’ РІР°СЂРёР°РЅС‚Рµ В«С‚РѕР»СЊРєРѕ РєСЂРёС‚Р°РјРёВ» РїСЂР°РІРёР»Рѕ СЂР°Р±РѕС‚Р°РµС‚, РµСЃР»Рё С‚С‹ СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёРµ СѓСЃРїРµС…Рё.`;
-    }
-  },
-  {
-    pattern: /^Range\s+([\d.]+)"$/i,
-    describe(match) {
-      const distance = match[1];
-      return `Р”Р°Р»СЊРЅРѕСЃС‚СЊ ${distance}" вЂ” РјРѕР¶РЅРѕ РІС‹Р±РёСЂР°С‚СЊ С†РµР»Рё С‚РѕР»СЊРєРѕ РІ РїСЂРµРґРµР»Р°С… ${distance}" РѕС‚ Р°РєС‚РёРІРЅРѕРіРѕ РѕРїРµСЂР°С‚РёРІРЅРёРєР°.`;
-    }
-  },
-  {
-    pattern: /^Lethal\s+(\d\+?)$/i,
-    describe(match) {
-      const threshold = match[1];
-      return `Р›РµС‚Р°Р»СЊРЅС‹Р№ ${threshold} вЂ” РїРѕРїР°РґР°РЅРёСЏ СЃ СЂРµР·СѓР»СЊС‚Р°С‚РѕРј ${threshold} СЃС‡РёС‚Р°СЋС‚СЃСЏ РєСЂРёС‚РёС‡РµСЃРєРёРјРё СѓСЃРїРµС…Р°РјРё.`;
-    }
-  },
-  {
-    pattern: /^Heavy,\s*Dash only$/i,
-    describe() {
-      return 'РўСЏР¶С‘Р»С‹Р№ (С‚РѕР»СЊРєРѕ Dash) вЂ” РЅРµР»СЊР·СЏ РґРІРёРіР°С‚СЊСЃСЏ РІ Р°РєС‚РёРІР°С†РёРё/РєРѕРЅС‚СЂРґРµР№СЃС‚РІРёРё, РіРґРµ СЃС‚СЂРµР»СЏРµС€СЊ РёР· СЌС‚РѕРіРѕ РѕСЂСѓР¶РёСЏ, Рё РЅР°РѕР±РѕСЂРѕС‚. Р Р°Р·СЂРµС€С‘РЅ С‚РѕР»СЊРєРѕ Dash, РґРµР№СЃС‚РІРёРµ Guard РЅРµ Р±Р»РѕРєРёСЂСѓРµС‚СЃСЏ.';
-    }
-  }
-];
 
-const staticRuleDescriptions = {
-  'Rending': 'Р Р°Р·РґРёСЂР°СЋС‰РёР№ вЂ” РµСЃР»Рё СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёР№ СѓСЃРїРµС…, РјРѕР¶РµС€СЊ РїРѕРІС‹СЃРёС‚СЊ РѕРґРёРЅ РѕР±С‹С‡РЅС‹Р№ СѓСЃРїРµС… РґРѕ РєСЂРёС‚РёС‡РµСЃРєРѕРіРѕ.',
-  'Severe': 'РЎСѓСЂРѕРІС‹Р№ вЂ” РµСЃР»Рё РЅРµ СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёР№ СѓСЃРїРµС…, РјРѕР¶РµС€СЊ РїСЂРµРІСЂР°С‚РёС‚СЊ РѕРґРёРЅ РѕР±С‹С‡РЅС‹Р№ СѓСЃРїРµС… РІ РєСЂРёС‚РёС‡РµСЃРєРёР№. РћРїСѓСЃС‚РѕС€Р°СЋС‰РёР№ Рё РџСЂРѕР±РёРІР°СЋС‰РёР№ РєСЂРёС‚Р°РјРё РІСЃС‘ РµС‰С‘ РґРµР№СЃС‚РІСѓСЋС‚, Р° РљР°СЂР°СЋС‰РёР№ Рё Р Р°Р·РґРёСЂР°СЋС‰РёР№ вЂ” РЅРµС‚.',
-  'Shock': 'РЁРѕРє вЂ” РїСЂРё РїРµСЂРІРѕРј СѓРґР°СЂРµ РєСЂРёС‚РёС‡РµСЃРєРёРј СѓСЃРїРµС…РѕРј РІ РєР°Р¶РґРѕР№ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ СЃР±СЂРѕСЃСЊ РѕРґРёРЅ РЅРµСЂР°Р·СЂРµС€С‘РЅРЅС‹Р№ РѕР±С‹С‡РЅС‹Р№ СѓСЃРїРµС… РїСЂРѕС‚РёРІРЅРёРєР° (РёР»Рё РєСЂРёС‚РёС‡РµСЃРєРёР№, РµСЃР»Рё РѕР±С‹С‡РЅС‹С… РЅРµС‚).',
-  'Stun': 'РћРіР»СѓС€Р°СЋС‰РёР№ вЂ” РµСЃР»Рё СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёР№ СѓСЃРїРµС…, СѓРјРµРЅСЊС€Р°Р№ APL С†РµР»Рё РЅР° 1 РґРѕ РєРѕРЅС†Р° РµС‘ СЃР»РµРґСѓСЋС‰РµР№ Р°РєС‚РёРІР°С†РёРё.',
-  'Magnify*': 'Magnify* вЂ” РѕСЂСѓР¶РёРµ РїРѕР»СѓС‡Р°РµС‚ Р±РѕРЅСѓСЃС‹, РєРѕРіРґР° РЅР° РЅРµРіРѕ Р°РєС‚РёРІРёСЂРѕРІР°РЅ СЌС„С„РµРєС‚ Magnify (СЃРј. РѕРїРёСЃР°РЅРёРµ СЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё Magnify).',
-  'Devastating': 'РћРїСѓСЃС‚РѕС€Р°СЋС‰РёР№ вЂ” РєР°Р¶РґРѕРµ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРµ РєСЂРёС‚РёС‡РµСЃРєРѕРµ РїРѕРїР°РґР°РЅРёРµ СЃСЂР°Р·Сѓ РЅР°РЅРѕСЃРёС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ СѓСЂРѕРЅ С†РµР»Рё Рё РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РґР°Р»СЊС€Рµ.'
+  const setOpenState = (open) => {
+    nav.setAttribute('data-open', open ? 'true' : 'false');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+  };
+
+  const closeNav = () => {
+    setOpenState(false);
+  };
+
+  const openNav = () => {
+    setOpenState(true);
+  };
+
+  const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
+
+  toggle.addEventListener('click', () => {
+    if (isDesktop()) {
+      return;
+    }
+    const isOpen = nav.getAttribute('data-open') === 'true';
+    if (isOpen) {
+      closeNav();
+    } else {
+      openNav();
+    }
+  });
+
+  backdrop.addEventListener('click', closeNav);
+
+  panel.addEventListener('click', (event) => {
+    if (event.target.closest('a') && !isDesktop()) {
+      closeNav();
+    }
+  });
+
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (event) => {
+    if (event.matches) {
+      setOpenState(false);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && nav.getAttribute('data-open') === 'true' && !isDesktop()) {
+      closeNav();
+      toggle.focus();
+    }
+  });
+
+  setOpenState(false);
+}
+
+const KILL_TEAM_STATUS_LABELS = {
+  available: 'Готово',
+  planned: 'Скоро'
 };
 
-function getRuleDescription(rule) {
-  const normalized = (rule || '').trim();
-  if (!normalized) {
+function createKillTeamCard(team) {
+  const card = document.createElement('article');
+  card.className = 'killteam-card';
+  card.dataset.teamKey = team.key || '';
+  card.dataset.status = team.status;
+  if (team.status === 'planned') {
+    card.classList.add('killteam-card--planned');
+  }
+
+  const header = document.createElement('div');
+  header.className = 'killteam-card__header';
+
+  const faction = document.createElement('span');
+  faction.className = 'killteam-card__faction';
+  const factionParts = [team.alignment, team.faction].filter(Boolean);
+  faction.textContent = factionParts.join(' • ');
+  header.appendChild(faction);
+
+  const statusLabel = document.createElement('span');
+  statusLabel.className = 'killteam-card__status';
+  statusLabel.textContent = KILL_TEAM_STATUS_LABELS[team.status] || KILL_TEAM_STATUS_LABELS.available;
+  if (team.status === 'planned') {
+    statusLabel.classList.add('killteam-card__status--planned');
+  } else {
+    statusLabel.classList.add('killteam-card__status--ready');
+  }
+  header.appendChild(statusLabel);
+
+  card.appendChild(header);
+
+  const title = document.createElement('h3');
+  title.className = 'killteam-card__title';
+  const titleMain = document.createElement('span');
+  titleMain.className = 'killteam-card__title-main';
+  titleMain.textContent = team.name;
+  title.appendChild(titleMain);
+  if (team.originalName) {
+    const subtitle = document.createElement('span');
+    subtitle.className = 'killteam-card__subtitle';
+    subtitle.textContent = team.originalName;
+    title.appendChild(subtitle);
+  }
+  card.appendChild(title);
+
+  if (team.summary) {
+    const summary = document.createElement('p');
+    summary.className = 'killteam-card__summary';
+    summary.textContent = team.summary;
+    card.appendChild(summary);
+  }
+
+  if (team.focus && team.focus.length) {
+    const tags = document.createElement('ul');
+    tags.className = 'killteam-card__tags';
+    team.focus.forEach((tagText) => {
+      if (!tagText) {
+        return;
+      }
+      const item = document.createElement('li');
+      item.textContent = tagText;
+      tags.appendChild(item);
+    });
+    if (tags.childElementCount) {
+      card.appendChild(tags);
+    }
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'killteam-card__actions';
+  if (team.status === 'planned') {
+    const planned = document.createElement('span');
+    planned.className = 'button button--disabled';
+    planned.textContent = 'Материалы в разработке';
+    planned.setAttribute('aria-disabled', 'true');
+    actions.appendChild(planned);
+  } else if (team.href) {
+    const link = document.createElement('a');
+    link.className = 'button button--primary';
+    link.href = team.href;
+    link.textContent = 'Открыть шпаргалку';
+    if (team.key) {
+      link.dataset.navKey = team.key;
+    }
+    link.setAttribute('title', `Открыть шпаргалку для отряда «${team.name}»`);
+    actions.appendChild(link);
+  } else {
+    const note = document.createElement('span');
+    note.className = 'button button--disabled';
+    note.textContent = 'Ссылка появится позже';
+    actions.appendChild(note);
+  }
+  card.appendChild(actions);
+
+  return card;
+}
+
+function initKillTeamLibrary() {
+  const list = document.querySelector('[data-killteam-list]');
+  if (!list) {
+    return;
+  }
+
+  const searchInput = document.querySelector('[data-killteam-search]');
+  const clearButton = document.querySelector('[data-killteam-clear]');
+  const summary = document.querySelector('[data-killteam-summary]');
+  const emptyState = document.querySelector('[data-killteam-empty]');
+  const filtersContainer = document.querySelector('[data-killteam-filters]');
+  const readyCountNode = document.querySelector('[data-killteam-ready-count]');
+  const plannedCountNode = document.querySelector('[data-killteam-planned-count]');
+
+  const teams = KILL_TEAM_LIBRARY.map((team) => {
+    const focus = Array.isArray(team.focus) ? team.focus.filter(Boolean) : [];
+    const status = team.status || 'available';
+    const searchChunks = [
+      team.name,
+      team.originalName,
+      team.faction,
+      team.alignment,
+      focus.join(' '),
+      team.summary
+    ].filter(Boolean);
+    return {
+      ...team,
+      focus,
+      status,
+      searchableText: searchChunks.join(' ').toLowerCase()
+    };
+  });
+
+  const readyCount = teams.filter((team) => team.status !== 'planned').length;
+  const plannedCount = teams.filter((team) => team.status === 'planned').length;
+  if (readyCountNode) {
+    readyCountNode.textContent = readyCount.toString();
+  }
+  if (plannedCountNode) {
+    plannedCountNode.textContent = plannedCount.toString();
+    const plannedWrapper = plannedCountNode.closest('[data-planned-wrapper]');
+    if (plannedWrapper) {
+      plannedWrapper.classList.toggle('is-hidden', plannedCount === 0);
+    }
+  }
+
+  let activeAlignment = 'all';
+  let filterButtons = [];
+
+  function updateSummary(total) {
+    if (!summary) {
+      return;
+    }
+    summary.textContent = `Показано ${total} из ${teams.length} килл-тимов`;
+  }
+
+  function updateClearButton(value) {
+    if (!clearButton) {
+      return;
+    }
+    const hasValue = Boolean(value);
+    clearButton.hidden = !hasValue;
+    clearButton.disabled = !hasValue;
+  }
+
+  function updateFilterButtons() {
+    filterButtons.forEach((button) => {
+      const value = button.dataset.filterValue || 'all';
+      const isActive = (value === 'all' && activeAlignment === 'all') || (value !== 'all' && activeAlignment === value);
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  function renderFilters() {
+    if (!filtersContainer) {
+      return;
+    }
+    const alignments = Array.from(new Set(teams.map((team) => team.alignment).filter(Boolean)));
+    filtersContainer.innerHTML = '';
+    if (!alignments.length) {
+      filtersContainer.hidden = true;
+      return;
+    }
+    filtersContainer.hidden = false;
+    filterButtons = [];
+
+    const createButton = (value, label) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'chip';
+      button.dataset.filterValue = value;
+      button.textContent = label;
+      button.addEventListener('click', () => {
+        if (value === 'all') {
+          activeAlignment = 'all';
+        } else {
+          activeAlignment = activeAlignment === value ? 'all' : value;
+        }
+        updateFilterButtons();
+        applyFilters();
+      });
+      filterButtons.push(button);
+      filtersContainer.appendChild(button);
+    };
+
+    createButton('all', 'Все');
+    alignments
+      .sort((a, b) => a.localeCompare(b, 'ru'))
+      .forEach((alignment) => {
+        createButton(alignment, alignment);
+      });
+
+    updateFilterButtons();
+  }
+
+  function renderList(items) {
+    list.innerHTML = '';
+    if (!items.length) {
+      if (emptyState) {
+        emptyState.hidden = false;
+      }
+      return;
+    }
+    if (emptyState) {
+      emptyState.hidden = true;
+    }
+    const fragment = document.createDocumentFragment();
+    items.forEach((team) => {
+      fragment.appendChild(createKillTeamCard(team));
+    });
+    list.appendChild(fragment);
+  }
+
+  function applyFilters() {
+    const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    updateClearButton(searchValue);
+    const filtered = teams.filter((team) => {
+      const matchesSearch = !searchValue || team.searchableText.includes(searchValue);
+      const matchesAlignment = activeAlignment === 'all' || team.alignment === activeAlignment;
+      return matchesSearch && matchesAlignment;
+    });
+    renderList(filtered);
+    updateSummary(filtered.length);
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      applyFilters();
+    });
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        searchInput.value = '';
+        applyFilters();
+      }
+    });
+  }
+
+  if (clearButton && searchInput) {
+    clearButton.addEventListener('click', () => {
+      if (!searchInput.value) {
+        searchInput.focus();
+        return;
+      }
+      searchInput.value = '';
+      searchInput.focus();
+      applyFilters();
+    });
+  }
+
+  renderFilters();
+  applyFilters();
+}
+const SPECIAL_RULES_SOURCE = 'rule.html';
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\$&');
+}
+
+const SpecialRulesRegistry = (() => {
+  let entries = [];
+  let loadPromise = null;
+
+  const manualRules = new Map([
+    ['PSYCHIC', 'Псионическое оружие: атаки считаются психосилой и взаимодействуют со всеми правилами против псиоников и психосил.'],
+    ['ANTI-PSYKER*', 'Правило со звёздочкой описано в карточке килл-тимы. Обычно указывает на особый эффект против псиоников.']
+  ]);
+
+  const plainPlaceholderRegex = /x(?![A-Za-z0-9])/g;
+  const plusPlaceholderRegex = /x\+(?![A-Za-z0-9])/g;
+
+  function normalizeWhitespace(text) {
+    return text.replace(/\s+/g, ' ').trim();
+  }
+
+  function extractEnglishTitle(title) {
+    const normalized = normalizeWhitespace(title);
+    const match = normalized.match(/\(([A-Za-z0-9\s"'\-\+]+)\)/);
+    return match ? normalizeWhitespace(match[1]) : normalized;
+  }
+
+  function createRuleEntry(label, description) {
+    const placeholders = [];
+    let patternSource = '';
+    let lastIndex = 0;
+    const placeholderMatcher = /(x\+?)/gi;
+
+    label.replace(placeholderMatcher, (placeholder, offset) => {
+      patternSource += escapeRegExp(label.slice(lastIndex, offset));
+      const normalized = placeholder.toLowerCase() === 'x+' ? 'xplus' : 'x';
+      const groupName = normalized === 'xplus'
+        ? `xplus${placeholders.length}`
+        : `x${placeholders.length}`;
+      if (normalized === 'xplus') {
+        patternSource += `(?<${groupName}>[^\\s]+\+?)`;
+      } else {
+        patternSource += `(?<${groupName}>[^\\s]+)`;
+      }
+      placeholders.push({ token: normalized, group: groupName });
+      lastIndex = offset + placeholder.length;
+    });
+
+    patternSource += escapeRegExp(label.slice(lastIndex));
+    const pattern = new RegExp(`^${patternSource}$`, 'i');
+
+    return { pattern, placeholders, description, label };
+  }
+
+  function parseRulesFromDocument(doc) {
+    const table = doc.querySelector('#special-rules + table');
+    if (!table) {
+      return [];
+    }
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    return rows
+      .map((row) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 2) {
+          return null;
+        }
+        const title = cells[0].textContent || '';
+        const effect = cells[1].textContent || '';
+        const englishLabel = extractEnglishTitle(title);
+        const description = normalizeWhitespace(effect);
+        if (!englishLabel || !description) {
+          return null;
+        }
+        return createRuleEntry(englishLabel, description);
+      })
+      .filter(Boolean);
+  }
+
+  function ensureEntriesFromDocument(doc) {
+    const parsed = parseRulesFromDocument(doc);
+    if (parsed.length) {
+      entries = parsed;
+    }
+    return entries;
+  }
+
+  function fillPlaceholders(description, placeholders, groups) {
+    let result = description;
+    let plainReplaced = false;
+    let plusReplaced = false;
+
+    placeholders.forEach((placeholder) => {
+      const value = groups ? groups[placeholder.group] : null;
+      if (!value) {
+        return;
+      }
+      if (placeholder.token === 'xplus' && !plusReplaced) {
+        result = result.replace(plusPlaceholderRegex, value);
+        plusReplaced = true;
+      }
+      if (placeholder.token === 'x' && !plainReplaced) {
+        result = result.replace(plainPlaceholderRegex, value);
+        plainReplaced = true;
+      }
+    });
+
+    return result;
+  }
+
+  function buildRuleCandidates(ruleKey) {
+    const trimmed = ruleKey.trim();
+    const candidates = new Set();
+    if (trimmed) {
+      candidates.add(trimmed);
+    }
+    if (trimmed.includes('(')) {
+      candidates.add(trimmed.replace(/\s*\(.*\)$/, '').trim());
+    }
+    if (trimmed.includes(',')) {
+      candidates.add(trimmed.split(',')[0].trim());
+    }
+    const firstWord = trimmed.split(/\s+/)[0];
+    if (firstWord && firstWord.length > 1) {
+      candidates.add(firstWord);
+    }
+    return Array.from(candidates).filter(Boolean);
+  }
+
+  function load() {
+    if (entries.length) {
+      return Promise.resolve(entries);
+    }
+
+    const localTable = document.querySelector('#special-rules + table');
+    if (localTable) {
+      ensureEntriesFromDocument(document);
+      return Promise.resolve(entries);
+    }
+
+    if (loadPromise) {
+      return loadPromise;
+    }
+
+    loadPromise = fetch(SPECIAL_RULES_SOURCE)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.text();
+      })
+      .then((html) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        ensureEntriesFromDocument(doc);
+        return entries;
+      })
+      .catch((error) => {
+        console.warn('Не удалось загрузить раздел специальных правил:', error);
+        return entries;
+      });
+
+    return loadPromise;
+  }
+
+  function describe(ruleKey) {
+    const normalizedKey = (ruleKey || '').trim();
+    if (!normalizedKey) {
+      return '';
+    }
+
+    const candidates = buildRuleCandidates(normalizedKey);
+    for (const candidate of candidates) {
+      for (const entry of entries) {
+        const match = candidate.match(entry.pattern);
+        if (match) {
+          const description = fillPlaceholders(entry.description, entry.placeholders, match.groups);
+          if (description) {
+            return description;
+          }
+        }
+      }
+
+      const manual = manualRules.get(candidate.toUpperCase());
+      if (manual) {
+        return manual;
+      }
+    }
+
+    if (normalizedKey.includes('*')) {
+      return 'Особое правило со звёздочкой. Его подробности указаны прямо в карточке данной килл-тимы или оружия.';
+    }
+
     return '';
   }
 
-  for (const handler of ruleHandlers) {
-    const match = normalized.match(handler.pattern);
-    if (match) {
-      return handler.describe(match);
-    }
-  }
-
-  if (staticRuleDescriptions[normalized]) {
-    return staticRuleDescriptions[normalized];
-  }
-
-  return '';
-}
+  return {
+    load,
+    describe
+  };
+})();
 
 (function initWeaponTooltips() {
   document.addEventListener('DOMContentLoaded', () => {
@@ -221,26 +856,30 @@ function getRuleDescription(rule) {
       placeTooltip(event.clientX, event.clientY);
     };
 
-    ruleNodes.forEach((node) => {
-      const ruleKey = node.dataset.rule || '';
-      const description = getRuleDescription(ruleKey);
-      if (!description) {
-        return;
-      }
-      node.setAttribute('data-description', description);
-      node.setAttribute('aria-label', description);
-      node.setAttribute('aria-describedby', 'weapon-rule-tooltip');
+    SpecialRulesRegistry.load()
+      .catch(() => [])
+      .finally(() => {
+        ruleNodes.forEach((node) => {
+          const ruleKey = node.dataset.rule || '';
+          const description = SpecialRulesRegistry.describe(ruleKey);
+          if (!description) {
+            return;
+          }
+          node.setAttribute('data-description', description);
+          node.setAttribute('aria-label', description);
+          node.setAttribute('aria-describedby', 'weapon-rule-tooltip');
 
-      node.addEventListener('mouseenter', (event) => {
-        showTooltip(node, event);
+          node.addEventListener('mouseenter', (event) => {
+            showTooltip(node, event);
+          });
+          node.addEventListener('mouseleave', hideTooltip);
+          node.addEventListener('mousemove', moveTooltip);
+          node.addEventListener('focus', (event) => {
+            showTooltip(node, event);
+          });
+          node.addEventListener('blur', hideTooltip);
+        });
       });
-      node.addEventListener('mouseleave', hideTooltip);
-      node.addEventListener('mousemove', moveTooltip);
-      node.addEventListener('focus', (event) => {
-        showTooltip(node, event);
-      });
-      node.addEventListener('blur', hideTooltip);
-    });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
@@ -1092,6 +1731,7 @@ registerFavoritesConfig('rules', { selectors: ['.rules h2'] });
 
 PAGE_INITIALIZERS.add('common', initFavoritesModule);
 PAGE_INITIALIZERS.add('common', initPageTocFromMarkup);
+PAGE_INITIALIZERS.add('home', initKillTeamLibrary);
 
 document.addEventListener('DOMContentLoaded', () => {
   renderGlobalNav();
