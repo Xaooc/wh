@@ -1559,6 +1559,7 @@ table code {
 
 
 
+
 .page--landing {
   display: flex;
   flex-direction: column;
@@ -1625,15 +1626,19 @@ table code {
   gap: clamp(16px, 3vw, 24px);
   padding: clamp(24px, 4vw, 32px);
   border-radius: var(--radius-lg);
+
   background: var(--surface-alt);
   border: 1px solid rgba(15, 122, 138, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
+
 .hero__stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+
+
 }
 
 .stat-card {
@@ -1761,6 +1766,7 @@ table code {
   color: var(--muted);
   font-size: 1rem;
 }
+
 
 .dashboard__shortcuts {
   display: grid;
@@ -1981,6 +1987,7 @@ table code {
   box-shadow: none;
 }
 
+
 .search-field {
   display: grid;
   gap: 8px;
@@ -2107,6 +2114,7 @@ table code {
   background: var(--accent-soft);
   color: var(--accent-strong);
 }
+
 
 .chip--soft {
   background: rgba(15, 122, 138, 0.08);
@@ -2259,6 +2267,7 @@ table code {
   color: var(--muted);
 }
 
+
 .killteam-preview__placeholder h3 {
   margin: 0;
   font-size: 1.1rem;
@@ -2401,6 +2410,7 @@ table code {
 @media (max-width: 860px) {
   .dashboard__layout {
     grid-template-columns: 1fr;
+
   }
 
   .dashboard__filters,
@@ -2417,6 +2427,7 @@ table code {
   }
 }
 
+
 @media (max-width: 640px) {
   .hero--dashboard,
   .dashboard {
@@ -2430,6 +2441,7 @@ table code {
   .button {
     width: 100%;
     justify-content: center;
+
   }
 
   .dashboard__shortcuts {
@@ -2440,6 +2452,7 @@ table code {
 body.is-compact-mode .page-hero {
   padding: clamp(20px, 4vw, 34px);
 }
+
 
 body.is-compact-mode .page-toolbar {
   margin: 16px 0;
@@ -2490,4 +2503,5 @@ body.is-compact-mode .toolbar-button {
   padding: 6px 12px;
   font-size: 0.8rem;
 }
+
 

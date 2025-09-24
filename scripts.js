@@ -36,26 +36,14 @@ const KILL_TEAM_LIBRARY = [
     focus: ['Стрельба', 'Поддержка', 'Маркерсветы']
   },
   {
-    key: 'adepta-sororitas',
-    name: 'Новициаты Сороритас (классический лист)',
-    originalName: 'Adepta Sororitas Novitiate',
-    faction: 'Адепта Сороритас',
-    alignment: 'Империум',
-    href: 'adepta-sororitas-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Новициаты Адепта Сороритас (Adepta Sororitas Novitiate)',
-    summary: 'Ревностные послушницы Экклезиархии с молитвенной поддержкой и огнём веры.',
-    focus: ['Рукопашный бой', 'Поддержка', 'Тактические приёмы']
-  },
-  {
     key: 'adepta-sororitas-novitiate',
-    name: 'Новициаты Сороритас (обновлённый лист)',
-    originalName: 'Adepta Sororitas Novitiate — обновлённый лист',
+    name: 'Новициаты Сороритас ',
+    originalName: 'Adepta Sororitas Novitiate',
     faction: 'Адепта Сороритас',
     alignment: 'Империум',
     href: 'adepta-sororitas-novitiate-cheatsheet.html',
     status: 'available',
-    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate, новый лист)',
+    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate)',
     summary: 'Актуализированная версия листа с переработанными профилями и доктринами.',
     focus: ['Поддержка', 'Гибкость', 'Контроль миссий']
   },
@@ -878,6 +866,7 @@ function initKillTeamLibrary() {
   const readyCountNode = document.querySelector('[data-killteam-ready-count]');
   const plannedCountNode = document.querySelector('[data-killteam-planned-count]');
   const upcomingListNode = document.querySelector('[data-killteam-upcoming]');
+
   const previewContainer = document.querySelector('[data-killteam-preview]');
   const previewCard = previewContainer ? previewContainer.querySelector('[data-killteam-preview-card]') : null;
   const previewPlaceholder = previewContainer ? previewContainer.querySelector('[data-killteam-preview-empty]') : null;
@@ -890,6 +879,7 @@ function initKillTeamLibrary() {
   const previewStatus = previewContainer ? previewContainer.querySelector('[data-killteam-preview-status]') : null;
   const previewActions = previewContainer ? previewContainer.querySelector('[data-killteam-preview-actions]') : null;
   const resetButton = document.querySelector('[data-killteam-reset]');
+
 
   const teams = KILL_TEAM_LIBRARY.map((team) => {
     const focus = Array.isArray(team.focus) ? team.focus.filter(Boolean) : [];
@@ -910,6 +900,7 @@ function initKillTeamLibrary() {
     };
   });
 
+
   const teamsByKey = new Map();
   teams.forEach((team) => {
     if (team.key) {
@@ -919,6 +910,7 @@ function initKillTeamLibrary() {
 
   const focusTags = Array.from(new Set(teams.flatMap((team) => team.focus))).filter(Boolean);
   focusTags.sort((a, b) => a.localeCompare(b, 'ru'));
+
 
   const plannedTeams = teams.filter((team) => team.status === 'planned');
   const readyCount = teams.filter((team) => team.status !== 'planned').length;
@@ -936,10 +928,12 @@ function initKillTeamLibrary() {
   if (upcomingListNode) {
     upcomingListNode.innerHTML = '';
     if (!plannedTeams.length) {
+
       const plannedEmptyState = document.createElement('li');
       plannedEmptyState.className = 'hero__next-up-empty';
       plannedEmptyState.textContent = 'Сейчас все доступные материалы опубликованы. Добавьте готовые команды в избранное, чтобы получить быстрый доступ.';
       upcomingListNode.appendChild(plannedEmptyState);
+
     } else {
       const formatter = (team) => {
         const item = document.createElement('li');

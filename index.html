@@ -100,6 +100,7 @@
             <input class="search-field__input" type="search" id="killteam-search" placeholder="Например, некроны или мобильность" autocomplete="off" data-killteam-search>
             <button class="search-field__clear" type="button" aria-label="Очистить поиск" data-killteam-clear hidden>×</button>
           </div>
+
         </div>
         <div class="library__filters" data-killteam-filters role="group" aria-label="Фильтр по альянсу"></div>
         <div class="library__focus" data-library-focus>
@@ -158,7 +159,26 @@
               <footer class="killteam-preview__actions" data-killteam-preview-actions></footer>
             </article>
           </aside>
+
         </div>
+        <div class="library__filters" data-killteam-filters role="group" aria-label="Фильтр по альянсу"></div>
+        <div class="dashboard__note">
+          <h3>Как пользоваться панелью</h3>
+          <ul>
+            <li>Сочетайте поиск и фильтр альянсов, чтобы сузить выдачу.</li>
+            <li>Клики по тегам специализаций подсказывают сильные стороны команды.</li>
+            <li>Добавляйте страницы в закладки браузера — ссылки стабильны.</li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="dashboard__content">
+        <div class="dashboard__summary-line">
+          <p class="library__summary" data-killteam-summary></p>
+          <a class="dashboard__favorites-link" href="favorites.html">Управление избранным</a>
+        </div>
+        <div class="killteam-grid" data-killteam-list></div>
+        <p class="library__empty" data-killteam-empty hidden>По выбранным условиям ничего не найдено. Сбросьте фильтры или измените поиск.</p>
       </div>
 
       <aside class="dashboard__insights" aria-label="Контекст и заметки">
@@ -170,10 +190,12 @@
           <h3>Подготовка к турниру</h3>
           <p>Соберите «короткий список» из трёх команд: основной состав, ответ на бронированные цели и мобильную группу. Карточки в библиотеке уже содержат ключевые теги для такого планирования.</p>
         </section>
+
         <section class="insight-card">
           <h3>Предпросмотр карточки</h3>
           <p>При выборе отряда справа появится расширенная карточка: краткое досье, статус готовности и быстрый переход на страницу. Добавляйте готовые списки в избранное напрямую из предпросмотра.</p>
         </section>
+
         <section class="insight-card insight-card--links" aria-label="Быстрые ссылки">
           <h3>Быстрые ссылки</h3>
           <ul>
