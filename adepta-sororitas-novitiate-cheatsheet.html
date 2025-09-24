@@ -13,10 +13,45 @@
             <nav class="site-nav" aria-label="Навигация по разделам" data-nav></nav>
   </div>
 </header>
-<main class="page">
+<main class="page page--sheet">
+  <header class="page-hero page-hero--split">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Боевой лист Kill Team</p>
+      <h1 class="page-hero__title">Новициаты Сороритас</h1>
+      <p class="page-hero__subtitle">Adepta Sororitas Novitiate Cheat Sheet</p>
+    </div>
+    <div class="page-hero__body">
+      <p class="page-hero__lead">Актуализированная версия листа с переработанными профилями, доктринами веры и поддержкой ордена. Карточки ускоряют подготовку к бою и помогают чередовать роли сестёр в миссиях.</p>
+      <ul class="page-hero__tags">
+        <li class="page-hero__tag">Поддержка</li>
+        <li class="page-hero__tag">Гибкость</li>
+        <li class="page-hero__tag">Контроль миссий</li>
+      </ul>
+      <div class="page-hero__actions">
+        <a class="button button--primary" href="#faction-rules">К правилам веры</a>
+        <a class="button button--ghost" href="favorites.html">Открыть избранное</a>
+      </div>
+    </div>
+    <dl class="page-hero__meta">
+      <div class="page-hero__stat">
+        <dt>Фракция</dt>
+        <dd>Адепта Сороритас</dd>
+        <small>Альянс: Империум</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Акценты</dt>
+        <dd>Вера и адаптация</dd>
+        <small>Доктрины позволяют менять роли, молитвы усиливают ключевых оперативников.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Формат</dt>
+        <dd>Карточки Kill Team</dd>
+        <small>Включают правила, плои, снаряжение и профили обновлённого листа.</small>
+      </div>
+    </dl>
+  </header>
+  <div class="page__layout">
 <div class="sheet">
-<h1>Новициаты Сороритас — новый лист (Adepta Sororitas Novitiate Cheat Cards)</h1>
-<p class="intro">Этот обновлённый лист помогает быстро ориентироваться в ключевых правилах и профилях <strong>Новициатов Адепта Сороритас (Adepta Sororitas Novitiate)</strong>. Для удобной сверки все важные термины приведены на русском языке с оригиналом в скобках, а структура страницы совпадает с другими листами Kill Team HQ.</p>
 
 <section>
 <h2 id="faction-rules" class="section-title">Фракционные правила (Faction Rules)</h2>
@@ -551,10 +586,11 @@
 </section>
 
 </div>
-<nav class="page-nav" aria-label="Навигация по листу" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="sororitas" data-toc-levels=".section-title:2; .cards .card h3:3">
-  <h2>Содержание</h2>
-  <ul class="page-nav-list" data-page-toc-list></ul>
-</nav>
+    <nav class="page-nav" aria-label="Навигация по листу" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="sororitas" data-toc-levels=".section-title:2; .cards .card h3:3">
+      <h2>Содержание</h2>
+      <ul class="page-nav-list" data-page-toc-list></ul>
+    </nav>
+  </div>
 </main>
   <script src="scripts.js" defer></script>
 </body>
