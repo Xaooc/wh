@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Новитии Адепты Сороритас (Adepta Sororitas Novitiates)</title>
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <script defer src="../assets/js/main.js"></script>
+  </head>
+  <body data-page="novitiate">
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="../index.html">Kill Team Compendium</a>
+        <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" aria-label="Переключить навигацию">
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+        </button>
+        <nav id="primary-nav" class="site-nav" aria-label="Основная навигация">
+          <ul>
+            <li><a data-page="home" href="../index.html">Главная</a></li>
+            <li><a data-page="novitiate" href="novitiate.html">Новитии Адепты Сороритас</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main class="site-main container">
+      <section class="content-section">
+        <h1 class="section-heading">Новитии Адепты Сороритас (Adepta Sororitas Novitiates)</h1>
+        <p>
+          Таков пыл Новиций Адепты Сороритас, что в их присутствии божественная воля Императора
+          становится зримой. Этот лист объединяет правила фракции, стратегические и огневые уловки,
+          варианты снаряжения и карточки данных оперативников, переведённые на русский язык с
+          сохранением оригинальных названий (в скобках).
+        </p>
+      </section>
+
+      <section id="faction-rules" class="content-section">
+        <h2>Правила фракции (Faction Rules)</h2>
+        <h3>Акты веры (Acts of Faith)</h3>
+        <p>
+          На шаге Подготовки (Ready step) каждой фазы Стратегии (Strategy phase) вы получаете количество
+          очков веры (Faith points), равное половине числа дружественных оперативников Новиций (NOVITIATE),
+          которые не были выведены из строя (округляя вверх). Каждый раз, когда дружественный оперативник
+          Новитий (NOVITIATE operative) стреляет (shooting), сражается в ближнем бою (fighting) или наносит
+          ответный удар (retaliating), либо по нему ведут стрельбу, вы можете во время шага броска кубов атаки
+          (Roll Attack Dice step) или шага броска кубов защиты (Roll Defence Dice step, если по нему стреляют)
+          потратить очки веры, чтобы применить один Акт веры (ACT OF FAITH). За одну последовательность
+          (sequence) нельзя использовать более одного Акта веры. Стоимость и эффекты приведены ниже:
+        </p>
+        <ul class="rules-list">
+          <li>
+            <strong>Наставление (Guidance)</strong> — <em>1 очко веры (1 Faith point)</em>.<br />
+            Вы можете перебросить один из своих кубов.
+          </li>
+          <li>
+            <strong>Благословение (Blessing)</strong> — <em>2 очка веры (2 Faith points)</em>.<br />
+            Вы можете сохранить один из своих обычных успехов как критический успех.
+          </li>
+          <li>
+            <strong>Вмешательство (Intervention)</strong> — <em>3 очка веры (3 Faith points)</em>.<br />
+            Вы можете сохранить один из своих провалов как обычный успех вместо того, чтобы его сбросить.
+          </li>
+        </ul>
+      </section>
+
+      <section id="strategy-ploys" class="content-section">
+        <h2>Стратегические уловки (Strategy Ploys)</h2>
+        <div class="card-grid two-columns">
+          <article class="card">
+            <h3>Пламенное возмездие (Ardent Vengeance)</h3>
+            <p>
+              Еретик, мутант или чужак — Адепта Сороритас изгоняют всех с одинаковой яростью. Каждый раз,
+              когда дружественный оперативник Новитий стреляет, сражается или наносит ответный удар против
+              исчерпанного (expended) вражеского оперативника, его оружие получает правило «Карающее»
+              (Punishing weapon rule).
+            </p>
+          </article>
+          <article class="card">
+            <h3>Защитницы веры (Defenders of the Faith)</h3>
+            <p>
+              Каждая кандидатка в Орден Милитант обязана пройти испытания страданием, а вера наделяет их
+              огромной стойкостью. Каждый раз, когда оперативник стреляет, сражается или наносит ответный
+              удар по дружественному оперативнику Новитий, который оспаривает маркер цели (objective marker),
+              на шаге разрешения кубов атаки (Resolve Attack Dice step) вы можете сократить получаемый этим
+              оперативником урон от одного обычного успеха наполовину (округляя вверх, минимум до 2).
+            </p>
+          </article>
+          <article class="card">
+            <h3>Благословенное обновление (Blessed Rejuvenation)</h3>
+            <p>
+              Благочестивая сестра Новития способна черпать из источника веры, исцеляя разум, тело и дух.
+              Каждый раз, когда вы тратите очки веры, в конце этого действия дружественный оперативник,
+              на которого они были потрачены, может восстановить до D3 потерянных ран. Уловка не действует,
+              если этот оперативник был выведен из строя в ходе действия или если Акт веры не стоил очков веры
+              (например, оборудование «Автонаказатели» (Auto-chastisers)).
+            </p>
+          </article>
+          <article class="card">
+            <h3>Праведное наступление (Righteous Advance)</h3>
+            <p>
+              Стремясь доказать свою достойность, сёстры Новитии бросаются в бой, не думая о собственной жизни.
+              До одной трети дружественных оперативников Новитий в зоне убийства (killzone) (округляя вниз, но
+              минимум один) может немедленно совершить бесплатное действие Рывок (Dash) в произвольном порядке.
+              Каждый из них обязан завершить перемещение ближе к ближайшему вражескому оперативнику, ближайшему
+              маркеру цели или в сторону зоны высадки (drop zone) противника (для каждого выбирается отдельно).
+              Эту уловку нельзя использовать в первый ход (turning point).
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="firefight-ploys" class="content-section">
+        <h2>Уловки огневого обмена (Firefight Ploys)</h2>
+        <div class="card-grid two-columns">
+          <article class="card">
+            <h3>Славное мученичество (Glorious Martyrdom)</h3>
+            <p>
+              Нет большей чести, чем умереть на службе Императору, и такой конец вдохновляет свидетелей.
+              Используйте эту уловку, когда дружественный оперативник Новитий выводится из строя, до его удаления
+              из зоны убийства. За каждого видимого вражеского оперативника в пределах 2" вы получаете 1 очко веры
+              и наносите этому оперативнику D3 урона (бросок выполняется отдельно для каждого).
+            </p>
+          </article>
+          <article class="card">
+            <h3>Пылающее инферно (Blazing Inferno)</h3>
+            <p>
+              Святой огнемёт — мощное орудие божественного гнева Императора. Используйте уловку, когда дружественный
+              оперативник Новитий стреляет из Министорумского огнемёта (Ministorum flamer) и наносит урон критическими
+              успехами. Цель получает ваш жетон «Пламя» (Blaze token), если у неё его ещё нет. Каждый раз, когда
+              оперативник с вашим жетоном Пламени активируется, он получает D3 урона. Управляющий им игрок может
+              уменьшить характеристику APL этого оперативника на 1 до конца активации, чтобы снять жетон (делать это
+              нужно до совершения действий в рамках активации).
+            </p>
+          </article>
+          <article class="card">
+            <h3>Ослепляющая аура (Blinding Aura)</h3>
+            <p>
+              Веру невозможно объяснить. Самые праведные сёстры сияют ослепительными ореолами, слепящими безверных.
+              Используйте уловку, когда вражеский оперативник выполняет действие Стрельба (Shoot) и выбирает
+              дружественного оперативника Новитий в качестве допустимой цели. Пока дружественный оперативник находится
+              дальше чем в 2" от стрелка, противник не может выбрать его допустимой целью. Если иных допустимых целей
+              нет, действие завершается (оно не отменяется, оперативник всё равно счёл его выполненным). Уловка не
+              действует, если оперативник выбран вторичной целью по правилу «Взрыв» (Blast) и т. п.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Ведомые верой (Guided by Faith)</h3>
+            <p>
+              Прошептав молитву, сестра Новития просит Бога-Императора направить её удар, дабы враг пал быстрее.
+              Используйте уловку, когда дружественный оперативник Новитий выполняет действие Стрельба и вы выбираете
+              дальнобойное оружие. Пока длится действие, если цель находится в пределах 6", выбранное оружие получает
+              правило «Ищи свет» (Seek Light weapon rule).
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="faction-equipment" class="content-section">
+        <h2>Снаряжение фракции (Faction Equipment)</h2>
+        <p>
+          Ниже перечислены варианты снаряжения, доступные отрядам Новиций. Кроме универсального снаряжения, каждую
+          позицию из списка можно выбрать не более одного раза за бой.
+        </p>
+        <div class="card-grid two-columns">
+          <article class="card">
+            <h3>Икона веры (Icon of Faith)</h3>
+            <p>
+              Святыни Экклезиархии имеют огромное значение для несущих их сестёр и укрепляют их веру в самом сердце
+              битвы. Раз за ход (turning point) вы можете использовать до двух Актов веры в одной последовательности,
+              однако они должны быть разными. Это правило имеет приоритет над обычными правилами Актов веры.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Освящённые патроны (Sanctified Rounds)</h3>
+            <p>
+              Эти боеприпасы, освящённые кровью и слезами святых и благословлённые высокопоставленным духовенством,
+              губительны для нечистых. Каждый раз, когда дружественный оперативник Новитий стреляет из автогана,
+              автопистолета, реликтового болт-пистолета или реликтового болтгана, если вы тратите очко веры,
+              выбранное оружие получает правило «Пронзающие криты 1» (Piercing Crits 1) до конца последовательности.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Автонаказатели (Auto-chastisers)</h3>
+            <p>
+              Эти орудия самобичевания дарят блаженную боль, раздувая пламя рвения носительницы. Раз за ход, когда
+              дружественный оперативник Новитий стреляет, сражается или наносит ответный удар, на шаге броска кубов
+              атаки вы можете нанести ему 1–3 урона (но не настолько, чтобы вывести из строя). Если вы так поступаете,
+              вы можете один раз бесплатно использовать Акт веры со стоимостью в очках веры не выше нанесённого себе
+              урона.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Святые мази (Holy Embrocations)</h3>
+            <p>
+              Священные масла и притирания притупляют боль и проясняют разум, позволяя Новитии игнорировать раны,
+              которые сломили бы других. Вы можете игнорировать любые изменения характеристики Движения (Move) у
+              дружественных оперативников Новитий из-за ранения (injured).
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="datacards" class="content-section">
+        <h2>Карточки данных (Datacards)</h2>
+        <p>
+          Каждая карточка данных содержит описание роли, характеристики и вооружение оперативника. Столбцы таблиц
+          приведены на русском языке с оригинальными обозначениями в скобках.
+        </p>
+        <div class="card-grid">
+          <article class="card datacard">
+            <h3>Новития-Супериор (Novitiate Superior)</h3>
+            <p>
+              Полноценная сестра битвы из Ордена Милитант командует Новитиями, направляет их веру и служит примером
+              образцового поведения воительницы Адепты Сороритас.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">3+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">9</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Плазменный пистолет (Plasma pistol) — стандартный режим</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>3/5</td>
+                    <td>Дальность 8", Пронзающий 1 (Piercing 1)</td>
+                  </tr>
+                  <tr>
+                    <td>Плазменный пистолет (Plasma pistol) — перегрузка</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>4/5</td>
+                    <td>Дальность 8", Перегрев (Hot), Смертоносность 5+ (Lethal 5+), Пронзающий 1</td>
+                  </tr>
+                  <tr>
+                    <td>Реликтовый болт-пистолет (Relic bolt pistol)</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>3/5</td>
+                    <td>Дальность 8", Смертоносность 5+</td>
+                  </tr>
+                  <tr>
+                    <td>Реликтовый болтган (Relic boltgun)</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>3/5</td>
+                    <td>Смертоносность 5+</td>
+                  </tr>
+                  <tr>
+                    <td>Приклад (Gun butt)</td>
+                    <td>3</td>
+                    <td>3+</td>
+                    <td>2/3</td>
+                    <td>—</td>
+                  </tr>
+                  <tr>
+                    <td>Энергетическое оружие (Power weapon)</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>4/6</td>
+                    <td>Смертоносность 5+</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Вдохновляющий пример (Inspirational Example):</strong> каждый раз, когда оперативник выводит из строя
+              вражеского оперативника, вы получаете 1 очко веры или 2 очка, если у цели характеристика Ран равнялась 12
+              или более. Правило не действует при использовании уловки «Славное мученичество» (Glorious Martyrdom).
+            </p>
+            <p class="keywords">Ключевые слова (Keywords): NOVITIATE, IMPERIUM, ADEPTA SORORITAS, LEADER, SUPERIOR</p>
+            <p class="note">База: ⌀32 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Истребительница психиков (Novitiate Condemnor)</h3>
+            <p>
+              Колдунов и ведьм сестры Сороритас ненавидят особенно яростно. Новития-Истребительница оснащена, чтобы
+              охотиться на таких врагов и лишать их силы.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Арбалет-осуждатель (Condemnor stakethrower)</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>4/6</td>
+                    <td>Опустошающий 2 (Devastating 2), Пронзающие криты 1, Бесшумный (Silent), Противопсихер* (Anti-PSYKER)</td>
+                  </tr>
+                  <tr>
+                    <td>Нулевой жезл (Null rod)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>3/3</td>
+                    <td>Шок (Shock), Противопсихер*</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Нулевой жезл (Null Rod):</strong> психическое (PSYCHIC) дальнобойное оружие не может наносить этому
+              оперативнику урон. Для эффектов психических действий (PSYCHIC actions) он не может быть выбран и никогда не
+              считается находящимся в пределах требуемой дистанции. Каждый раз, когда оперативник находится в пределах 6"
+              от него: он не может выполнять психические действия и использовать психические дополнительные правила;
+              не может применять психическое дальнобойное оружие; психическое рукопашное оружие лишается правил и не может
+              иметь характеристики урона выше 3/4.
+            </p>
+            <p class="footnote">
+              *Противопсихер (Anti-PSYKER): каждый раз, когда это оружие используется против оперативника с ключевым
+              словом PSYKER, увеличьте обе характеристики урона на 1 и применяйте правило «Смертоносность 5+» (Lethal 5+).
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, CONDEMNOR</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Диалогус (Novitiate Dialogus)</h3>
+            <p>
+              Эти Новитии обучаются в Ордене Диалогус, овладевая криптографией и дешифровкой тайных посланий, что делает
+              их бесценными для киллтима.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Посох Диалогус (Dialogus stave)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>3/3</td>
+                    <td>Шок</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Вдохновляющая риторика (Stirring Rhetoric) — действие за 1 AP:</strong> выберите другого дружественного
+              оперативника Новитий, видимого и находящегося в 6" от этой модели или в 6" от вашего маркера Автовещателя
+              (Auto-broadcaster marker). До конца следующей активации той модели увеличьте её характеристику APL на 1
+              (максимум до 3 после всех модификаторов). Действие нельзя выполнять, находясь в зоне контроля (control range)
+              вражеского оперативника.
+            </p>
+            <p class="note">
+              <strong>Автовещатель (Auto-broadcaster) — действие за 0 AP:</strong> если ваш маркер Автовещателя отсутствует
+              в зоне убийства, разместите его в пределах 8" по горизонтали от этой модели; иначе переместите маркер до 8"
+              по горизонтали. Если оперативник удаляется из зоны убийства, уберите и маркер. Каждый раз, когда вражеский
+              оперативник в пределах 3" от маркера стреляет, сражается или наносит ответный удар, его игрок не может
+              перебрасывать кубы атаки. Действие нельзя выполнять, находясь в зоне контроля врага.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, DIALOGUS</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Дуэлянтка (Novitiate Duellist)</h3>
+            <p>
+              Некоторые Новитии обладают врождённым талантом к фехтованию и стремятся доказать своё мастерство,
+              подражая святым-воинам.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Парные клинки дуэлянта (Duelling blades)</td>
+                    <td>4</td>
+                    <td>3+</td>
+                    <td>4/5</td>
+                    <td>Неустанность (Ceaseless), Рипост* (Riposte)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="footnote">
+              *Рипост (Riposte): каждый раз, когда вы блокируете критическим успехом, вы также можете нанести врагу урон,
+              равный критическому урону оружия, в рамках той же последовательности.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, DUELLIST</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Экзактор (Novitiate Exactor)</h3>
+            <p>
+              Самым ревностным Новитиям доверяют нейронные плети, чтобы сеять боль и страх в рядах врагов и вдохновлять
+              своих сестёр.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Нейронные плети — дальний бой (Neural whips, ranged)</td>
+                    <td>5</td>
+                    <td>3+</td>
+                    <td>2/3</td>
+                    <td>Дальность 3", Смертоносность 5+, Оглушение (Stun)</td>
+                  </tr>
+                  <tr>
+                    <td>Нейронные плети — ближний бой (Neural whips, melee)</td>
+                    <td>5</td>
+                    <td>3+</td>
+                    <td>2/3</td>
+                    <td>Смертоносность 5+, Шок</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Плеть безумия (Whip Into Frenzy) — действие за 1 AP:</strong> выберите другого дружественного
+              оперативника Новитий (кроме Супериора), видимого и находящегося в 3" от этого, который не получает эффекты
+              действия. До конца следующей активации той модели увеличьте характеристику Движения на 1", позвольте ей
+              выполнить два действия Бой (Fight) в следующей активации, причём одно из них может быть бесплатным. Действие
+              нельзя выполнять, находясь в зоне контроля врага.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, EXACTOR</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Госпитальер (Novitiate Hospitaller)</h3>
+            <p>
+              Лечение физических и духовных ран Империума — тяжёлая обязанность. Новитии ордена Госпитальер оттачивают
+              свои навыки прямо на поле боя, помогая сестрам по мере сил.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Хирургическая пила (Surgical saw)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Смертоносность 5+, Рассечение (Rending)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Медик! (Medic!):</strong> первый раз за ход, когда другой дружественный оперативник Новитий должен быть
+              выведен из строя, находясь видимым и в 3" от этой модели (при условии, что обе не находятся в зоне контроля
+              врага), вы можете применить это правило. Цель не выводится из строя, остаётся с 1 раной и не может быть
+              выведена из строя до конца действия. После действия цель может бесплатно выполнить Рывок, но обязана закончить
+              перемещение в зоне контроля Госпитальера. У обоих оперативников уменьшается APL на 1 до конца их следующих
+              активаций. Если правило использовано во время активации цели, активация немедленно завершается. Правило нельзя
+              использовать, если Госпитальер выведен из строя или если это действие Стрельбы, в котором он был бы первичной
+              или вторичной целью.
+            </p>
+            <p class="note">
+              <strong>Инструменты хирурга (Chirurgeon's Tools) — действие за 1 AP:</strong> выберите дружественного
+              оперативника Новитий в зоне контроля и восстановите ему до 2D3 потерянных ран. Нельзя выбирать цель, к которой
+              в этот ход применялось правило «Медик!». Действие запрещено в зоне контроля врага.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, MEDIC, HOSPITALLER</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Милитант (Novitiate Militant)</h3>
+            <p>
+              Новитии-Милитанты — будущие сёстры битвы. У них ещё нет силовой брони и болтеров, но они фанатично верны
+              Императору и жаждут заслужить место в рядах ордена.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автоган (Autogun)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>—</td>
+                  </tr>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Приклад (Gun butt)</td>
+                    <td>3</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>—</td>
+                  </tr>
+                  <tr>
+                    <td>Клинок Новитий (Novitiate blade)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>4/5</td>
+                    <td>—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Боевая вера (Militant Faith):</strong> каждый раз, когда оперативник стреляет, сражается или наносит
+              ответный удар, если вы используете Акт веры в ходе последовательности и враг выводится из строя, потраченные
+              очки веры возвращаются. Если используется оборудование «Икона веры» (Icon of Faith), очки возвращаются только
+              за один из Актов веры по вашему выбору.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, MILITANT</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Пенитент (Novitiate Penitent)</h3>
+            <p>
+              Некоторые Новитии получают тяжёлые эвисцераторы как наказание за проступки. Им велят искупить вину в ближнем
+              бою, и они сражаются с необузданной яростью, чтобы вернуть честь.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Покаянный эвисцератор (Penitent eviscerator)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>5/6</td>
+                    <td>Жестокий (Brutal), Ярость праведника* (Zealous Rage)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="footnote">
+              *Ярость праведника (Zealous Rage): когда оперативник дерётся этим оружием, оно получает правило «Неустанность»
+              (Ceaseless).
+            </p>
+            <p class="note">
+              <strong>Искупление через разрушение (Absolution Through Destruction):</strong> каждый раз, когда оперативник
+              выполняет действие Бой, если он не выведен из строя, он может немедленно выполнить бесплатное дополнительное
+              действие Бой. Это правило имеет приоритет над ограничениями на действия, но более двух последовательных действий
+              Бой совершать нельзя. Если оперативник под эффектом действия «Плеть безумия», правило применяется к каждому из
+              полученных действий Бой.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, PENITENT</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Прецептор (Novitiate Preceptor)</h3>
+            <p>
+              Эти Новитии отвечают за строгое соблюдение предписаний ордена и часто становятся заместителями Супериоров,
+              подавая пример в бою.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Булава праведных (Mace of the Righteous)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>5/5</td>
+                    <td>Жестокий (Brutal), Суровый (Severe)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Непоколебимый пример (Unflinching Example):</strong> каждый раз, когда оперативник выводит из строя
+              готового (ready) вражеского оперативника в своей зоне контроля, вы получаете 1 очко веры либо 2 очка, если у
+              цели было 12 и более ран.
+            </p>
+            <p class="note">
+              <strong>Величественный гимн (Glorious Hymnal):</strong> поддержка (SUPPORT). Каждый дружественный оперативник
+              Новитий в пределах 3" получает правило «Суровый» (Severe) на своё оружие.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, PRECEPTOR</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Пронатус (Novitiate Pronatus)</h3>
+            <p>
+              Кандидатки в Орден Пронатус изучают неисчислимые реликвии и обучаются хранить и добывать их даже в разгар боя.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Приклад (Gun butt)</td>
+                    <td>3</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Охотница за реликвиями (Relic Seeker):</strong> раз за активацию оперативник может выполнить действия
+              «Поднять маркер» (Pick Up Marker), «Разместить маркер» (Place Marker) или миссионное действие на 1 AP дешевле.
+            </p>
+            <p class="note">
+              <strong>Божественное обретение (Divine Acquisition):</strong> раз за ход, когда оперативник выполняет миссионное
+              действие, требующее контроля над маркером, вы получаете количество очков веры, равное номеру текущего хода.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, PRONATUS</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Пургатус (Novitiate Purgatus)</h3>
+            <p>
+              У Новитий-Пургатус священная обязанность — обращать врагов Империума в пепел святым пламенем Министорумского
+              огнемёта.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Министорумский огнемёт (Ministorum flamer)</td>
+                    <td>4</td>
+                    <td>2+</td>
+                    <td>4/4</td>
+                    <td>Дальность 8", Насыщение (Saturate), Поток 2" (Torrent 2")</td>
+                  </tr>
+                  <tr>
+                    <td>Приклад (Gun butt)</td>
+                    <td>3</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Очищение огнём (Purge with Flame):</strong> раз за ход вы можете использовать уловку огневого обмена
+              «Инферно» (Inferno firefight ploy) бесплатно, если целевой дружественный оперативник — эта модель.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, PURGATUS</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+
+          <article class="card datacard">
+            <h3>Новития-Реликвариус (Novitiate Reliquarius)</h3>
+            <p>
+              Некоторые Новитии несут вдохновляющие святыни, и те, кто видит их, сражаются с удвоенной решимостью.
+            </p>
+            <div class="stat-block">
+              <div class="stat"><span class="stat-label">Действия (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat"><span class="stat-label">Движение (MOVE)</span><span class="stat-value">6"</span></div>
+              <div class="stat"><span class="stat-label">Сейв (SAVE)</span><span class="stat-value">4+</span></div>
+              <div class="stat"><span class="stat-label">Раны (WOUNDS)</span><span class="stat-value">7</span></div>
+            </div>
+            <div class="weapon-table-wrapper">
+              <table class="weapon-table">
+                <thead>
+                  <tr>
+                    <th>Название (Name)</th>
+                    <th>Атаки (ATK)</th>
+                    <th>Попадание (HIT)</th>
+                    <th>Урон (DMG)</th>
+                    <th>Правила оружия (WR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Автопистолет (Autopistol)</td>
+                    <td>4</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>Дальность 8"</td>
+                  </tr>
+                  <tr>
+                    <td>Приклад (Gun butt)</td>
+                    <td>3</td>
+                    <td>4+</td>
+                    <td>2/3</td>
+                    <td>—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="note">
+              <strong>Носительница иконы (Icon Bearer):</strong> при определении контроля над маркером считайте характеристику
+              APL этой модели на 1 выше. Это не изменение характеристики, поэтому другие модификации суммируются.
+            </p>
+            <p class="note">
+              <strong>Воздвигнуть икону (Raise Icon) — действие за 1 AP:</strong> вы получаете 1 очко веры. Если оперативник
+              контролирует маркер цели, дополнительно получите количество очков веры, равное номеру текущего хода. Действие
+              можно выполнять не более одного раза за ход и нельзя выполнять в зоне контроля врага.
+            </p>
+            <p class="keywords">Ключевые слова: NOVITIATE, IMPERIUM, ADEPTA SORORITAS, RELIQUARIUS</p>
+            <p class="note">База: ⌀28 мм.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p>Перевод и адаптация листа Новитий Адепты Сороритас для Kill Team.</p>
+      </div>
+    </footer>
+  </body>
+</html>
