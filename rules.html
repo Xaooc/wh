@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Правила и трейты | Kill Team Compendium</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script defer src="assets/js/main.js"></script>
+  </head>
+  <body data-page="rules" data-rules-path="rules.html">
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="index.html">Kill Team Compendium</a>
+        <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" aria-label="Переключить навигацию">
+          <span class="nav-toggle__icon" aria-hidden="true">
+            <span class="nav-toggle__bar"></span>
+            <span class="nav-toggle__bar"></span>
+            <span class="nav-toggle__bar"></span>
+          </span>
+          <span class="nav-toggle__label">Меню</span>
+        </button>
+        <nav id="primary-nav" class="site-nav" aria-label="Основная навигация">
+          <ul class="site-nav__list">
+            <li class="site-nav__item"><a data-page="home" class="site-nav__link" href="index.html">Главная</a></li>
+            <li class="site-nav__item"><a data-page="rules" class="site-nav__link" href="rules.html">Правила</a></li>
+            <li class="site-nav__item"><a data-page="novitiate" class="site-nav__link" href="factions/novitiate.html">Новитии Адепты Сороритас</a></li>
+          </ul>
+        </nav>
+        <div class="site-header__backdrop" data-nav-backdrop></div>
+      </div>
+    </header>
+    <main class="site-main container">
+      <section class="content-section">
+        <h1 class="section-heading">Справочник по специальным правилам</h1>
+        <p>
+          Этот раздел содержит описания универсальных и уникальных правил оружия Kill Team. Их можно использовать
+          для всплывающих подсказок на листах оперативников и снаряжения. Основной список находится ниже в разделе
+          «Special Rules» и включает как стандартные правила из основного набора, так и специфичные для Новитий
+          Адепты Сороритас.
+        </p>
+      </section>
+
+      <section id="special-rules" class="content-section">
+        <h2>Special Rules</h2>
+        <p class="note">
+          Каждое правило содержит список псевдонимов в атрибуте <code>data-trait-aliases</code>. Эти псевдонимы
+          используются скриптом для поиска соответствия в таблицах оружия. Для правил с переменными значениями
+          используются плейсхолдеры вида <code>{{value}}</code>.
+        </p>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="range"
+          data-trait-aliases='Дальность {{value}}", Range {{value}}"'
+          data-trait-title-template='Дальность {{value}}" (Range)'
+          data-trait-template='Оружие может выбирать допустимые цели только в пределах <strong>{{value}}</strong>. '
+        >
+          <h3>Дальность (Range)</h3>
+          <p data-trait-description>
+            Оружие с этим параметром может выбирать цели только в пределах указанной дистанции, измеряемой в дюймах.
+            Значение подставляется в запись «Дальность X&quot;».
+          </p>
+        </article>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="torrent"
+          data-trait-aliases='Поток {{value}}", Torrent {{value}}"'
+          data-trait-title-template='Поток {{value}}" (Torrent)'
+          data-trait-template='После выбора основной цели вы также выбираете каждую другую видимую цель в пределах <strong>{{value}}</strong> от неё. Все выбранные цели становятся допустимыми для той же атаки.'
+        >
+          <h3>Поток (Torrent)</h3>
+          <p data-trait-description>
+            После выбора основной цели вы можете выбрать всех прочих видимых врагов в пределах указанной дистанции от неё.
+            Для каждой цели повторяется та же последовательность бросков атаки.
+          </p>
+        </article>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="hot"
+          data-trait-aliases="Перегрев, Hot"
+        >
+          <h3>Перегрев (Hot)</h3>
+          <p data-trait-description>
+            Если при броске кубов атаки выпадает хотя бы одна «1», после завершения последовательности атак эта модель
+            получает 3 смертельных раны.
+          </p>
+        </article>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="lethal"
+          data-trait-aliases='Смертоносность {{value}}, Lethal {{value}}'
+          data-trait-title-template='Смертоносность {{value}} (Lethal {{value}})'
+          data-trait-template='Каждое значение броска атаки, равное или превышающее <strong>{{value}}</strong>, считается критическим успехом.'
+        >
+          <h3>Смертоносность (Lethal)</h3>
+          <p data-trait-description>
+            Значение в записи «Смертоносность X+» показывает минимальный бросок атаки, который считается критическим.
+          </p>
+        </article>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="ap"
+          data-trait-aliases='Пронзающий {{value}}, Armour Penetration {{value}}, AP {{value}}'
+          data-trait-title-template='Пронзающий {{value}} (AP{{value}})'
+          data-trait-template='Каждый раз, когда выполняется атака, цель бросает на <strong>{{value}}</strong> кубика защиты меньше (но минимум один куб).'
+        >
+          <h3>Пронзающий (Armour Penetration)</h3>
+          <p data-trait-description>
+            Это правило уменьшает количество кубов защиты, доступных цели при броске, на величину X из записи
+            «Пронзающий X».
+          </p>
+        </article>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="piercing-crits"
+          data-trait-aliases='Пронзающие криты {{value}}, Piercing Crits {{value}}, P{{value}}'
+          data-trait-title-template='Пронзающие криты {{value}} (Piercing Crits {{value}})'
+          data-trait-template='Каждый раз, когда вы сохраняете критический успех, противник должен отменить <strong>{{value}}</strong> своих успехов защиты.'
+        >
+          <h3>Пронзающие криты (Piercing Crits)</h3>
+          <p data-trait-description>
+            Когда атакующий сохраняет критический успех, цель должна отменить столько собственных успехов защиты, сколько
+            указано в значении правила.
+          </p>
+        </article>
+
+        <article
+          class="special-rule-card"
+          data-trait-id="devastating"
+          data-trait-aliases='Опустошающий {{value}}, Devastating {{value}}'
+          data-trait-title-template='Опустошающий {{value}} (Devastating {{value}})'
+          data-trait-template='Каждый критический успех вызывает <strong>{{value}}</strong> смертельных ран, которые применяются до обычного урона.'
+        >
+          <h3>Опустошающий (Devastating)</h3>
+          <p data-trait-description>
+            При критическом успехе цель получает дополнительный смертельный урон, равный значению правила, до применения
+            обычного урона оружия.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="silent" data-trait-aliases="Бесшумный, Silent">
+          <h3>Бесшумный (Silent)</h3>
+          <p data-trait-description>
+            Оружие с этим правилом можно использовать, даже если у оперативника приказ «Скрытность» (Conceal). Оно не
+            раскрывает его позицию при стрельбе.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="brutal" data-trait-aliases="Жестокий, Brutal">
+          <h3>Жестокий (Brutal)</h3>
+          <p data-trait-description>
+            Вражеский оперативник может блокировать удары из этого оружия только критическими успехами. Обычные успехи
+            защиты игнорируются при парировании.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="ceaseless" data-trait-aliases="Неустанность, Ceaseless">
+          <h3>Неустанность (Ceaseless)</h3>
+          <p data-trait-description>
+            При броске кубов атаки можно перебросить все результаты «1».
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="rending" data-trait-aliases="Рассечение, Rending">
+          <h3>Рассечение (Rending)</h3>
+          <p data-trait-description>
+            Когда вы сохраняете критический успех, можете также сохранить один обычный успех как критический.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="shock" data-trait-aliases="Шок, Shock">
+          <h3>Шок (Shock)</h3>
+          <p data-trait-description>
+            После того как цель получает урон от критического успеха, уменьшите её характеристику APL на 1 до конца
+            ближайшей активации (минимум до 1).
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="stun" data-trait-aliases="Оглушение, Stun">
+          <h3>Оглушение (Stun)</h3>
+          <p data-trait-description>
+            При критическом успехе цель теряет 1 APL (до минимума 1), а если атака была в ближнем бою, она также
+            лишается одного куба защиты при этой последовательности.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="severe" data-trait-aliases="Суровый, Severe">
+          <h3>Суровый (Severe)</h3>
+          <p data-trait-description>
+            Каждый критический успех наносит цели 1 смертельную рану в дополнение к обычному урону.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="saturate" data-trait-aliases="Насыщение, Saturate">
+          <h3>Насыщение (Saturate)</h3>
+          <p data-trait-description>
+            Оружие заливает область огнём: после разрешения атаки по основной цели нанесите 1 смертельную рану каждому
+            другому вражескому оперативнику, которого вы выбрали в пределах расстояния правила «Поток».
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="riposte" data-trait-aliases='Рипост*, Рипост, Riposte'>
+          <h3>Рипост (Riposte)</h3>
+          <p data-trait-description>
+            Каждый раз, когда вы парируете критическим успехом в ближнем бою, после отмены куба соперника нанесите ему
+            урон, равный обычному урону оружия.
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="anti-psyker" data-trait-aliases='Противопсихер*, Противопсихер, Anti-PSYKER'>
+          <h3>Противопсихер (Anti-PSYKER)</h3>
+          <p data-trait-description>
+            При атаке по цели с ключевым словом PSYKER увеличьте обе характеристики урона на 1 и применяйте правило
+            «Смертоносность 5+».
+          </p>
+        </article>
+
+        <article class="special-rule-card" data-trait-id="zealous-rage" data-trait-aliases='Ярость праведника*, Ярость праведника, Zealous Rage'>
+          <h3>Ярость праведника (Zealous Rage)</h3>
+          <p data-trait-description>
+            Пока оперативник дерётся этим оружием, оно получает правило «Неустанность» (Ceaseless).
+          </p>
+        </article>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p>Справочник правил Kill Team подготовлен для удобной навигации и быстрой проверки эффектов.</p>
+      </div>
+    </footer>
+  </body>
+</html>

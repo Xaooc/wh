@@ -7,21 +7,26 @@
     <link rel="stylesheet" href="../assets/css/styles.css" />
     <script defer src="../assets/js/main.js"></script>
   </head>
-  <body data-page="novitiate">
+  <body data-page="novitiate" data-rules-path="../rules.html">
     <header class="site-header">
-      <div class="container">
+      <div class="container site-header__inner">
         <a class="brand" href="../index.html">Kill Team Compendium</a>
         <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" aria-label="Переключить навигацию">
-          <span class="nav-toggle__bar"></span>
-          <span class="nav-toggle__bar"></span>
-          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__icon" aria-hidden="true">
+            <span class="nav-toggle__bar"></span>
+            <span class="nav-toggle__bar"></span>
+            <span class="nav-toggle__bar"></span>
+          </span>
+          <span class="nav-toggle__label">Меню</span>
         </button>
         <nav id="primary-nav" class="site-nav" aria-label="Основная навигация">
-          <ul>
-            <li><a data-page="home" href="../index.html">Главная</a></li>
-            <li><a data-page="novitiate" href="novitiate.html">Новитии Адепты Сороритас</a></li>
+          <ul class="site-nav__list">
+            <li class="site-nav__item"><a class="site-nav__link" data-page="home" href="../index.html">Главная</a></li>
+            <li class="site-nav__item"><a class="site-nav__link" data-page="rules" href="../rules.html">Правила</a></li>
+            <li class="site-nav__item"><a class="site-nav__link" data-page="novitiate" href="novitiate.html">Новитии Адепты Сороритас</a></li>
           </ul>
         </nav>
+        <div class="site-header__backdrop" data-nav-backdrop></div>
       </div>
     </header>
     <main class="site-main container">
