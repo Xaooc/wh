@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kill Team HQ — библиотека шпаргалок</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-home" data-page="home">
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Kill Team HQ</a>
+    <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
+  </div>
+</header>
+<main class="page page--landing">
+  <section class="hero">
+    <div class="hero__content">
+      <h1 class="hero__title">Kill Team HQ</h1>
+      <p class="hero__lead">Единая панель с актуальными шпаргалками, правилами и избранными материалами для Kill Team. Настройте подборку под свою команду и планируйте следующие обновления.</p>
+      <div class="hero__actions">
+        <a class="button button--primary" href="#killteam-library">Открыть библиотеку</a>
+        <a class="button button--ghost" href="favorites.html">Перейти в избранное</a>
+      </div>
+    </div>
+    <ul class="hero__stats">
+      <li><span data-killteam-ready-count>0</span> готовых килл-тимов</li>
+      <li data-planned-wrapper><span data-killteam-planned-count>0</span> в разработке</li>
+    </ul>
+  </section>
+
+  <section class="library" id="killteam-library">
+    <header class="library__header">
+      <h2 class="library__title">Библиотека килл-тимов</h2>
+      <p class="library__description">Используйте поиск и фильтры, чтобы быстро найти нужный отряд. Заготовки помогают отслеживать будущие обновления.</p>
+    </header>
+    <div class="library__controls">
+      <div class="search-field">
+        <label class="search-field__label" for="killteam-search">Поиск по названию, ключевым словам или фракции</label>
+        <div class="search-field__control">
+          <span class="search-field__icon" aria-hidden="true">🔍</span>
+          <input class="search-field__input" type="search" id="killteam-search" placeholder="Например, некроны или мобильность" autocomplete="off" data-killteam-search>
+          <button class="search-field__clear" type="button" aria-label="Очистить поиск" data-killteam-clear hidden>×</button>
+        </div>
+      </div>
+      <div class="library__filters" data-killteam-filters role="group" aria-label="Фильтр по альянсу"></div>
+    </div>
+    <p class="library__summary" data-killteam-summary></p>
+    <div class="killteam-grid" data-killteam-list></div>
+    <p class="library__empty" data-killteam-empty hidden>По выбранным условиям ничего не найдено. Сбросьте фильтры или измените поиск.</p>
+  </section>
+
+  <section class="quick-links">
+    <h2 class="quick-links__title">Полезные материалы</h2>
+    <div class="quick-links__grid">
+      <a class="quick-links__card" href="rule.html">
+        <h3>Правила</h3>
+        <p>Полный справочник правил с быстрыми ссылками на ключевые разделы.</p>
+      </a>
+      <a class="quick-links__card" href="unique-equipment.html">
+        <h3>Уникальное снаряжение</h3>
+        <p>Карточки редкого вооружения и артефактов для разных килл-тимов.</p>
+      </a>
+      <a class="quick-links__card" href="TACOP.html">
+        <h3>Tac Ops</h3>
+        <p>Тактические операции с описаниями и условиями выполнения.</p>
+      </a>
+      <a class="quick-links__card" href="favorites.html">
+        <h3>Избранное</h3>
+        <p>Ваши персональные закладки для быстрого доступа на турнирах.</p>
+      </a>
+    </div>
+  </section>
+</main>
+<script src="scripts.js" defer></script>
+</body>
+</html>
