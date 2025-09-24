@@ -24,6 +24,18 @@ const KILL_TEAM_LIBRARY = [
     focus: ['Мобильность', 'Стрельба', 'Альфа-удары']
   },
   {
+    key: 'pathfinder',
+    name: 'Патфайндеры Т\'ау',
+    originalName: 'Pathfinder Kill Team',
+    faction: 'Империя Т\'ау',
+    alignment: 'Ксенос',
+    href: 'pathfinder-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Патфайндеры Т\'ау (Pathfinder Kill Team)',
+    summary: 'Разведывательный отряд Т\'ау, сочетающий маркерсветы и поддержку дронов.',
+    focus: ['Стрельба', 'Поддержка', 'Маркерсветы']
+  },
+  {
     key: 'adepta-sororitas',
     name: 'Новициаты Сороритас (классический лист)',
     originalName: 'Adepta Sororitas Novitiate',
