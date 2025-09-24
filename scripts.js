@@ -159,9 +159,69 @@ function renderGlobalNav() {
   nav.innerHTML = '';
   const currentPage = document.body.dataset.page || '';
 
+  if (!nav.id) {
+    nav.id = 'global-site-nav';
+  }
+
   const brand = document.querySelector('.brand');
   if (brand && brand.tagName === 'A') {
     brand.setAttribute('href', 'index.html');
+  }
+
+  const navParent = nav.parentElement;
+  let menuToggle = null;
+  if (navParent) {
+    menuToggle = navParent.querySelector('[data-nav-toggle]');
+    if (!menuToggle) {
+      menuToggle = document.createElement('button');
+      menuToggle.type = 'button';
+      menuToggle.className = 'site-nav__menu-toggle';
+      menuToggle.setAttribute('data-nav-toggle', 'true');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.setAttribute('aria-controls', nav.id);
+      menuToggle.innerHTML = '<span class="site-nav__menu-icon" aria-hidden="true"></span><span class="site-nav__menu-label">Меню</span>';
+      navParent.insertBefore(menuToggle, nav);
+    } else {
+      menuToggle.setAttribute('aria-controls', nav.id);
+    }
+  }
+
+  const closeMobileMenu = () => {
+    if (!nav.classList.contains('is-open')) {
+      return;
+    }
+    nav.classList.remove('is-open');
+    if (menuToggle) {
+      menuToggle.classList.remove('is-active');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+  };
+
+  if (menuToggle && !menuToggle.dataset.navReady) {
+    menuToggle.addEventListener('click', () => {
+      const isOpen = nav.classList.toggle('is-open');
+      menuToggle.classList.toggle('is-active', isOpen);
+      menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    menuToggle.dataset.navReady = 'true';
+  }
+
+  const desktopMedia = typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(min-width: 900px)')
+    : null;
+
+  if (desktopMedia && !nav.dataset.navMediaBound) {
+    const handleViewportChange = (event) => {
+      if (event.matches) {
+        closeMobileMenu();
+      }
+    };
+    if (typeof desktopMedia.addEventListener === 'function') {
+      desktopMedia.addEventListener('change', handleViewportChange);
+    } else if (typeof desktopMedia.addListener === 'function') {
+      desktopMedia.addListener(handleViewportChange);
+    }
+    nav.dataset.navMediaBound = 'true';
   }
 
   NAV_SECTIONS.forEach((section, index) => {
@@ -177,10 +237,34 @@ function renderGlobalNav() {
       group.open = true;
     }
 
+    group.addEventListener('toggle', () => {
+      if (!group.open) {
+        return;
+      }
+      nav.querySelectorAll('.site-nav__group').forEach((other) => {
+        if (other !== group) {
+          other.open = false;
+        }
+      });
+    });
+
     const summary = document.createElement('summary');
     summary.className = 'site-nav__summary';
     summary.textContent = section.label || 'Навигация';
     group.appendChild(summary);
+
+    if (desktopMedia) {
+      summary.addEventListener('mouseenter', () => {
+        if (desktopMedia.matches) {
+          group.open = true;
+        }
+      });
+      group.addEventListener('mouseleave', () => {
+        if (desktopMedia.matches) {
+          group.open = false;
+        }
+      });
+    }
 
     const linksWrapper = document.createElement('div');
     linksWrapper.className = 'site-nav__links';
@@ -201,6 +285,9 @@ function renderGlobalNav() {
         if (link.key === currentPage) {
           node.setAttribute('aria-current', 'page');
         }
+        node.addEventListener('click', () => {
+          closeMobileMenu();
+        });
       } else {
         node.classList.add('site-nav__link--disabled');
         node.setAttribute('aria-disabled', 'true');
@@ -497,77 +584,483 @@ function initKillTeamLibrary() {
   renderFilters();
   applyFilters();
 }
-const ruleHandlers = [
-  {
-    pattern: /^Blast\s+([\d.]+)"$/i,
-    describe(match) {
-      const range = match[1];
-      return `Р’Р·СЂС‹РІ ${range}" вЂ” РїРѕСЃР»Рµ Р°С‚Р°РєРё РїРѕ РѕСЃРЅРѕРІРЅРѕР№ С†РµР»Рё Р°С‚Р°РєСѓР№ РІСЃРµС… РІРёРґРёРјС‹С… РІСЂР°РіРѕРІ РІ РїСЂРµРґРµР»Р°С… ${range}" РѕС‚ РЅРµС‘ РїРѕ РѕС‡РµСЂРµРґРё; РєР°Р¶РґС‹Р№ Р±СЂРѕСЃРѕРє РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕ. Р’С‚РѕСЂРёС‡РЅС‹Рµ С†РµР»Рё РїРѕР»СѓС‡Р°СЋС‚ С‚Р°РєРѕРµ Р¶Рµ СѓРєСЂС‹С‚РёРµ, РєР°Рє Рё РѕСЃРЅРѕРІРЅР°СЏ.`;
+
+const SPECIAL_RULES_SOURCE = 'rule.html';
+let specialRulesIndexPromise = null;
+let ruleResolverPromise = null;
+
+function normalizeWhitespace(value) {
+  return (value || '')
+    .replace(/ /g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildSpecialRulesIndexFromDocument(doc) {
+  if (!doc) {
+    return null;
+  }
+  const table = doc.querySelector('#special-rules + table');
+  if (!table) {
+    return null;
+  }
+
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  if (!rows.length) {
+    return null;
+  }
+
+  const map = new Map();
+
+  rows.forEach((row) => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length < 2) {
+      return;
     }
+    const nameCell = normalizeWhitespace(cells[0].textContent);
+    const descriptionCell = normalizeWhitespace(cells[1].textContent);
+    if (!nameCell || !descriptionCell) {
+      return;
+    }
+    const match = nameCell.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+    const russianName = match ? normalizeWhitespace(match[1]) : nameCell;
+    const englishName = match ? normalizeWhitespace(match[2]) : nameCell;
+    const entry = {
+      russianName,
+      englishName,
+      description: descriptionCell
+    };
+    const keys = [];
+    if (englishName) {
+      keys.push(englishName.toLowerCase());
+    }
+    if (russianName) {
+      keys.push(russianName.toLowerCase());
+    }
+    keys.forEach((key) => {
+      if (key && !map.has(key)) {
+        map.set(key, entry);
+      }
+    });
+  });
+
+  return map;
+}
+
+function fetchSpecialRulesIndex() {
+  if (typeof fetch !== 'function' || typeof DOMParser !== 'function') {
+    return Promise.resolve(null);
+  }
+  return fetch(SPECIAL_RULES_SOURCE)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Ответ ${response.status}`);
+      }
+      return response.text();
+    })
+    .then((html) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      return buildSpecialRulesIndexFromDocument(doc);
+    });
+}
+
+function loadSpecialRulesIndex() {
+  if (!specialRulesIndexPromise) {
+    if (document && document.body && document.body.dataset.page === 'rules') {
+      specialRulesIndexPromise = Promise.resolve(buildSpecialRulesIndexFromDocument(document));
+    } else {
+      specialRulesIndexPromise = fetchSpecialRulesIndex().catch((error) => {
+        console.warn('Не удалось загрузить раздел Special Rules:', error);
+        return null;
+      });
+    }
+  }
+  return specialRulesIndexPromise;
+}
+
+const FALLBACK_RULES_DATA = [
+  {
+    englishName: 'Accurate x',
+    russianName: 'Точный x',
+    description:
+      'Можно сохранить до x кубов атаки как обычные успехи без броска. Если оружие получает это правило несколько раз, считайте, что оно даёт только Точный 2 — это перекрывает другие значения x.'
   },
   {
-    pattern: /^Devastating\s+(\d+)/i,
-    describe(match) {
-      const damage = match[1];
-      return `РћРїСѓСЃС‚РѕС€Р°СЋС‰РёР№ ${damage} вЂ” РєР°Р¶РґРѕРµ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРµ РєСЂРёС‚РёС‡РµСЃРєРѕРµ РїРѕРїР°РґР°РЅРёРµ СЃСЂР°Р·Сѓ РЅР°РЅРѕСЃРёС‚ С†РµР»Рё ${damage} СѓСЂРѕРЅР°. РЈСЃРїРµС… РѕСЃС‚Р°С‘С‚СЃСЏ Рё РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅ РїРѕР·Р¶Рµ; РµСЃР»Рё РїСЂР°РІРёР»Рѕ СѓРєР°Р·Р°РЅРѕ СЃ РґРёСЃС‚Р°РЅС†РёРµР№, РїРѕСЂР°Р¶Р°РµС‚ РІСЃРµС… РІРёРґРёРјС‹С… РІСЂР°РіРѕРІ РІ СЌС‚РѕРј СЂР°РґРёСѓСЃРµ.`;
-    }
+    englishName: 'Balanced',
+    russianName: 'Сбалансированный',
+    description: 'Можно перебросить один куб атаки.'
   },
   {
-    pattern: /^Piercing\s+(\d+)/i,
-    describe(match) {
-      const reduction = match[1];
-      return `РџСЂРѕР±РёРІР°СЋС‰РёР№ ${reduction} вЂ” Р·Р°С‰РёС‰Р°СЋС‰РёР№СЃСЏ Р±СЂРѕСЃР°РµС‚ РЅР° ${reduction} РєСѓР±(Р°) Р·Р°С‰РёС‚С‹ РјРµРЅСЊС€Рµ. Р’ РІР°СЂРёР°РЅС‚Рµ В«С‚РѕР»СЊРєРѕ РєСЂРёС‚Р°РјРёВ» РїСЂР°РІРёР»Рѕ СЂР°Р±РѕС‚Р°РµС‚, РµСЃР»Рё С‚С‹ СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёРµ СѓСЃРїРµС…Рё.`;
-    }
+    englishName: 'Blast x',
+    russianName: 'Взрыв x',
+    description:
+      'После атаки по основной цели атакуйте этим оружием всех других видимых врагов в пределах x от неё по очереди; каждую последовательность бросков выполняйте отдельно. Вторичные цели получают такое же укрытие, как и основная.'
   },
   {
-    pattern: /^Range\s+([\d.]+)"$/i,
-    describe(match) {
-      const distance = match[1];
-      return `Р”Р°Р»СЊРЅРѕСЃС‚СЊ ${distance}" вЂ” РјРѕР¶РЅРѕ РІС‹Р±РёСЂР°С‚СЊ С†РµР»Рё С‚РѕР»СЊРєРѕ РІ РїСЂРµРґРµР»Р°С… ${distance}" РѕС‚ Р°РєС‚РёРІРЅРѕРіРѕ РѕРїРµСЂР°С‚РёРІРЅРёРєР°.`;
-    }
+    englishName: 'Brutal',
+    russianName: 'Жестокий',
+    description: 'Противник может блокировать только критическими успехами.'
   },
   {
-    pattern: /^Lethal\s+(\d\+?)$/i,
-    describe(match) {
-      const threshold = match[1];
-      return `Р›РµС‚Р°Р»СЊРЅС‹Р№ ${threshold} вЂ” РїРѕРїР°РґР°РЅРёСЏ СЃ СЂРµР·СѓР»СЊС‚Р°С‚РѕРј ${threshold} СЃС‡РёС‚Р°СЋС‚СЃСЏ РєСЂРёС‚РёС‡РµСЃРєРёРјРё СѓСЃРїРµС…Р°РјРё.`;
-    }
+    englishName: 'Ceaseless',
+    russianName: 'Неослабевающий',
+    description: 'Можно перебросить все кубы атаки с выбранным значением (например, все результаты «2»).'
   },
   {
-    pattern: /^Heavy,\s*Dash only$/i,
-    describe() {
-      return 'РўСЏР¶С‘Р»С‹Р№ (С‚РѕР»СЊРєРѕ Dash) вЂ” РЅРµР»СЊР·СЏ РґРІРёРіР°С‚СЊСЃСЏ РІ Р°РєС‚РёРІР°С†РёРё/РєРѕРЅС‚СЂРґРµР№СЃС‚РІРёРё, РіРґРµ СЃС‚СЂРµР»СЏРµС€СЊ РёР· СЌС‚РѕРіРѕ РѕСЂСѓР¶РёСЏ, Рё РЅР°РѕР±РѕСЂРѕС‚. Р Р°Р·СЂРµС€С‘РЅ С‚РѕР»СЊРєРѕ Dash, РґРµР№СЃС‚РІРёРµ Guard РЅРµ Р±Р»РѕРєРёСЂСѓРµС‚СЃСЏ.';
-    }
+    englishName: 'Devastating x',
+    russianName: 'Опустошающий x',
+    description:
+      'Каждый сохранённый критический успех немедленно наносит цели x урона. Если правило начинается с дистанции (например, 1" Опустошающий x), нанесите x урона цели и всем другим видимым оперативам в пределах этой дистанции. Успех остаётся и может быть использован позже.'
+  },
+  {
+    englishName: 'Heavy',
+    russianName: 'Тяжёлый',
+    description:
+      'Оперативник не может использовать это оружие в активации или контрдействии, где двигался, и не может двигаться там, где использовал это оружие. Если указано «Тяжёлый (только X)», разрешено лишь указанное действие, например Dash. Правило не мешает действию Guard.'
+  },
+  {
+    englishName: 'Hot',
+    russianName: 'Перегрев',
+    description:
+      'После атаки бросьте 1D6. Если результат меньше характеристики Попадание, оператив получает урон, равный результату, умноженному на два. При нескольких атаках в рамках одного действия бросок делается один раз.'
+  },
+  {
+    englishName: 'Lethal x+',
+    russianName: 'Летальный x+',
+    description: 'Успехи с результатом x или выше считаются критическими успехами.'
+  },
+  {
+    englishName: 'Limited x',
+    russianName: 'Ограниченный x',
+    description:
+      'После того как оператив использовал это оружие x раз за сражение, оно считается потерянным. Если оружие атакует несколько раз в рамках одного действия, это считается одним использованием.'
+  },
+  {
+    englishName: 'Piercing x',
+    russianName: 'Пробивающий x',
+    description:
+      'Защищающийся бросает на x кубов защиты меньше. Если указано «Пробивающий критами x (Piercing Crits x)», правило применяется только при сохранении критических успехов.'
+  },
+  {
+    englishName: 'Punishing',
+    russianName: 'Карающий',
+    description:
+      'Если вы сохранили критические успехи, можете сохранить один провальный результат как обычный успех вместо того, чтобы сбросить его.'
+  },
+  {
+    englishName: 'Range x',
+    russianName: 'Дальность x',
+    description: 'Целью могут быть только оперативы в пределах x от активного оперативника.'
+  },
+  {
+    englishName: 'Relentless',
+    russianName: 'Безжалостный',
+    description: 'Можно перебрасывать любые кубы атаки.'
+  },
+  {
+    englishName: 'Rending',
+    russianName: 'Раздирающий',
+    description:
+      'Если вы сохранили критические успехи, можете повысить один обычный успех до критического.'
+  },
+  {
+    englishName: 'Saturate',
+    russianName: 'Плотный огонь',
+    description: 'Защищающийся не может сохранять спасброски от укрытия.'
+  },
+  {
+    englishName: 'Seek',
+    russianName: 'Поиск',
+    description:
+      'При выборе цели оперативы не могут использовать местность как укрытие. Если указано «Поиск (лёгкий)», нельзя использовать лёгкую местность. Это позволяет выбирать такие цели при условии видимости, но не отменяет их спасброски от укрытия.'
+  },
+  {
+    englishName: 'Severe',
+    russianName: 'Суровый',
+    description:
+      'Если вы не сохранили критические успехи, можете превратить один обычный успех в критический. Правила Опустошающий и Пробивающий критами продолжают действовать, а Карающий и Раздирающий — нет.'
+  },
+  {
+    englishName: 'Shock',
+    russianName: 'Шок',
+    description:
+      'При первом ударе критическим успехом в каждой последовательности дополнительно сбросьте один неразрешённый обычный успех противника (или критический, если обычных нет).'
+  },
+  {
+    englishName: 'Silent',
+    russianName: 'Бесшумный',
+    description: 'Оператив может выполнить действие Shoot этим оружием, оставаясь под приказом Conceal.'
+  },
+  {
+    englishName: 'Stun',
+    russianName: 'Оглушающий',
+    description: 'Если вы сохранили критические успехи, уменьшите характеристику APL цели на 1 до конца её следующей активации.'
+  },
+  {
+    englishName: 'Torrent x',
+    russianName: 'Поток x',
+    description:
+      'Выберите основную цель, затем любое количество других допустимых целей в пределах x от неё, но вне контроля дружеских оперативов, как вторичные. Атакуйте все выбранные цели в любом порядке, каждую последовательность бросков выполняйте отдельно.'
   }
 ];
 
-const staticRuleDescriptions = {
-  'Rending': 'Р Р°Р·РґРёСЂР°СЋС‰РёР№ вЂ” РµСЃР»Рё СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёР№ СѓСЃРїРµС…, РјРѕР¶РµС€СЊ РїРѕРІС‹СЃРёС‚СЊ РѕРґРёРЅ РѕР±С‹С‡РЅС‹Р№ СѓСЃРїРµС… РґРѕ РєСЂРёС‚РёС‡РµСЃРєРѕРіРѕ.',
-  'Severe': 'РЎСѓСЂРѕРІС‹Р№ вЂ” РµСЃР»Рё РЅРµ СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёР№ СѓСЃРїРµС…, РјРѕР¶РµС€СЊ РїСЂРµРІСЂР°С‚РёС‚СЊ РѕРґРёРЅ РѕР±С‹С‡РЅС‹Р№ СѓСЃРїРµС… РІ РєСЂРёС‚РёС‡РµСЃРєРёР№. РћРїСѓСЃС‚РѕС€Р°СЋС‰РёР№ Рё РџСЂРѕР±РёРІР°СЋС‰РёР№ РєСЂРёС‚Р°РјРё РІСЃС‘ РµС‰С‘ РґРµР№СЃС‚РІСѓСЋС‚, Р° РљР°СЂР°СЋС‰РёР№ Рё Р Р°Р·РґРёСЂР°СЋС‰РёР№ вЂ” РЅРµС‚.',
-  'Shock': 'РЁРѕРє вЂ” РїСЂРё РїРµСЂРІРѕРј СѓРґР°СЂРµ РєСЂРёС‚РёС‡РµСЃРєРёРј СѓСЃРїРµС…РѕРј РІ РєР°Р¶РґРѕР№ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ СЃР±СЂРѕСЃСЊ РѕРґРёРЅ РЅРµСЂР°Р·СЂРµС€С‘РЅРЅС‹Р№ РѕР±С‹С‡РЅС‹Р№ СѓСЃРїРµС… РїСЂРѕС‚РёРІРЅРёРєР° (РёР»Рё РєСЂРёС‚РёС‡РµСЃРєРёР№, РµСЃР»Рё РѕР±С‹С‡РЅС‹С… РЅРµС‚).',
-  'Stun': 'РћРіР»СѓС€Р°СЋС‰РёР№ вЂ” РµСЃР»Рё СЃРѕС…СЂР°РЅРёР» РєСЂРёС‚РёС‡РµСЃРєРёР№ СѓСЃРїРµС…, СѓРјРµРЅСЊС€Р°Р№ APL С†РµР»Рё РЅР° 1 РґРѕ РєРѕРЅС†Р° РµС‘ СЃР»РµРґСѓСЋС‰РµР№ Р°РєС‚РёРІР°С†РёРё.',
-  'Magnify*': 'Magnify* вЂ” РѕСЂСѓР¶РёРµ РїРѕР»СѓС‡Р°РµС‚ Р±РѕРЅСѓСЃС‹, РєРѕРіРґР° РЅР° РЅРµРіРѕ Р°РєС‚РёРІРёСЂРѕРІР°РЅ СЌС„С„РµРєС‚ Magnify (СЃРј. РѕРїРёСЃР°РЅРёРµ СЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё Magnify).',
-  'Devastating': 'РћРїСѓСЃС‚РѕС€Р°СЋС‰РёР№ вЂ” РєР°Р¶РґРѕРµ СЃРѕС…СЂР°РЅС‘РЅРЅРѕРµ РєСЂРёС‚РёС‡РµСЃРєРѕРµ РїРѕРїР°РґР°РЅРёРµ СЃСЂР°Р·Сѓ РЅР°РЅРѕСЃРёС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ СѓСЂРѕРЅ С†РµР»Рё Рё РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РґР°Р»СЊС€Рµ.'
-};
+function buildFallbackRulesMap() {
+  const map = new Map();
+  FALLBACK_RULES_DATA.forEach((entry) => {
+    const normalizedEntry = {
+      russianName: entry.russianName,
+      englishName: entry.englishName,
+      description: entry.description
+    };
+    const englishKey = entry.englishName ? entry.englishName.toLowerCase() : '';
+    const russianKey = entry.russianName ? entry.russianName.toLowerCase() : '';
+    if (englishKey && !map.has(englishKey)) {
+      map.set(englishKey, normalizedEntry);
+    }
+    if (russianKey && !map.has(russianKey)) {
+      map.set(russianKey, normalizedEntry);
+    }
+  });
+  return map;
+}
 
-function getRuleDescription(rule) {
-  const normalized = (rule || '').trim();
-  if (!normalized) {
+const FALLBACK_RULES_MAP = buildFallbackRulesMap();
+const EXTRA_RULE_DESCRIPTIONS = new Map([
+  [
+    'psychic',
+    'Псионика (PSYCHIC) — атака считается псионической. Она взаимодействует с эффектами, которые ссылаются на ключевые слова PSYCHIC или PSYKER, и обычно доступна только оперативам с ключевым словом PSYKER.'
+  ]
+]);
+
+function applyRuleTemplate(text, replacements = {}) {
+  if (!text) {
     return '';
   }
+  let result = text;
+  if (replacements['x+']) {
+    const value = replacements['x+'];
+    result = result.replace(/x\+/gi, value);
+  }
+  if (replacements.x) {
+    const value = replacements.x;
+    result = result.replace(/x(?!\+)/gi, value);
+  }
+  return result;
+}
 
-  for (const handler of ruleHandlers) {
-    const match = normalized.match(handler.pattern);
-    if (match) {
-      return handler.describe(match);
+function composeRuleText(russianName, englishName, description) {
+  const namePart = russianName && englishName
+    ? `${russianName} (${englishName})`
+    : (russianName || englishName || '');
+  if (namePart && description) {
+    return `${namePart} — ${description}`;
+  }
+  if (description) {
+    return description;
+  }
+  return namePart;
+}
+
+function findLocalRuleNote(ruleKey, contextNode) {
+  const hasMarker = (ruleKey && ruleKey.includes('*')) || (contextNode && contextNode.textContent && contextNode.textContent.includes('*'));
+  if (!hasMarker) {
+    return '';
+  }
+  const searchTerms = new Set();
+  const baseKey = normalizeWhitespace((ruleKey || '').replace(/\*/g, ''));
+  if (baseKey) {
+    searchTerms.add(baseKey.toLowerCase());
+  }
+  if (contextNode) {
+    const displayText = normalizeWhitespace(contextNode.textContent || '');
+    if (displayText) {
+      searchTerms.add(displayText.replace(/\*/g, '').toLowerCase());
+      displayText
+        .replace(/\*/g, '')
+        .split(/[()]/)
+        .forEach((part) => {
+          const fragment = normalizeWhitespace(part);
+          if (fragment) {
+            searchTerms.add(fragment.toLowerCase());
+          }
+        });
     }
   }
 
-  if (staticRuleDescriptions[normalized]) {
-    return staticRuleDescriptions[normalized];
+  const notes = Array.from(document.querySelectorAll('.note'));
+  for (const note of notes) {
+    const noteText = normalizeWhitespace(note.textContent || '');
+    if (!noteText) {
+      continue;
+    }
+    const lower = noteText.toLowerCase();
+    for (const term of searchTerms) {
+      if (term && lower.includes(term)) {
+        return noteText;
+      }
+    }
   }
-
   return '';
+}
+
+function createRuleResolver(index) {
+  const lookupEntry = (key) => {
+    if (!key) {
+      return null;
+    }
+    const normalized = key.trim().toLowerCase();
+    if (index && index.has(normalized)) {
+      return index.get(normalized);
+    }
+    if (FALLBACK_RULES_MAP.has(normalized)) {
+      return FALLBACK_RULES_MAP.get(normalized);
+    }
+    return null;
+  };
+
+  const formatEntry = (entry, replacements = {}, overrideNames = {}) => {
+    if (!entry) {
+      return '';
+    }
+    const russianName = overrideNames.russianName !== undefined
+      ? overrideNames.russianName
+      : applyRuleTemplate(entry.russianName, replacements);
+    const englishName = overrideNames.englishName !== undefined
+      ? overrideNames.englishName
+      : applyRuleTemplate(entry.englishName, replacements);
+    const description = applyRuleTemplate(entry.description, replacements);
+    return composeRuleText(russianName, englishName, description);
+  };
+
+  const handlers = [
+    {
+      pattern: /^Blast\s+([\d.]+)"$/i,
+      describe(match) {
+        const entry = lookupEntry('blast x');
+        return formatEntry(entry, { x: `${match[1]}"` });
+      }
+    },
+    {
+      pattern: /^Devastating\s+(\d+)/i,
+      describe(match) {
+        const entry = lookupEntry('devastating x');
+        return formatEntry(entry, { x: match[1] });
+      }
+    },
+    {
+      pattern: /^Piercing\s+Crits\s+(\d+)/i,
+      describe(match) {
+        const entry = lookupEntry('piercing x');
+        const value = match[1];
+        return formatEntry(entry, { x: value }, {
+          russianName: `Пробивающий критами ${value}`,
+          englishName: `Piercing Crits ${value}`
+        });
+      }
+    },
+    {
+      pattern: /^Piercing\s+(\d+)/i,
+      describe(match) {
+        const entry = lookupEntry('piercing x');
+        return formatEntry(entry, { x: match[1] });
+      }
+    },
+    {
+      pattern: /^Range\s+([\d.]+)"$/i,
+      describe(match) {
+        const entry = lookupEntry('range x');
+        return formatEntry(entry, { x: `${match[1]}"` });
+      }
+    },
+    {
+      pattern: /^Lethal\s+(\d\+?)$/i,
+      describe(match) {
+        const entry = lookupEntry('lethal x+');
+        const value = match[1];
+        return formatEntry(entry, { 'x+': value, x: value });
+      }
+    },
+    {
+      pattern: /^Limited\s+(\d+)/i,
+      describe(match) {
+        const entry = lookupEntry('limited x');
+        return formatEntry(entry, { x: match[1] });
+      }
+    },
+    {
+      pattern: /^Torrent\s+([\d.]+)"$/i,
+      describe(match) {
+        const entry = lookupEntry('torrent x');
+        return formatEntry(entry, { x: `${match[1]}"` });
+      }
+    },
+    {
+      pattern: /^Heavy\s*(?:,|\()\s*Dash\s+only\)?$/i,
+      describe() {
+        const entry = lookupEntry('heavy');
+        const base = formatEntry(entry);
+        return base ? `${base} Дополнительно: разрешено только действие Dash.` : '';
+      }
+    }
+  ];
+
+  return {
+    describe(ruleKey, contextNode) {
+      const original = normalizeWhitespace(ruleKey);
+      if (!original) {
+        return '';
+      }
+
+      for (const handler of handlers) {
+        const match = original.match(handler.pattern);
+        if (match) {
+          const text = handler.describe(match, original);
+          if (text) {
+            return text;
+          }
+        }
+      }
+
+      const entry = lookupEntry(original);
+      if (entry) {
+        return formatEntry(entry);
+      }
+
+      const stripped = original.replace(/\*/g, '');
+      if (stripped !== original) {
+        const strippedEntry = lookupEntry(stripped);
+        if (strippedEntry) {
+          return formatEntry(strippedEntry);
+        }
+      }
+
+      const note = findLocalRuleNote(original, contextNode);
+      if (note) {
+        return note;
+      }
+
+      const fallback = EXTRA_RULE_DESCRIPTIONS.get(original.toLowerCase())
+        || EXTRA_RULE_DESCRIPTIONS.get(stripped.toLowerCase());
+      if (fallback) {
+        return fallback;
+      }
+
+      return '';
+    }
+  };
+}
+
+function loadRuleResolver() {
+  if (!ruleResolverPromise) {
+    ruleResolverPromise = loadSpecialRulesIndex()
+      .then((index) => createRuleResolver(index))
+      .catch((error) => {
+        console.warn('Не удалось создать справочник правил оружия:', error);
+        return createRuleResolver(null);
+      });
+  }
+  return ruleResolverPromise;
 }
 
 (function initWeaponTooltips() {
@@ -577,96 +1070,116 @@ function getRuleDescription(rule) {
       return;
     }
 
-    const tooltip = document.createElement('div');
-    tooltip.id = 'weapon-rule-tooltip';
-    tooltip.className = 'weapon-tooltip';
-    tooltip.setAttribute('role', 'tooltip');
-    document.body.appendChild(tooltip);
+    loadRuleResolver()
+      .then((resolver) => {
+        if (!resolver) {
+          return;
+        }
 
-    let activeNode = null;
+        const nodesWithDescriptions = [];
 
-    const hideTooltip = () => {
-      tooltip.classList.remove('is-visible');
-      tooltip.style.left = '-9999px';
-      tooltip.style.top = '-9999px';
-      activeNode = null;
-    };
+        ruleNodes.forEach((node) => {
+          const ruleKey = node.dataset.rule || '';
+          const description = resolver.describe(ruleKey, node);
+          if (!description) {
+            return;
+          }
+          node.setAttribute('data-description', description);
+          node.setAttribute('aria-label', description);
+          nodesWithDescriptions.push(node);
+        });
 
-    const placeTooltip = (x, y) => {
-      const tooltipRect = tooltip.getBoundingClientRect();
-      const margin = 14;
-      let left = x + margin;
-      let top = y + margin;
+        if (!nodesWithDescriptions.length) {
+          return;
+        }
 
-      if (left + tooltipRect.width > window.innerWidth - 8) {
-        left = x - tooltipRect.width - margin;
-      }
-      if (left < 8) {
-        left = 8;
-      }
+        const tooltip = document.createElement('div');
+        tooltip.id = 'weapon-rule-tooltip';
+        tooltip.className = 'weapon-tooltip';
+        tooltip.setAttribute('role', 'tooltip');
+        document.body.appendChild(tooltip);
 
-      if (top + tooltipRect.height > window.innerHeight - 8) {
-        top = y - tooltipRect.height - margin;
-      }
-      if (top < 8) {
-        top = 8;
-      }
+        let activeNode = null;
 
-      tooltip.style.left = `${left}px`;
-      tooltip.style.top = `${top}px`;
-    };
+        const hideTooltip = () => {
+          tooltip.classList.remove('is-visible');
+          tooltip.style.left = '-9999px';
+          tooltip.style.top = '-9999px';
+          activeNode = null;
+        };
 
-    const showTooltip = (node, event) => {
-      const text = node.getAttribute('data-description');
-      if (!text) {
-        return;
-      }
-      tooltip.textContent = text;
-      tooltip.classList.add('is-visible');
-      activeNode = node;
-      if (event && event.type.startsWith('mouse')) {
-        placeTooltip(event.clientX, event.clientY);
-      } else {
-        const rect = node.getBoundingClientRect();
-        placeTooltip(rect.left + rect.width / 2, rect.top);
-      }
-    };
+        const placeTooltip = (x, y) => {
+          const tooltipRect = tooltip.getBoundingClientRect();
+          const margin = 14;
+          let left = x + margin;
+          let top = y + margin;
 
-    const moveTooltip = (event) => {
-      if (!activeNode) {
-        return;
-      }
-      placeTooltip(event.clientX, event.clientY);
-    };
+          if (left + tooltipRect.width > window.innerWidth - 8) {
+            left = x - tooltipRect.width - margin;
+          }
+          if (left < 8) {
+            left = 8;
+          }
 
-    ruleNodes.forEach((node) => {
-      const ruleKey = node.dataset.rule || '';
-      const description = getRuleDescription(ruleKey);
-      if (!description) {
-        return;
-      }
-      node.setAttribute('data-description', description);
-      node.setAttribute('aria-label', description);
-      node.setAttribute('aria-describedby', 'weapon-rule-tooltip');
+          if (top + tooltipRect.height > window.innerHeight - 8) {
+            top = y - tooltipRect.height - margin;
+          }
+          if (top < 8) {
+            top = 8;
+          }
 
-      node.addEventListener('mouseenter', (event) => {
-        showTooltip(node, event);
+          tooltip.style.left = `${left}px`;
+          tooltip.style.top = `${top}px`;
+        };
+
+        const showTooltip = (node, event) => {
+          const text = node.getAttribute('data-description');
+          if (!text) {
+            return;
+          }
+          tooltip.textContent = text;
+          tooltip.classList.add('is-visible');
+          activeNode = node;
+          if (event && event.type.startsWith('mouse')) {
+            placeTooltip(event.clientX, event.clientY);
+          } else {
+            const rect = node.getBoundingClientRect();
+            placeTooltip(rect.left + rect.width / 2, rect.top);
+          }
+        };
+
+        const moveTooltip = (event) => {
+          if (!activeNode) {
+            return;
+          }
+          placeTooltip(event.clientX, event.clientY);
+        };
+
+        nodesWithDescriptions.forEach((node) => {
+          node.setAttribute('aria-describedby', 'weapon-rule-tooltip');
+          node.addEventListener('mouseenter', (event) => {
+            showTooltip(node, event);
+          });
+          node.addEventListener('mouseleave', hideTooltip);
+          node.addEventListener('mousemove', moveTooltip);
+          node.addEventListener('focus', (event) => {
+            showTooltip(node, event);
+          });
+          node.addEventListener('blur', hideTooltip);
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            hideTooltip();
+          }
+        });
+      })
+      .catch((error) => {
+        console.warn('Не удалось инициализировать подсказки по правилам оружия:', error);
       });
-      node.addEventListener('mouseleave', hideTooltip);
-      node.addEventListener('mousemove', moveTooltip);
-      node.addEventListener('focus', (event) => {
-        showTooltip(node, event);
-      });
-      node.addEventListener('blur', hideTooltip);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        hideTooltip();
-      }
-    });
   });
 })();
+
 const FAVORITES_STORAGE_KEY = 'kt-favorites-v1';
 const DEFAULT_FAVORITE_SELECTORS = [
   '[data-favorite-item]',
