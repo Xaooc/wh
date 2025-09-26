@@ -57,6 +57,42 @@ weaponBtnMap={}
 local HEX_R="1E87FF"
 local HEX_M="F4641D"
 
+-- ====== FIX: авто-гидратация W и ран ======
+local function parseWFromDesc()
+  local desc=self.getDescription() or ""
+  local num=desc:match("%[84E680%]W%[%-%]%s*%[ffffff%]%s*(%d+)")
+  if num then return tonumber(num) end
+end
+
+local function parseCurMaxFromName()
+  local name=self.getName() or ""
+  local brace=name:match("%b{}")
+  if not brace then return nil,nil end
+  local cur,maxv=brace:match("{%s*(%d+)%s*/%s*(%d+)%s*}")
+  if cur and maxv then return tonumber(cur), tonumber(maxv) end
+  return nil,nil
+end
+
+local function hydrateStats()
+  state.stats=state.stats or {}
+  local prevW=state.stats.W or 0
+  local curW=state.wounds
+  local wDesc=parseWFromDesc()
+  local nCur,nMax=parseCurMaxFromName()
+  local W=wDesc or nMax or prevW or 0
+  if W>0 then
+    state.stats.W=W
+    if not curW or curW==0 or curW>W then
+      if nCur and nCur>0 and nCur<=W then
+        state.wounds=nCur
+      else
+        state.wounds=W
+      end
+    end
+  end
+end
+-- ==========================================
+
 -- единичное сообщение (либо личное, либо общее)
 function notify(p, msg)
   local color=nil
@@ -95,12 +131,13 @@ function savePosition(p,r) state.savePos={position=p or self.getPosition(),rotat
 function loadPosition() local sp=state.savePos if sp then self.setPositionSmooth(sp.position,false,true) self.setRotationSmooth(sp.rotation,false,true) self.highlightOn(Color(0.87,0.43,0.19),0.5) end end
 
 function refreshWounds()
+  hydrateStats() -- FIX: гарантируем корректные W/wounds перед вычислениями
   local w=state.wounds or 0
   local m=(state.stats and state.stats.W) or 0
   local uiwstring=function() if w==0 then return textColorXml("DA1A18","DEAD") end return string.format("%d/%d",w,m) end
   local namewstring=function()
     if w==0 then return "{[DA1A18]DEAD[-]}"
-    elseif w<m/2 then return string.format("{[9A1111]*[-]%d/%d[9A1111]*[-]}",w,m) end
+    elseif m>0 and w<m/2 then return string.format("{[9A1111]*[-]%d/%d[9A1111]*[-]}",w,m) end
     return string.format("{%d/%d}",w,m)
   end
   self.UI.setValue("ktcnid-status-wounds",uiwstring())
@@ -225,6 +262,7 @@ function callback_AttackFromDesc(pc_color,i)
 end
 
 function refreshUI()
+  hydrateStats() -- FIX: до генерации XML
   local sc=self.getScale()
   local sX,sY,sZ=1/sc.x,1/sc.y,1/sc.z
   local circOffset=function(d,a) local ra=math.rad(a); return string.format("%d %d",math.cos(ra)*d,math.sin(ra)*d) end
@@ -253,7 +291,7 @@ function refreshUI()
     <Image id="ktcnid-status-order" image="]]..getCurrentOrder()..[[" rectAlignment="MiddleRight" width="55" height="55" offsetXY="]]..off_order..[[ 0" active="true" onClick="callback_orders" />
   </Panel>
 
-  <!-- Кружки оружия: ещё ниже, круглые с обводкой -->
+  <!-- Кружки оружия -->
   <HorizontalLayout spacing="5" width="@totalWeapons" height="24" offsetXY="]]..circOffset(66,270)..[[">--@WeaponsPlaceholder</HorizontalLayout>
 
   <HorizontalLayout spacing="3" width="@totalAtt" height="30" offsetXY="]]..circOffset(135,270)..[[">--@AttachmentPlaceholder</HorizontalLayout>
@@ -265,7 +303,6 @@ function refreshUI()
     if w.type=="R" then table.insert(rList,{i=i}) else table.insert(mList,{i=i}) end
   end
 
-  -- реальные круги через маски двух слоёв
   local function circle(id,hex,label)
     return [[
 <Panel id="]]..id..[[" width="22" height="22" onClick="callback_weaponBtn">
@@ -280,8 +317,6 @@ function refreshUI()
   <Text text="]]..label..[[" rectAlignment="MiddleCenter" color="#ffffff" fontSize="12" raycastTarget="false"/>
 </Panel> --@WeaponsPlaceholder]]
   end
-
-
 
   local btn=0
   local function addGroup(list,hex)
@@ -352,8 +387,8 @@ end
 function isInjured() return (state.stats and state.stats.W) and (state.wounds or 0) < state.stats.W/2 or false end
 function toggleArrows() state.display_arrows=not state.display_arrows refreshUI() end
 
-function damage(player,_v,_id) local si=isInjured() state.wounds=math.max(0,(state.wounds or 0)-1) if not si and isInjured() then self.UI.show("ktcnid-status-injured") end saveState() refreshWounds() notify(player,string.format("%s took damage",self.getName())) end
-function heal(player,_v,_id) local si=isInjured() state.wounds=math.min(((state.stats and state.stats.W) or 0),(state.wounds or 0)+1) if si and not isInjured() then self.UI.hide("ktcnid-status-injured") end saveState() refreshWounds() notify(player,string.format("%s recovered",self.getName())) end
+function damage(player,_v,_id) hydrateStats() local si=isInjured() state.wounds=math.max(0,(state.wounds or 0)-1) if not si and isInjured() then self.UI.show("ktcnid-status-injured") end saveState() refreshWounds() notify(player,string.format("%s took damage",self.getName())) end
+function heal(player,_v,_id) hydrateStats() local si=isInjured() state.wounds=math.min(((state.stats and state.stats.W) or 0),(state.wounds or 0)+1) if si and not isInjured() then self.UI.hide("ktcnid-status-injured") end saveState() refreshWounds() notify(player,string.format("%s recovered",self.getName())) end
 function kill(player,_v,_id) state.wounds=0 saveState() refreshWounds() notify(player,string.format("%s KO",self.getName())) end
 
 function updateStats(pc_color)
@@ -363,21 +398,25 @@ function updateStats(pc_color)
   local wounds=state.wounds or 0
   local desc=self.getDescription() or ""
   state.stats=state.stats or {}
-  local inner=function(stat)
-    local sstring="%[84E680%]"..stat.."%[%-%]%s*%[ffffff%]%s*(%d+).*%[%-%]"
-    for match in string.gmatch(desc,"%b[]") do
-      local s=match:match(sstring)
-      if s then
-        local ss=state.stats[stat]
-        table.insert(statsub,string.format("%s = %s",stat,s))
-        if not ss or ss~=tonumber(s) then state.stats[stat]=tonumber(s) end
-        return true
-      end
+  local function inner(stat)
+    local s=desc:match("%[84E680%]"..stat.."%[%-%]%s*%[ffffff%]%s*(%d+)")
+    if s then
+      table.insert(statsub,string.format("%s = %s",stat,s))
+      state.stats[stat]=tonumber(s)
+      return true
+    else
+      table.insert(statsub,string.format("%s = [ff0000]X[-]",stat)); return false
     end
-    table.insert(statsub,string.format("%s = [ff0000]X[-]",stat)) return false
   end
   inner("M"); inner("APL"); inner("GA"); inner("DF"); inner("SV")
-  if inner("W") then if wounds==prevW then state.wounds=state.stats.W or 0 else state.wounds=math.min(state.wounds or 0,state.stats.W or 0) end refreshWounds() end
+  if inner("W") then
+    if wounds==0 or prevW==0 or wounds>(state.stats.W or 0) then
+      state.wounds=state.stats.W or wounds
+    else
+      state.wounds=math.min(wounds,state.stats.W or wounds)
+    end
+    refreshWounds()
+  end
   saveState() notify(pc_color,table.concat(statsub,", "))
 end
 
@@ -387,6 +426,8 @@ function onLoad(ls)
   state.attachments=state.attachments or {}
   state.info=state.info or {weapons={},categories={}}
   state.stats=state.stats or {}
+
+  hydrateStats() -- FIX: сразу получить корректные W/wounds
 
   self.addContextMenuItem("Engage",function(pc) setEngage() end)
   self.addContextMenuItem("Conceal",function(pc) setConceal() end)
