@@ -157,6 +157,7 @@ const collapsibleAnchors = new Set();
 const collapsibleContentAnchors = new Set();
 const pageNavControllers = new Map();
 let pageNavIdCounter = 0;
+const pageToolbars = new Set();
 
 function registerPageNavController(id, controller) {
   if (!id || !controller) {
@@ -588,6 +589,166 @@ function initCollapsibleSections() {
   });
 }
 
+function getCollapsibleSectionsInScope(scope) {
+  const sections = [];
+  collapsibleSectionsRegistry.forEach((section) => {
+    if (!section || !section.heading) {
+      return;
+    }
+    if (!scope) {
+      sections.push(section);
+      return;
+    }
+    if (scope.contains(section.heading)) {
+      sections.push(section);
+    }
+  });
+  return sections;
+}
+
+function initPageToolbar() {
+  pageToolbars.clear();
+  const toolbars = Array.from(document.querySelectorAll('[data-page-toolbar]'));
+  if (!toolbars.length) {
+    return;
+  }
+
+  toolbars.forEach((toolbar) => {
+    if (!toolbar || toolbar.dataset.toolbarReady === 'true') {
+      return;
+    }
+
+    const scopeSelector = toolbar.getAttribute('data-toolbar-scope');
+    let scope = null;
+    if (scopeSelector) {
+      scope = toolbar.closest(scopeSelector) || document.querySelector(scopeSelector);
+    }
+    if (!scope) {
+      scope = toolbar.parentElement || document;
+    }
+
+    const meta = {
+      toolbar,
+      scope,
+      statsNode: toolbar.querySelector('[data-toolbar-stats]'),
+      collapseButton: toolbar.querySelector('[data-toolbar-collapse]'),
+      expandButton: toolbar.querySelector('[data-toolbar-expand]'),
+      compactButton: toolbar.querySelector('[data-toolbar-compact]'),
+      printButton: toolbar.querySelector('[data-toolbar-print]'),
+      compactTargets: [],
+      compactClass: toolbar.getAttribute('data-compact-class') || 'is-compact-mode',
+      sections: [],
+      sectionIds: new Set()
+    };
+
+    const targetSelector = toolbar.getAttribute('data-compact-target');
+    if (targetSelector) {
+      meta.compactTargets = Array.from(document.querySelectorAll(targetSelector)).filter(Boolean);
+    } else {
+      meta.compactTargets = [document.body].filter(Boolean);
+    }
+
+    const updateSections = () => {
+      meta.sections = getCollapsibleSectionsInScope(scope);
+      meta.sectionIds = new Set(meta.sections.map((section) => section.id));
+    };
+
+    const updateStats = () => {
+      if (!meta.statsNode) {
+        return;
+      }
+      const total = meta.sections.length;
+      if (!total) {
+        const emptyLabel = toolbar.getAttribute('data-toolbar-empty-label');
+        meta.statsNode.textContent = emptyLabel || 'Нет секций для сворачивания';
+        if (meta.collapseButton) {
+          meta.collapseButton.disabled = true;
+        }
+        if (meta.expandButton) {
+          meta.expandButton.disabled = true;
+        }
+        return;
+      }
+      const expandedCount = meta.sections.reduce((count, section) => (
+        section.isExpanded() ? count + 1 : count
+      ), 0);
+      meta.statsNode.textContent = `${expandedCount} из ${total} секций раскрыто`;
+      if (meta.collapseButton) {
+        meta.collapseButton.disabled = expandedCount === 0;
+      }
+      if (meta.expandButton) {
+        meta.expandButton.disabled = expandedCount === total;
+      }
+    };
+
+    const setCompactState = (active) => {
+      const next = Boolean(active);
+      if (!meta.compactTargets.length) {
+        if (meta.compactButton) {
+          meta.compactButton.disabled = true;
+        }
+        return;
+      }
+      meta.compactTargets.forEach((target) => {
+        if (!target) {
+          return;
+        }
+        target.classList.toggle(meta.compactClass, next);
+      });
+      if (meta.compactButton) {
+        meta.compactButton.classList.toggle('is-active', next);
+        meta.compactButton.setAttribute('aria-pressed', next ? 'true' : 'false');
+      }
+    };
+
+    if (meta.collapseButton) {
+      meta.collapseButton.addEventListener('click', () => {
+        meta.sections.forEach((section) => section.setExpanded(false));
+        updateStats();
+      });
+    }
+
+    if (meta.expandButton) {
+      meta.expandButton.addEventListener('click', () => {
+        meta.sections.forEach((section) => section.setExpanded(true));
+        updateStats();
+      });
+    }
+
+    if (meta.printButton) {
+      meta.printButton.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    if (meta.compactButton) {
+      if (!meta.compactTargets.length) {
+        meta.compactButton.disabled = true;
+      } else {
+        const initial = meta.compactTargets.some((target) => target.classList.contains(meta.compactClass));
+        setCompactState(initial);
+        meta.compactButton.addEventListener('click', () => {
+          const current = meta.compactTargets.some((target) => target.classList.contains(meta.compactClass));
+          setCompactState(!current);
+        });
+      }
+    }
+
+    updateSections();
+    updateStats();
+
+    meta.updateSections = () => {
+      updateSections();
+      updateStats();
+    };
+    meta.updateStats = updateStats;
+    meta.setCompactState = setCompactState;
+
+    pageToolbars.add(meta);
+    toolbar.dataset.toolbarReady = 'true';
+  });
+}
+
 const KILL_TEAM_STATUS_LABELS = {
   available: 'Готово',
   planned: 'Скоро'
@@ -700,9 +861,25 @@ function initKillTeamLibrary() {
   const summary = document.querySelector('[data-killteam-summary]');
   const emptyState = document.querySelector('[data-killteam-empty]');
   const filtersContainer = document.querySelector('[data-killteam-filters]');
+  const focusWrapper = document.querySelector('[data-library-focus]');
+  const focusFiltersContainer = document.querySelector('[data-killteam-focus-filters]');
   const readyCountNode = document.querySelector('[data-killteam-ready-count]');
   const plannedCountNode = document.querySelector('[data-killteam-planned-count]');
   const upcomingListNode = document.querySelector('[data-killteam-upcoming]');
+
+  const previewContainer = document.querySelector('[data-killteam-preview]');
+  const previewCard = previewContainer ? previewContainer.querySelector('[data-killteam-preview-card]') : null;
+  const previewPlaceholder = previewContainer ? previewContainer.querySelector('[data-killteam-preview-empty]') : null;
+  const previewName = previewContainer ? previewContainer.querySelector('[data-killteam-preview-name]') : null;
+  const previewOriginal = previewContainer ? previewContainer.querySelector('[data-killteam-preview-original]') : null;
+  const previewSummary = previewContainer ? previewContainer.querySelector('[data-killteam-preview-summary]') : null;
+  const previewFaction = previewContainer ? previewContainer.querySelector('[data-killteam-preview-faction]') : null;
+  const previewAlignment = previewContainer ? previewContainer.querySelector('[data-killteam-preview-alignment]') : null;
+  const previewTags = previewContainer ? previewContainer.querySelector('[data-killteam-preview-tags]') : null;
+  const previewStatus = previewContainer ? previewContainer.querySelector('[data-killteam-preview-status]') : null;
+  const previewActions = previewContainer ? previewContainer.querySelector('[data-killteam-preview-actions]') : null;
+  const resetButton = document.querySelector('[data-killteam-reset]');
+
 
   const teams = KILL_TEAM_LIBRARY.map((team) => {
     const focus = Array.isArray(team.focus) ? team.focus.filter(Boolean) : [];
@@ -723,6 +900,18 @@ function initKillTeamLibrary() {
     };
   });
 
+
+  const teamsByKey = new Map();
+  teams.forEach((team) => {
+    if (team.key) {
+      teamsByKey.set(team.key, team);
+    }
+  });
+
+  const focusTags = Array.from(new Set(teams.flatMap((team) => team.focus))).filter(Boolean);
+  focusTags.sort((a, b) => a.localeCompare(b, 'ru'));
+
+
   const plannedTeams = teams.filter((team) => team.status === 'planned');
   const readyCount = teams.filter((team) => team.status !== 'planned').length;
   const plannedCount = plannedTeams.length;
@@ -739,10 +928,12 @@ function initKillTeamLibrary() {
   if (upcomingListNode) {
     upcomingListNode.innerHTML = '';
     if (!plannedTeams.length) {
-      const emptyState = document.createElement('li');
-      emptyState.className = 'hero__next-up-empty';
-      emptyState.textContent = 'Сейчас все доступные материалы опубликованы. Добавьте готовые команды в избранное, чтобы получить быстрый доступ.';
-      upcomingListNode.appendChild(emptyState);
+
+      const plannedEmptyState = document.createElement('li');
+      plannedEmptyState.className = 'hero__next-up-empty';
+      plannedEmptyState.textContent = 'Сейчас все доступные материалы опубликованы. Добавьте готовые команды в избранное, чтобы получить быстрый доступ.';
+      upcomingListNode.appendChild(plannedEmptyState);
+
     } else {
       const formatter = (team) => {
         const item = document.createElement('li');
@@ -774,13 +965,26 @@ function initKillTeamLibrary() {
   }
 
   let activeAlignment = 'all';
+  let activeFocus = 'all';
   let filterButtons = [];
+  let focusButtons = [];
+  let selectedTeamKey = '';
 
-  function updateSummary(total) {
+  function updateSummary(total, searchValue = '') {
     if (!summary) {
       return;
     }
-    summary.textContent = `Показано ${total} из ${teams.length} килл-тимов`;
+    const parts = [`Показано ${total} из ${teams.length} килл-тимов`];
+    if (activeAlignment !== 'all') {
+      parts.push(`Альянс: ${activeAlignment}`);
+    }
+    if (activeFocus !== 'all') {
+      parts.push(`Акцент: ${activeFocus}`);
+    }
+    if (searchValue) {
+      parts.push(`Поиск: «${searchValue}»`);
+    }
+    summary.textContent = parts.join(' • ');
   }
 
   function updateClearButton(value) {
@@ -796,6 +1000,15 @@ function initKillTeamLibrary() {
     filterButtons.forEach((button) => {
       const value = button.dataset.filterValue || 'all';
       const isActive = (value === 'all' && activeAlignment === 'all') || (value !== 'all' && activeAlignment === value);
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  function updateFocusButtons() {
+    focusButtons.forEach((button) => {
+      const value = button.dataset.focusValue || 'all';
+      const isActive = value === activeFocus;
       button.classList.toggle('is-active', isActive);
       button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
@@ -843,6 +1056,236 @@ function initKillTeamLibrary() {
     updateFilterButtons();
   }
 
+  function renderFocusFilters() {
+    if (!focusFiltersContainer) {
+      return;
+    }
+    focusFiltersContainer.innerHTML = '';
+    focusButtons = [];
+    if (focusWrapper) {
+      focusWrapper.hidden = focusTags.length === 0;
+    }
+    if (!focusTags.length) {
+      return;
+    }
+
+    const createButton = (value, label) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'chip chip--soft';
+      button.dataset.focusValue = value;
+      button.textContent = label;
+      button.addEventListener('click', () => {
+        if (value === 'all') {
+          activeFocus = 'all';
+        } else {
+          activeFocus = activeFocus === value ? 'all' : value;
+        }
+        updateFocusButtons();
+        applyFilters();
+      });
+      focusButtons.push(button);
+      focusFiltersContainer.appendChild(button);
+    };
+
+    createButton('all', 'Все акценты');
+    focusTags.forEach((tag) => {
+      createButton(tag, tag);
+    });
+    updateFocusButtons();
+  }
+
+  function createLibraryFavoriteItem(team) {
+    const slug = team.key || slugify(team.name || team.originalName || 'killteam');
+    const title = team.name || team.originalName || 'Kill Team';
+    const pageTitle = 'Библиотека Kill Team HQ';
+    const url = team.href || 'index.html';
+    const metaParts = [team.faction, team.alignment].filter(Boolean);
+    const meta = metaParts.length ? `<p class="favorite-preview__meta">${metaParts.join(' • ')}</p>` : '';
+    const summaryHTML = team.summary ? `<p>${team.summary}</p>` : '';
+    const tagsHTML = team.focus && team.focus.length
+      ? `<p class="favorite-preview__tags">${team.focus.join(', ')}</p>`
+      : '';
+    const previewHTML = `
+      <div class="favorite-preview favorite-preview--library">
+        <strong>${title}</strong>
+        ${team.originalName ? `<p class="favorite-preview__subtitle">${team.originalName}</p>` : ''}
+        ${meta}
+        ${summaryHTML}
+        ${tagsHTML}
+      </div>
+    `;
+    return {
+      id: `library-${slug}`,
+      title,
+      sectionTitle: 'Библиотека',
+      pageKey: 'library',
+      pageTitle,
+      url,
+      previewHTML
+    };
+  }
+
+  function clearPreview() {
+    if (previewPlaceholder) {
+      previewPlaceholder.hidden = false;
+    }
+    if (previewCard) {
+      previewCard.hidden = true;
+    }
+    if (previewName) {
+      previewName.textContent = '';
+    }
+    if (previewOriginal) {
+      previewOriginal.textContent = '';
+      previewOriginal.hidden = true;
+    }
+    if (previewSummary) {
+      previewSummary.textContent = '';
+    }
+    if (previewFaction) {
+      previewFaction.textContent = '—';
+    }
+    if (previewAlignment) {
+      previewAlignment.textContent = '—';
+    }
+    if (previewTags) {
+      previewTags.innerHTML = '';
+    }
+    if (previewStatus) {
+      previewStatus.textContent = '';
+    }
+    if (previewActions) {
+      previewActions.innerHTML = '';
+    }
+  }
+
+  function showPreview(team) {
+    if (!previewContainer || !previewCard) {
+      return;
+    }
+    if (!team) {
+      clearPreview();
+      return;
+    }
+    if (previewPlaceholder) {
+      previewPlaceholder.hidden = true;
+    }
+    previewCard.hidden = false;
+
+    if (previewName) {
+      previewName.textContent = team.name || '';
+    }
+    if (previewOriginal) {
+      previewOriginal.textContent = team.originalName || '';
+      previewOriginal.hidden = !team.originalName;
+    }
+    if (previewSummary) {
+      previewSummary.textContent = team.summary || 'Краткое описание будет добавлено позже.';
+    }
+    if (previewFaction) {
+      previewFaction.textContent = team.faction || '—';
+    }
+    if (previewAlignment) {
+      previewAlignment.textContent = team.alignment || '—';
+    }
+    if (previewStatus) {
+      const label = KILL_TEAM_STATUS_LABELS[team.status] || 'Готово';
+      previewStatus.textContent = `Статус: ${label}`;
+    }
+    if (previewTags) {
+      previewTags.innerHTML = '';
+      if (team.focus && team.focus.length) {
+        team.focus.forEach((tag) => {
+          const chip = document.createElement('span');
+          chip.className = 'killteam-preview__tag';
+          chip.textContent = tag;
+          previewTags.appendChild(chip);
+        });
+      } else {
+        const chip = document.createElement('span');
+        chip.className = 'killteam-preview__tag killteam-preview__tag--muted';
+        chip.textContent = 'Без отмеченных акцентов';
+        previewTags.appendChild(chip);
+      }
+    }
+    if (previewActions) {
+      previewActions.innerHTML = '';
+      if (team.status === 'planned' || !team.href) {
+        const planned = document.createElement('span');
+        planned.className = 'button button--disabled';
+        planned.textContent = 'Материалы в разработке';
+        planned.setAttribute('aria-disabled', 'true');
+        previewActions.appendChild(planned);
+      } else {
+        const link = document.createElement('a');
+        link.className = 'button button--primary';
+        link.href = team.href;
+        link.textContent = 'Открыть шпаргалку';
+        if (team.key) {
+          link.dataset.navKey = team.key;
+        }
+        previewActions.appendChild(link);
+
+        const favoriteButton = document.createElement('button');
+        favoriteButton.type = 'button';
+        favoriteButton.className = 'button button--ghost';
+        const item = createLibraryFavoriteItem(team);
+        const updateFavoriteButton = () => {
+          const isActive = isFavoriteItem(item.id);
+          favoriteButton.classList.toggle('is-active', isActive);
+          favoriteButton.textContent = isActive ? 'Убрать из избранного' : 'Добавить в избранное';
+          favoriteButton.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        };
+        favoriteButton.addEventListener('click', () => {
+          toggleFavorite(item);
+          updateFavoriteButton();
+        });
+        updateFavoriteButton();
+        previewActions.appendChild(favoriteButton);
+      }
+    }
+  }
+
+  function updateCardSelection() {
+    const cards = list.querySelectorAll('.killteam-card');
+    cards.forEach((card) => {
+      const key = card.dataset.teamKey || '';
+      const isSelected = key && key === selectedTeamKey;
+      card.classList.toggle('is-selected', isSelected);
+      card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+    });
+  }
+
+  function setSelectedTeam(key, options = {}) {
+    if (!key) {
+      selectedTeamKey = '';
+      clearPreview();
+      updateCardSelection();
+      return;
+    }
+    const team = teamsByKey.get(key);
+    if (!team) {
+      selectedTeamKey = '';
+      clearPreview();
+      updateCardSelection();
+      return;
+    }
+    selectedTeamKey = key;
+    showPreview(team);
+    updateCardSelection();
+    if (options.focusCard) {
+      const cards = Array.from(list.querySelectorAll('.killteam-card'));
+      const match = cards.find((card) => card.dataset.teamKey === key);
+      if (match) {
+        match.focus();
+      }
+    }
+    if (options.ensureVisible && previewContainer) {
+      previewContainer.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
   function renderList(items) {
     list.innerHTML = '';
     if (!items.length) {
@@ -856,21 +1299,80 @@ function initKillTeamLibrary() {
     }
     const fragment = document.createDocumentFragment();
     items.forEach((team) => {
-      fragment.appendChild(createKillTeamCard(team));
+      const card = createKillTeamCard(team);
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-pressed', team.key === selectedTeamKey ? 'true' : 'false');
+      if (team.key === selectedTeamKey) {
+        card.classList.add('is-selected');
+      }
+      fragment.appendChild(card);
     });
     list.appendChild(fragment);
+    updateCardSelection();
   }
 
   function applyFilters() {
-    const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : '';
-    updateClearButton(searchValue);
+    const rawSearch = searchInput ? searchInput.value.trim() : '';
+    const searchValue = rawSearch.toLowerCase();
+    updateClearButton(rawSearch);
     const filtered = teams.filter((team) => {
       const matchesSearch = !searchValue || team.searchableText.includes(searchValue);
       const matchesAlignment = activeAlignment === 'all' || team.alignment === activeAlignment;
-      return matchesSearch && matchesAlignment;
+      const matchesFocus = activeFocus === 'all' || team.focus.includes(activeFocus);
+      return matchesSearch && matchesAlignment && matchesFocus;
     });
     renderList(filtered);
-    updateSummary(filtered.length);
+    updateSummary(filtered.length, rawSearch);
+    if (selectedTeamKey) {
+      const stillVisible = filtered.some((team) => team.key === selectedTeamKey);
+      if (stillVisible) {
+        const currentTeam = teamsByKey.get(selectedTeamKey);
+        showPreview(currentTeam);
+      } else {
+        selectedTeamKey = '';
+        clearPreview();
+      }
+    }
+    if (!selectedTeamKey && filtered.length) {
+      setSelectedTeam(filtered[0].key || '', { ensureVisible: false });
+    } else if (!filtered.length) {
+      clearPreview();
+    }
+  }
+
+  if (!list.dataset.cardHandlersBound) {
+    list.addEventListener('click', (event) => {
+      const card = event.target.closest('.killteam-card');
+      if (!card || !list.contains(card)) {
+        return;
+      }
+      if (event.target.closest('.killteam-card__actions')) {
+        return;
+      }
+      const key = card.dataset.teamKey;
+      if (key) {
+        setSelectedTeam(key, { ensureVisible: true });
+      }
+    });
+    list.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      const card = event.target.closest('.killteam-card');
+      if (!card || !list.contains(card)) {
+        return;
+      }
+      if (event.target.closest('.killteam-card__actions')) {
+        return;
+      }
+      event.preventDefault();
+      const key = card.dataset.teamKey;
+      if (key) {
+        setSelectedTeam(key, { ensureVisible: true });
+      }
+    });
+    list.dataset.cardHandlersBound = 'true';
   }
 
   if (searchInput) {
@@ -897,9 +1399,29 @@ function initKillTeamLibrary() {
     });
   }
 
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      activeAlignment = 'all';
+      activeFocus = 'all';
+      selectedTeamKey = '';
+      clearPreview();
+      updateFilterButtons();
+      updateFocusButtons();
+      applyFilters();
+      if (searchInput) {
+        searchInput.focus();
+      }
+    });
+  }
+
   renderFilters();
+  renderFocusFilters();
   applyFilters();
 }
+
 
 const SPECIAL_RULES_SOURCE = 'rule.html';
 let specialRulesIndexPromise = null;
@@ -2378,6 +2900,16 @@ document.addEventListener('collapsible:change', (event) => {
   }
   const { id, expanded } = event.detail;
   notifyPageNavControllers(id, expanded);
+  pageToolbars.forEach((meta) => {
+    if (!meta || !meta.sectionIds) {
+      return;
+    }
+    if (!id || meta.sectionIds.has(id)) {
+      if (typeof meta.updateStats === 'function') {
+        meta.updateStats();
+      }
+    }
+  });
 });
 
 const PAGE_INITIALIZERS = (() => {
@@ -2429,6 +2961,7 @@ registerFavoritesConfig('rules', { selectors: ['.rules h2'] });
 PAGE_INITIALIZERS.add('common', initCollapsibleSections);
 PAGE_INITIALIZERS.add('common', initFavoritesModule);
 PAGE_INITIALIZERS.add('common', initPageTocFromMarkup);
+PAGE_INITIALIZERS.add('common', initPageToolbar);
 PAGE_INITIALIZERS.add('home', initKillTeamLibrary);
 
 document.addEventListener('DOMContentLoaded', () => {
