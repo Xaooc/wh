@@ -76,24 +76,28 @@ local function parseCurMaxFromName()
   return nil,nil
 end
 
+-- Не сбрасывать 0 HP на максимум
 local function hydrateStats()
-  state.stats=state.stats or {}
-  local prevW=state.stats.W or 0
-  local curW=state.wounds
-  local wDesc=parseWFromDesc()
-  local nCur,nMax=parseCurMaxFromName()
-  local W=wDesc or nMax or prevW or 0
-  if W>0 then
-    state.stats.W=W
-    if not curW or curW==0 or curW>W then
-      if nCur and nCur>0 and nCur<=W then
-        state.wounds=nCur
+  state.stats = state.stats or {}
+  local prevW = state.stats.W or 0
+  local curW  = rawget(state, "wounds") -- отличаем nil от 0
+  local wDesc = parseWFromDesc()
+  local nCur, nMax = parseCurMaxFromName()
+  local W = wDesc or nMax or prevW or 0
+
+  if W > 0 then
+    state.stats.W = W
+    -- Обновляем раны только если их не было (nil) или они > W. 0 сохраняем.
+    if curW == nil or curW > W then
+      if nCur and nCur > 0 and nCur <= W then
+        state.wounds = nCur
       else
-        state.wounds=W
+        state.wounds = W
       end
     end
   end
 end
+
 -- ==========================================
 
 -- единичное сообщение (либо личное, либо общее)
@@ -430,17 +434,15 @@ function damage(player,_v,_id) hydrateStats() local si=isInjured() state.wounds=
 function heal(player,_v,_id) hydrateStats() local si=isInjured() state.wounds=math.min(((state.stats and state.stats.W) or 0),(state.wounds or 0)+1) if si and not isInjured() then self.UI.hide("ktcnid-status-injured") end saveState() refreshWounds() notify(player,string.format("%s recovered",self.getName())) end
 function kill(player,_v,_id) state.wounds=0 saveState() refreshWounds() notify(player,string.format("%s KO",self.getName())) end
 
+-- При апдейте статов сохраняем 0, не лечим до фула
 function updateStats(pc_color)
   notify(pc_color,"Updating stats from values in description")
   local statsub={}
-  local prevW=(state.stats and state.stats.W) or 0
-  local wounds=state.wounds or 0
+  local hadWounds = rawget(state, "wounds") -- nil или число, 0 допустим
   local desc=self.getDescription() or ""
   state.stats=state.stats or {}
 
-  local function grab(desc,key)
-    return desc:match("%[84E680%]"..key.."%[%-%]%s*%[ffffff%]%s*(%d+)")
-  end
+  local function grab(d,key) return d:match("%[84E680%]"..key.."%[%-%]%s*%[ffffff%]%s*(%d+)") end
   local function inner(stat, alt)
     local s = grab(desc,stat) or (alt and grab(desc,alt)) or nil
     if s then
@@ -454,13 +456,15 @@ function updateStats(pc_color)
 
   inner("M","MOVE"); inner("APL"); inner("GA"); inner("DF"); inner("SV","SAVE")
   if inner("W","WOUNDS") then
-    if wounds==0 or prevW==0 or wounds>(state.stats.W or 0) then
-      state.wounds=state.stats.W or wounds
+    local W = state.stats.W
+    if hadWounds == nil then
+      state.wounds = W
     else
-      state.wounds=math.min(wounds,state.stats.W or wounds)
+      state.wounds = math.max(0, math.min(hadWounds, W)) -- 0 остаётся 0
     end
     refreshWounds()
   end
+
   saveState()
   notify(pc_color,table.concat(statsub,", "))
 end
