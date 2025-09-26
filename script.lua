@@ -58,11 +58,14 @@ local HEX_R="1E87FF"
 local HEX_M="F4641D"
 
 -- ====== FIX: авто-гидратация W и ран ======
+-- 1) W из описания: теперь понимает W и WOUNDS
 local function parseWFromDesc()
-  local desc=self.getDescription() or ""
-  local num=desc:match("%[84E680%]W%[%-%]%s*%[ffffff%]%s*(%d+)")
-  if num then return tonumber(num) end
+  local desc = self.getDescription() or ""
+  local n = desc:match("%[84E680%]W%[%-%]%s*%[ffffff%]%s*(%d+)")
+        or desc:match("%[84E680%]WOUNDS%[%-%]%s*%[ffffff%]%s*(%d+)")
+  if n then return tonumber(n) end
 end
+
 
 local function parseCurMaxFromName()
   local name=self.getName() or ""
@@ -182,34 +185,67 @@ function callback_orders(player,value,id)
 end
 
 -- парсинг оружия из описания
+-- 3) Парсер оружия: поддержка старого (A/WS/BS/D/SR) и нового (ATK/HIT/DMG/WR)
 local function parseWeaponsFromDescription()
   local desc=self.getDescription() or ""
   local weapons,lines={},{}
   for line in string.gmatch(desc,"[^\r\n]+") do table.insert(lines,line) end
+
+  local function nFrom(line, key1, key2)
+    local v = line:match("%[84E680%]"..key1.."%[%-%]%s*([%d]+)")
+           or (key2 and line:match("%[84E680%]"..key2.."%[%-%]%s*([%d]+)")) or nil
+    return v and tonumber(v) or nil
+  end
+  local function sFrom(line, key1, key2)
+    return line:match("%[84E680%]"..key1.."%[%-%]%s*([%d/]+)")
+        or (key2 and line:match("%[84E680%]"..key2.."%[%-%]%s*([%d/]+)")) or ""
+  end
+
   local i=1
   while i<=#lines do
     local line=lines[i]
     local t=nil
     if line:find("%[1E87FF%]%s*R%[%-%]") then t="R"
     elseif line:find("%[F4641D%]%s*M%[%-%]") then t="M" end
+
     if t then
-      local name=line:gsub("^%s*",""):gsub("%[1E87FF%]%s*R%[%-%]%s*",""):gsub("%[F4641D%]%s*M%[%-%]%s*","")
-      local A,WSB,D,SR=0,0,"",""
+      local name=line
+        :gsub("^%s*","")
+        :gsub("%[1E87FF%]%s*R%[%-%]%s*","")
+        :gsub("%[F4641D%]%s*M%[%-%]%s*","")
+
+      local A,BS,D,SR="",0,"",""
       if i+1<=#lines then
         local l2=lines[i+1]
-        A=tonumber(l2:match("%[84E680%]A%[%-%]%s*([%d]+)")) or 0
-        WSB=tonumber(l2:match("%[84E680%]WS/BS%[%-%]%s*([%d]+)")) or 0
-        D=l2:match("%[84E680%]D%[%-%]%s*([%d/]+)") or ""
+        A  = nFrom(l2,"A","ATK") or 0
+        BS = nFrom(l2,"WS/BS","HIT") or 0
+        D  = sFrom(l2,"D","DMG") or ""
       end
-      if i+2<=#lines and lines[i+2]:find("%[84E680%]SR%[%-%]") then
-        SR=lines[i+2]:gsub("^%s*",""):gsub("%[84E680%]SR%[%-%]%s*:%s*","")
+      if i+2<=#lines then
+        local l3=lines[i+2]
+        if l3:find("%[84E680%]SR%[%-%]") or l3:find("%[84E680%]WR%[%-%]") then
+          SR = l3
+            :gsub("^%s*","")
+            :gsub("%[84E680%]SR%[%-%]%s*:%s*","")
+            :gsub("%[84E680%]WR%[%-%]%s*:%s*","")
+        end
       end
-      table.insert(weapons,{type=t,name=name,stats={["A"]=A,["WS/BS"]=WSB,["D"]=D,["SR"]=SR}})
+
+      table.insert(weapons,{
+        type=t, name=name,
+        stats={
+          ["A"]=A, ["ATK"]=A,
+          ["WS/BS"]=BS, ["HIT"]=BS,
+          ["D"]=D, ["DMG"]=D,
+          ["SR"]=SR, ["WR"]=SR
+        }
+      })
     end
     i=i+1
   end
   return weapons
 end
+
 
 -- клик по кружку
 function callback_weaponBtn(player_color,_value,id)
@@ -218,13 +254,15 @@ function callback_weaponBtn(player_color,_value,id)
 
   local prefix=(weapon.type=="R") and "[1E87FF]R[-]" or "[F4641D]M[-]"
   local name=prefix.." "..weapon.name
-  local A=weapon.stats["A"] or 0
-  local bs=weapon.stats["WS/BS"] or 0
+  local A = weapon.stats["A"] or weapon.stats["ATK"] or 0
+  local bs = weapon.stats["WS/BS"] or weapon.stats["HIT"] or 0
   if isInjured()==true and bs>0 then bs=bs+1 end
-  local D=weapon.stats["D"] or ""
-  local SR=weapon.stats["SR"] or ""
-  notify(player_color,string.format("Profile: %s  [84E680]A[-] %d  [84E680]WS/BS[-] %d+  [84E680]D[-] %s",name,A,bs,D))
+  local D  = weapon.stats["D"] or weapon.stats["DMG"] or ""
+  local SR = weapon.stats["SR"] or weapon.stats["WR"] or ""
+  local hitLabel = weapon.stats["HIT"] and "HIT" or "WS/BS"
+  notify(player_color,string.format("Profile: %s  [84E680]A[-] %d  [84E680]%s[-] %d+  [84E680]D[-] %s",name,A,hitLabel,bs,D))
   if SR~="" then notify(player_color,"[84E680]SR[-]: "..SR) end
+
 
   local roller=nil
   for _,obj in ipairs(getAllObjects()) do if obj.hasTag("KTUIDiceRoller") then roller=obj end end
@@ -251,9 +289,10 @@ function callback_AttackFromDesc(pc_color,i)
   local w=parsedWeaponsCache[i] if not w then return end
   local prefix=(w.type=="R") and "[1E87FF]R[-]" or "[F4641D]M[-]"
   local name=prefix.." "..w.name
-  local A=w.stats["A"] or 0
-  local bs=w.stats["WS/BS"] or 0
+  local A = w.stats["A"] or w.stats["ATK"] or 0
+  local bs = w.stats["WS/BS"] or w.stats["HIT"] or 0
   if isInjured()==true and bs>0 then bs=bs+1 end
+
   print("Attacking with "..name.." "..A.."D6 @ "..bs.."+")
   local roller=nil
   for _,o in ipairs(getAllObjects()) do if o.hasTag("KTUIDiceRoller") then roller=o end end
@@ -398,8 +437,12 @@ function updateStats(pc_color)
   local wounds=state.wounds or 0
   local desc=self.getDescription() or ""
   state.stats=state.stats or {}
-  local function inner(stat)
-    local s=desc:match("%[84E680%]"..stat.."%[%-%]%s*%[ffffff%]%s*(%d+)")
+
+  local function grab(desc,key)
+    return desc:match("%[84E680%]"..key.."%[%-%]%s*%[ffffff%]%s*(%d+)")
+  end
+  local function inner(stat, alt)
+    local s = grab(desc,stat) or (alt and grab(desc,alt)) or nil
     if s then
       table.insert(statsub,string.format("%s = %s",stat,s))
       state.stats[stat]=tonumber(s)
@@ -408,8 +451,9 @@ function updateStats(pc_color)
       table.insert(statsub,string.format("%s = [ff0000]X[-]",stat)); return false
     end
   end
-  inner("M"); inner("APL"); inner("GA"); inner("DF"); inner("SV")
-  if inner("W") then
+
+  inner("M","MOVE"); inner("APL"); inner("GA"); inner("DF"); inner("SV","SAVE")
+  if inner("W","WOUNDS") then
     if wounds==0 or prevW==0 or wounds>(state.stats.W or 0) then
       state.wounds=state.stats.W or wounds
     else
@@ -417,7 +461,8 @@ function updateStats(pc_color)
     end
     refreshWounds()
   end
-  saveState() notify(pc_color,table.concat(statsub,", "))
+  saveState()
+  notify(pc_color,table.concat(statsub,", "))
 end
 
 function onLoad(ls)
