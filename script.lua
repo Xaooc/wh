@@ -58,14 +58,12 @@ local HEX_R="1E87FF"
 local HEX_M="F4641D"
 
 -- ====== FIX: авто-гидратация W и ран ======
--- 1) W из описания: теперь понимает W и WOUNDS
 local function parseWFromDesc()
   local desc = self.getDescription() or ""
   local n = desc:match("%[84E680%]W%[%-%]%s*%[ffffff%]%s*(%d+)")
         or desc:match("%[84E680%]WOUNDS%[%-%]%s*%[ffffff%]%s*(%d+)")
   if n then return tonumber(n) end
 end
-
 
 local function parseCurMaxFromName()
   local name=self.getName() or ""
@@ -76,31 +74,26 @@ local function parseCurMaxFromName()
   return nil,nil
 end
 
--- Не сбрасывать 0 HP на максимум
 local function hydrateStats()
-  state.stats = state.stats or {}
-  local prevW = state.stats.W or 0
-  local curW  = rawget(state, "wounds") -- отличаем nil от 0
-  local wDesc = parseWFromDesc()
-  local nCur, nMax = parseCurMaxFromName()
-  local W = wDesc or nMax or prevW or 0
-
-  if W > 0 then
-    state.stats.W = W
-    -- Обновляем раны только если их не было (nil) или они > W. 0 сохраняем.
-    if curW == nil or curW > W then
-      if nCur and nCur > 0 and nCur <= W then
-        state.wounds = nCur
+  state.stats=state.stats or {}
+  local prevW=state.stats.W or 0
+  local curW=state.wounds
+  local wDesc=parseWFromDesc()
+  local nCur,nMax=parseCurMaxFromName()
+  local W=wDesc or nMax or prevW or 0
+  if W>0 then
+    state.stats.W=W
+    if not curW or curW==0 or curW>W then
+      if nCur and nCur>0 and nCur<=W then
+        state.wounds=nCur
       else
-        state.wounds = W
+        state.wounds=W
       end
     end
   end
 end
-
 -- ==========================================
 
--- единичное сообщение (либо личное, либо общее)
 function notify(p, msg)
   local color=nil
   if type(p)=="string" then color=p elseif type(p)=="userdata" and p.color then color=p.color end
@@ -138,7 +131,7 @@ function savePosition(p,r) state.savePos={position=p or self.getPosition(),rotat
 function loadPosition() local sp=state.savePos if sp then self.setPositionSmooth(sp.position,false,true) self.setRotationSmooth(sp.rotation,false,true) self.highlightOn(Color(0.87,0.43,0.19),0.5) end end
 
 function refreshWounds()
-  hydrateStats() -- FIX: гарантируем корректные W/wounds перед вычислениями
+  hydrateStats()
   local w=state.wounds or 0
   local m=(state.stats and state.stats.W) or 0
   local uiwstring=function() if w==0 then return textColorXml("DA1A18","DEAD") end return string.format("%d/%d",w,m) end
@@ -189,7 +182,6 @@ function callback_orders(player,value,id)
 end
 
 -- парсинг оружия из описания
--- 3) Парсер оружия: поддержка старого (A/WS/BS/D/SR) и нового (ATK/HIT/DMG/WR)
 local function parseWeaponsFromDescription()
   local desc=self.getDescription() or ""
   local weapons,lines={},{}
@@ -250,23 +242,19 @@ local function parseWeaponsFromDescription()
   return weapons
 end
 
-
--- клик по кружку
 function callback_weaponBtn(player_color,_value,id)
   local idx=weaponBtnMap[id] if not idx then return end
   local weapon=parsedWeaponsCache[idx] if not weapon then return end
 
   local prefix=(weapon.type=="R") and "[1E87FF]R[-]" or "[F4641D]M[-]"
   local name=prefix.." "..weapon.name
-  local A = weapon.stats["A"] or weapon.stats["ATK"] or 0
-  local bs = weapon.stats["WS/BS"] or weapon.stats["HIT"] or 0
+  local A=weapon.stats["A"] or 0
+  local bs=weapon.stats["WS/BS"] or 0
   if isInjured()==true and bs>0 then bs=bs+1 end
-  local D  = weapon.stats["D"] or weapon.stats["DMG"] or ""
-  local SR = weapon.stats["SR"] or weapon.stats["WR"] or ""
-  local hitLabel = weapon.stats["HIT"] and "HIT" or "WS/BS"
-  notify(player_color,string.format("Profile: %s  [84E680]A[-] %d  [84E680]%s[-] %d+  [84E680]D[-] %s",name,A,hitLabel,bs,D))
+  local D=weapon.stats["D"] or ""
+  local SR=weapon.stats["SR"] or ""
+  notify(player_color,string.format("Profile: %s  [84E680]A[-] %d  [84E680]WS/BS[-] %d+  [84E680]D[-] %s",name,A,bs,D))
   if SR~="" then notify(player_color,"[84E680]SR[-]: "..SR) end
-
 
   local roller=nil
   for _,obj in ipairs(getAllObjects()) do if obj.hasTag("KTUIDiceRoller") then roller=obj end end
@@ -278,7 +266,6 @@ function callback_weaponBtn(player_color,_value,id)
   end,5)
 end
 
--- контекст-меню из описания
 function rebuildContextWeapons()
   parsedWeaponsCache=parseWeaponsFromDescription()
   for i,w in ipairs(parsedWeaponsCache) do
@@ -293,10 +280,9 @@ function callback_AttackFromDesc(pc_color,i)
   local w=parsedWeaponsCache[i] if not w then return end
   local prefix=(w.type=="R") and "[1E87FF]R[-]" or "[F4641D]M[-]"
   local name=prefix.." "..w.name
-  local A = w.stats["A"] or w.stats["ATK"] or 0
-  local bs = w.stats["WS/BS"] or w.stats["HIT"] or 0
+  local A=w.stats["A"] or 0
+  local bs=w.stats["WS/BS"] or 0
   if isInjured()==true and bs>0 then bs=bs+1 end
-
   print("Attacking with "..name.." "..A.."D6 @ "..bs.."+")
   local roller=nil
   for _,o in ipairs(getAllObjects()) do if o.hasTag("KTUIDiceRoller") then roller=o end end
@@ -305,7 +291,7 @@ function callback_AttackFromDesc(pc_color,i)
 end
 
 function refreshUI()
-  hydrateStats() -- FIX: до генерации XML
+  hydrateStats()
   local sc=self.getScale()
   local sX,sY,sZ=1/sc.x,1/sc.y,1/sc.z
   local circOffset=function(d,a) local ra=math.rad(a); return string.format("%d %d",math.cos(ra)*d,math.sin(ra)*d) end
@@ -434,15 +420,17 @@ function damage(player,_v,_id) hydrateStats() local si=isInjured() state.wounds=
 function heal(player,_v,_id) hydrateStats() local si=isInjured() state.wounds=math.min(((state.stats and state.stats.W) or 0),(state.wounds or 0)+1) if si and not isInjured() then self.UI.hide("ktcnid-status-injured") end saveState() refreshWounds() notify(player,string.format("%s recovered",self.getName())) end
 function kill(player,_v,_id) state.wounds=0 saveState() refreshWounds() notify(player,string.format("%s KO",self.getName())) end
 
--- При апдейте статов сохраняем 0, не лечим до фула
 function updateStats(pc_color)
   notify(pc_color,"Updating stats from values in description")
   local statsub={}
-  local hadWounds = rawget(state, "wounds") -- nil или число, 0 допустим
+  local prevW=(state.stats and state.stats.W) or 0
+  local wounds=state.wounds or 0
   local desc=self.getDescription() or ""
   state.stats=state.stats or {}
 
-  local function grab(d,key) return d:match("%[84E680%]"..key.."%[%-%]%s*%[ffffff%]%s*(%d+)") end
+  local function grab(desc,key)
+    return desc:match("%[84E680%]"..key.."%[%-%]%s*%[ffffff%]%s*(%d+)")
+  end
   local function inner(stat, alt)
     local s = grab(desc,stat) or (alt and grab(desc,alt)) or nil
     if s then
@@ -456,18 +444,129 @@ function updateStats(pc_color)
 
   inner("M","MOVE"); inner("APL"); inner("GA"); inner("DF"); inner("SV","SAVE")
   if inner("W","WOUNDS") then
-    local W = state.stats.W
-    if hadWounds == nil then
-      state.wounds = W
+    if wounds==0 or prevW==0 or wounds>(state.stats.W or 0) then
+      state.wounds=state.stats.W or wounds
     else
-      state.wounds = math.max(0, math.min(hadWounds, W)) -- 0 остаётся 0
+      state.wounds=math.min(wounds,state.stats.W or wounds)
     end
     refreshWounds()
   end
-
   saveState()
   notify(pc_color,table.concat(statsub,", "))
 end
+
+-- ===== Интеграция функционала Script2 (KTMT маршруты и конусы) =====
+-- Без привязки к игроку. Никаких self.setLock/interactive=false.
+-- Спавним рядом с миниатюрой. Исправлены опечатки nil/fresnel_strength.
+local function _ktmt_spawn(objData, modelData, scriptUrl, vars, physics)
+  local o = spawnObject(objData)
+  o.setCustomObject(modelData)
+  if physics then
+    for k,v in pairs(physics) do o[k]=v end
+  end
+  WebRequest.get(scriptUrl, function(req)
+    local script = req.text or ""
+    o.setLuaScript(script)
+    if vars then
+      for k,v in pairs(vars) do o.setVar(k,v) end
+    end
+  end)
+  return o
+end
+
+function agregaRuta()
+  local pos = self.getPosition()
+  local rot = self.getRotation()
+  local baseX = (state.base and state.base.x) or 25
+  local objData = {
+    type="Custom_Model",
+    scale={1,1,1},
+    rotation={rot.x,rot.y,rot.z},
+    position={pos.x+1, pos.y+0.2, pos.z}
+  }
+  local modelData = {
+    mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/main/"..tostring(baseX).."MM.obj",
+    diffuse  = "https://i.imgur.com/K1RvGML.jpg",
+    collider = "https://raw.githubusercontent.com/Ixidior/KTMT/main/collider4.obj",
+    type=0, material=0,
+    specular_intensity=0,
+    specular_sharpness=7,
+    fresnel_strength=0.4
+  }
+  local phys = {
+    angular_drag=0.1, bounciness=0,
+    dynamic_friction=0.7, drag=0.1, mass=1, static_friction=1
+  }
+  local o = _ktmt_spawn(
+    objData, modelData,
+    "https://raw.githubusercontent.com/Ixidior/KTMT/main/Node",
+    { GUIDModel=self.getGUID(), GUIDNodPrev=self.getGUID() },
+    phys
+  )
+end
+
+function agregaCono()
+  local pos = self.getPosition()
+  local rot = self.getRotation()
+  local objData = {
+    type="Custom_Model",
+    scale={1,1,1},
+    rotation={rot.x,rot.y,rot.z},
+    position={pos.x+1.2, pos.y+0.2, pos.z}
+  }
+  local modelData = {
+    mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE.obj",
+    diffuse  = "https://i.imgur.com/K1RvGML.jpg",
+    collider = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE_COLLIDER.obj",
+    type=0, material=0,
+    specular_intensity=0,
+    specular_sharpness=7,
+    fresnel_strength=0.4
+  }
+  local phys = {
+    angular_drag=120, bounciness=0,
+    dynamic_friction=1, drag=120, mass=10, static_friction=1,
+    use_gravity=false
+  }
+  local o = _ktmt_spawn(
+    objData, modelData,
+    "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/ScriptCono",
+    { GUIDModel=self.getGUID() },
+    phys
+  )
+end
+
+function agregaConoR()
+  local pos = self.getPosition()
+  local rot = self.getRotation()
+  local objData = {
+    type="Custom_Model",
+    scale={1,1,1},
+    rotation={rot.x,rot.y,rot.z},
+    position={pos.x+1.2, pos.y+0.2, pos.z}
+  }
+  local modelData = {
+    mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE.obj",
+    diffuse  = "https://i.imgur.com/K1RvGML.jpg",
+    collider = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE.obj",
+    type=0, material=0,
+    specular_intensity=0,
+    specular_sharpness=7,
+    fresnel_strength=0.4
+  }
+  local phys = {
+    angular_drag=120, bounciness=0,
+    dynamic_friction=1, drag=120, mass=10, static_friction=1,
+    use_gravity=true
+  }
+  local o = _ktmt_spawn(
+    objData, modelData,
+    "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/ScriptConoR",
+    { GUIDModel=self.getGUID() },
+    phys
+  )
+end
+-- ===== конец интеграции Script2 =====
 
 function onLoad(ls)
   loadState()
@@ -476,7 +575,7 @@ function onLoad(ls)
   state.info=state.info or {weapons={},categories={}}
   state.stats=state.stats or {}
 
-  hydrateStats() -- FIX: сразу получить корректные W/wounds
+  hydrateStats()
 
   self.addContextMenuItem("Engage",function(pc) setEngage() end)
   self.addContextMenuItem("Conceal",function(pc) setConceal() end)
@@ -485,6 +584,11 @@ function onLoad(ls)
   self.addContextMenuItem("Load place",function(pc) loadPosition() end)
   self.addContextMenuItem("Update stats",updateStats)
   self.addContextMenuItem("Change UI position",function(pc) state.isHorizontal=not (state.isHorizontal==true) refreshUI() end)
+
+  -- Меню из Script2
+  self.addContextMenuItem("Movement", function(pc) agregaRuta() end)
+  self.addContextMenuItem("LOS (Offensive)", function(pc) agregaCono() end)
+  self.addContextMenuItem("LOS (Defensive)", function(pc) agregaConoR() end)
 
   rebuildContextWeapons()
 
