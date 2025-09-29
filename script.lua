@@ -82,12 +82,15 @@ local function hydrateStats()
   local W=wDesc or nMax or prevW or 0
   if W>0 then
     state.stats.W=W
-    if not curW or curW==0 or curW>W then
-      if nCur and nCur>0 and nCur<=W then
+    -- не трогаем 0: только инициализация или кламп сверху
+    if curW==nil or curW>W then
+      if nCur and nCur>=0 and nCur<=W then
         state.wounds=nCur
       else
         state.wounds=W
       end
+    else
+      state.wounds=math.max(0, math.min(curW, W))
     end
   end
 end
@@ -422,7 +425,7 @@ function updateStats(pc_color)
   notify(pc_color,"Updating stats from values in description")
   local statsub={}
   local prevW=(state.stats and state.stats.W) or 0
-  local wounds=state.wounds or 0
+  local wounds=state.wounds  -- сохраняем 0, не переписываем
   local desc=self.getDescription() or ""
   state.stats=state.stats or {}
 
@@ -442,10 +445,11 @@ function updateStats(pc_color)
 
   inner("M","MOVE"); inner("APL"); inner("GA"); inner("DF"); inner("SV","SAVE")
   if inner("W","WOUNDS") then
-    if wounds==0 or prevW==0 or wounds>(state.stats.W or 0) then
-      state.wounds=state.stats.W or wounds
+    local W = state.stats.W or 0
+    if wounds==nil then
+      state.wounds=W
     else
-      state.wounds=math.min(wounds,state.stats.W or wounds)
+      state.wounds=math.max(0, math.min(wounds, W))
     end
     refreshWounds()
   end
@@ -523,49 +527,10 @@ function agregaRuta()
   )
 end
 
--- OFFENSIVE: локальный безопасный скрипт, чтобы конус не исчезал
-function agregaCono()
-  local pos = self.getPosition()
-  local rot = self.getRotation()
-  local objData = {
-    type="Custom_Model",
-    scale={1,1,1},
-    rotation={rot.x,rot.y,rot.z},
-    position={pos.x+1.2, pos.y+0.2, pos.z}
-  }
-  local modelData = {
-    mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE.obj",
-    diffuse  = "https://i.imgur.com/K1RvGML.jpg",
-    collider = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE_COLLIDER.obj",
-    type=0, material=0,
-    specular_intensity=0,
-    specular_sharpness=7,
-    fresnel_strength=0.4
-  }
-  local phys = {
-    angular_drag=120, bounciness=0,
-    dynamic_friction=1, drag=120, mass=10, static_friction=1,
-    use_gravity=false
-  }
-  local inline = [[
-function onLoad()
-  self.setName("LOS (Offensive)")
-  self.interactable = true
-  self.setLock(false)
-  self.use_gravity = false
-  self.setScale({1,1,1})
-end
-function onDropped(player_color) end
-]]
-  _ktmt_spawn(
-    objData, modelData,
-    inline,
-    { GUIDModel=self.getGUID() },
-    phys, true
-  )
-end
+-- УДАЛЕНО: LOS (Offensive)
 
-function agregaConoR()
+-- Переименованный Defensive → LOS
+function agregaLOS()
   local pos = self.getPosition()
   local rot = self.getRotation()
   local objData = {
@@ -595,6 +560,9 @@ function agregaConoR()
     phys, false
   )
 end
+-- совместимость со старым именем
+function agregaConoR() agregaLOS() end
+
 -- ===== конец KTMT =====
 
 function onLoad(ls)
@@ -603,6 +571,10 @@ function onLoad(ls)
   state.attachments=state.attachments or {}
   state.info=state.info or {weapons={},categories={}}
   state.stats=state.stats or {}
+
+  -- статус по умолчанию: Conceal Ready
+  if state.order==nil then state.order="Conceal" end
+  if state.ready==nil then state.ready=true end
 
   hydrateStats()
 
@@ -615,8 +587,8 @@ function onLoad(ls)
   self.addContextMenuItem("Change UI position",function(pc) state.isHorizontal=not (state.isHorizontal==true) refreshUI() end)
 
   self.addContextMenuItem("Movement", function(pc) agregaRuta() end)
-  self.addContextMenuItem("LOS (Offensive)", function(pc) agregaCono() end)
-  self.addContextMenuItem("LOS (Defensive)", function(pc) agregaConoR() end)
+  -- только один пункт LOS
+  self.addContextMenuItem("LOS", function(pc) agregaLOS() end)
 
   rebuildContextWeapons()
 
@@ -632,7 +604,7 @@ function callback_Attack(pc_color,i) callback_AttackFromDesc(pc_color,i) end
 function setEngage() state.order="Engage" state.ready=true refreshUI() end
 function setConceal() state.order="Conceal" state.ready=true refreshUI() end
 
-function getCurrentOrder() local o=state.order or "Engage" if state.ready==nil or state.ready then return o.."_ready" else return o.."_activated" end end
+function getCurrentOrder() local o=state.order or "Conceal" if state.ready==nil or state.ready then return o.."_ready" else return o.."_activated" end end
 function onPickUp(pc) if rangeShown then refreshVectors(true) end end
 function tryRandomize(pc) rangeShown,measureColor,measureRange=not rangeShown,nil,0 refreshVectors() return false end
 function getOwningPlayer() return nil end
