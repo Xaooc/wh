@@ -453,7 +453,7 @@ function updateStats(pc_color)
   notify(pc_color,table.concat(statsub,", "))
 end
 
--- ===== KTMT: спавн маршрута и конусов (инициализация переменных ДО onLoad внешних скриптов) =====
+-- ===== KTMT: утилиты =====
 local function _prefix_vars(vars)
   if not vars then return "" end
   local xs={}
@@ -470,26 +470,28 @@ local function _prefix_vars(vars)
     end
     table.insert(xs,line)
   end
-  -- защитные заглушки, если внешний код ожидает таблицы
-  table.insert(xs,'pc=nil')
   return table.concat(xs,"\n").."\n"
 end
 
-local function _ktmt_spawn(objData, modelData, scriptUrl, vars, physics)
+local function _ktmt_spawn(objData, modelData, scriptOrUrl, vars, physics, isInline)
   local o = spawnObject(objData)
   o.setCustomObject(modelData)
   if physics then for k,v in pairs(physics) do o[k]=v end end
 
-  WebRequest.get(scriptUrl, function(req)
-    local raw = req.text or ""
-    local prefix = _prefix_vars(vars)
-    -- ВАЖНО: передаём переменные в том же скрипте, чтобы onLoad внешнего кода увидел их сразу
-    o.setLuaScript(prefix .. raw)
-  end)
-
+  if isInline then
+    local prefix=_prefix_vars(vars)
+    o.setLuaScript(prefix .. scriptOrUrl)
+  else
+    WebRequest.get(scriptOrUrl, function(req)
+      local raw = req.text or ""
+      local prefix=_prefix_vars(vars)
+      o.setLuaScript(prefix .. raw)
+    end)
+  end
   return o
 end
 
+-- ===== KTMT: объекты =====
 function agregaRuta()
   local pos = self.getPosition()
   local rot = self.getRotation()
@@ -517,10 +519,11 @@ function agregaRuta()
     objData, modelData,
     "https://raw.githubusercontent.com/Ixidior/KTMT/main/Node",
     { GUIDModel=self.getGUID(), GUIDNodPrev=self.getGUID() },
-    phys
+    phys, false
   )
 end
 
+-- OFFENSIVE: локальный безопасный скрипт, чтобы конус не исчезал
 function agregaCono()
   local pos = self.getPosition()
   local rot = self.getRotation()
@@ -544,11 +547,21 @@ function agregaCono()
     dynamic_friction=1, drag=120, mass=10, static_friction=1,
     use_gravity=false
   }
+  local inline = [[
+function onLoad()
+  self.setName("LOS (Offensive)")
+  self.interactable = true
+  self.setLock(false)
+  self.use_gravity = false
+  self.setScale({1,1,1})
+end
+function onDropped(player_color) end
+]]
   _ktmt_spawn(
     objData, modelData,
-    "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/ScriptCono",
+    inline,
     { GUIDModel=self.getGUID() },
-    phys
+    phys, true
   )
 end
 
@@ -579,7 +592,7 @@ function agregaConoR()
     objData, modelData,
     "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/ScriptConoR",
     { GUIDModel=self.getGUID() },
-    phys
+    phys, false
   )
 end
 -- ===== конец KTMT =====
