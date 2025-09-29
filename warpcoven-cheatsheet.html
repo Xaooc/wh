@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Варпковен (Warp Coven Cheat Sheet)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-warpcoven" data-page="warpcoven">
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <a class="brand" href="necron-cheatsheet.html">Kill Team HQ</a>
+    <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
+  </div>
+</header>
+<main class="page page--sheet">
+  <header class="page-hero page-hero--split">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Боевой лист Kill Team</p>
+      <h1 class="page-hero__title">Варпковен</h1>
+      <p class="page-hero__lead">Колдуны Тысячи Сынов ведут в бой рубриков и тзаангоров, насыщая поле сражения псионическим пламенем и изломанной судьбой.</p>
+    </div>
+    <div class="page-hero__body">
+      <p>Переводы согласованы с глоссарием Kill Team HQ: ключевые названия снабжены оригиналом в скобках, а структура страницы идентична другим шпаргалкам для корректной работы навигационных скриптов.</p>
+    </div>
+  </header>
+
+  <div class="page-toolbar" data-page-toolbar data-toolbar-scope=".sheet" data-compact-target="body">
+    <div class="page-toolbar__group">
+      <button class="toolbar-button" type="button" data-toolbar-collapse>Свернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-expand>Развернуть все</button>
+      <button class="toolbar-button" type="button" data-toolbar-compact aria-pressed="false">Компактный режим</button>
+      <button class="toolbar-button" type="button" data-toolbar-print>Печать</button>
+    </div>
+    <p class="page-toolbar__status" data-toolbar-stats>Секции загружаются…</p>
+  </div>
+
+  <div class="page__layout">
+    <div class="sheet">
+      <section>
+        <h2 id="team-overview" class="section-title">Состав и архетипы (Kill Team Roster)</h2>
+        <div class="cards">
+          <article class="card">
+            <h3 id="warpcoven-kill-team">Команда Warpcoven</h3>
+            <p><strong>Архетипы:</strong> Безопасность / Разведка (Archetype: Security / Recon).</p>
+            <p>Соберите килл-тим из 6 оперативников WARPCOVEN, выбирая из списка ниже. Вы обязаны включить минимум одного оперативника SORCERER, и один из выбранных колдунов должен иметь ключевое слово LEADER — его запас ран (Wounds) увеличивается на 1 на время битвы. Кроме оперативников WARRIOR и GUNNER, каждую позицию можно взять только один раз. В команде допускается не более двух GUNNER.</p>
+            <ul>
+              <li>SORCERER DESTINY<sup>1</sup></li>
+              <li>SORCERER TEMPYRION<sup>1</sup></li>
+              <li>SORCERER WARPFIRE<sup>1</sup></li>
+              <li>RUBRIC MARINE GUNNER с одним из вариантов: варппламер (Warpflamer); душекосный канон (Soulreaper cannon)<sup>2</sup>; кулаки (fists)</li>
+              <li>RUBRIC MARINE ICON BEARER</li>
+              <li>RUBRIC MARINE WARRIOR</li>
+              <li>TZAANGOR CHAMPION<sup>3</sup> с двуручным топором (Greataxe) или двуручным клинком (Greatblade)</li>
+              <li>TZAANGOR HORN BEARER<sup>3</sup></li>
+              <li>TZAANGOR ICON BEARER<sup>3</sup></li>
+              <li>TZAANGOR WARRIOR<sup>3</sup> с одним из вариантов: парные клинки тзаангоров (Tzaangor blades); клинок и щит тзаангоров (Tzaangor blade &amp; shield); автопистолет и цепной меч (Autopistol; chainsword)</li>
+            </ul>
+            <p><sup>1</sup> Каждый оперативник SORCERER вооружён силовым посохом (force stave), псионическим оружием (PSYCHIC weapons) с его дата-карты и одним из вариантов: инферно-болт-пистолет (Inferno bolt pistol), просперинский копеш (Prosperine khopesh) или варппламенный пистолет (Warpflame pistol)<sup>2</sup>.</p>
+            <p><sup>2</sup> В килл-тиме может быть не более одного варппламенного пистолета и одного душекосного канона. <sup>3</sup> Эти оперативники считаются половиной выбора: можно включить обе позиции, и это считается одним выбором.</p>
+          </article>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <section>
+        <h2 id="faction-rules" class="section-title">Правила фракции (Faction Rules)</h2>
+        <div class="cards">
+          <article class="card">
+            <h3 id="boons-of-tzeentch">Дары Тзинча (Boons of Tzeentch)</h3>
+            <p>Каждый выбранный оперативник SORCERER получает один дар Тзинча (BOON OF TZEENTCH) на битву. Нельзя выбирать один и тот же дар более одного раза. Доступные дары:</p>
+            <ul>
+              <li><strong>«Бестелесное зрение» (Incorporeal Sight):</strong> дальнобойное оружие получает правило Насыщение (Saturate), а цели не могут быть скрытыми (Obscured), когда этот оперативник стреляет.</li>
+              <li><strong>«Шаг сквозь время» (Time-Walk):</strong> добавьте 1" к характеристике Движение (Move).</li>
+              <li><strong>«Эхо Варпа» (Echoes from the Warp):</strong> раз за битву, когда этот оперативник контратакует (counteract), вы можете сменить ему приказ и выполнить дополнительное бесплатное действие стоимостью 1 AP, отличное от первого.</li>
+              <li><strong>«Вздымание Варпа» (Warp Swell):</strong> увеличьте базовый урон (Normal Dmg) оружия ближнего боя на 1.</li>
+              <li><strong>«Мутационный придаток» (Mutant Appendage):</strong> присутствие врага в зоне контроля не мешает выполнять действия «Поднять маркер» (Pick Up Marker) и миссионные действия. Раз за активацию можно выполнить Pick Up Marker, Place Marker или миссионное действие на 1 AP дешевле.</li>
+              <li><strong>«Бестелесный полёт» (Immaterial Flight):</strong> раз за ход при выполнении действий Рывок (Charge) или Перестроение (Reposition) этот оперативник может получить FLY: вместо перемещения снимите его с поля и установите полностью в пределах расстояния его характеристики Move по горизонтали. В закрытых зонах (например, Killzone: Gallowdark) нельзя измерять сквозь стены и ставить его через люки. Он должен оказаться в допустимом месте и, кроме действия Charge, не может завершить перемещение в зоне контроля врага.</li>
+              <li><strong>«Искажение судьбы» (Twist of Fate):</strong> псионические дальнобойные оружия (PSYCHIC ranged weapons) получают правило Пробитие крита 1 (Piercing Crits 1).</li>
+              <li><strong>«Астральный обстрел» (Astral Bombardment):</strong> выберите одно псионическое дальнобойное оружие. Оно получает правило Разрушительный 1 (Devastating 1). Если выбрано «Смертельный взгляд» (Doombolt), оружие вместо этого получает правило Разрушительный 2" (Devastating 2"). Если выбрано «Огненная буря» (Firestorm) или «Выжигание разума» (Mindburn, SORCERER WARPFIRE), каждый раз при выполнении действия Стрельба (Shoot) выберите для него правило «Искать свет» (Seek Light) или Разрушительный 1 (Devastating 1) до конца действия (нельзя выбрать оба).</li>
+              <li><strong>«Хозяин Иматериума» (Master of the Immaterium):</strong> увеличьте на 3" все дистанции в правилах псионических действий этого оперативника, если в них указано расстояние. Для действия «Темпоральный поток» (Temporal Flux) у SORCERER TEMPYRION увеличивается только дальность первого эффекта.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3 id="astartes">Астартес (Astartes)</h3>
+            <p>Каждый дружеский оперативник HERETIC ASTARTES во время своей активации может выполнить две Стрельбы (Shoot) или две Схватки (Fight). Если это две Стрельбы и для обеих выбран душекосный канон (Soulreaper cannon) или варппламер (Warpflamer), за второе действие требуется заплатить дополнительное очко действия (AP). Нельзя выбирать одно и то же псионическое дальнобойное оружие (PSYCHIC ranged weapon) более одного раза за активацию.</p>
+            <p>Каждый дружеский оперативник WARPCOVEN HERETIC ASTARTES может контратаковать (counteract) независимо от своего приказа.</p>
+          </article>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <section>
+        <h2 id="strategic-ploys" class="section-title">Стратегические плои (Strategy Ploys)</h2>
+        <div class="cards">
+          <article class="card">
+            <h3 id="aetherial-warding">Эфирное преграждение (Aetherial Warding)</h3>
+            <p>Когда враг стреляет по дружескому оперативнику WARPCOVEN, оружие с правилом Пробитие 1 (Piercing 1) вместо этого получает правило Пробитие крита 1 (Piercing Crits 1).</p>
+          </article>
+          <article class="card">
+            <h3 id="fate-itself-is-my-weapon">«Судьба — моё оружие» (Fate Itself Is My Weapon)</h3>
+            <p>Бросьте два D6 и отложите результаты. В следующей фазе Перестрелки (Firefight phase), когда любой оперативник стреляет, сражается или контратакует, после броска кубов атаки (до перебросов) вы можете заменить один из бросков (ваш или соперника) одним из отложенных кубов. Этот куб нельзя перебрасывать или считать успехом, если он им не является, и он сбрасывается в конце последовательности. Если сумма обоих отложенных кубов меньше 9, второй куб сразу сбрасывается. Нельзя использовать более одного отложенного куба в одной последовательности. Все неиспользованные кубы сбрасываются в конце игрового хода.</p>
+          </article>
+          <article class="card">
+            <h3 id="brotherhood-of-sorcerers">Братство колдунов (Brotherhood of Sorcerers)</h3>
+            <p>Когда дружеский оперативник WARPCOVEN SORCERER находится в пределах 9" от другого дружеского SORCERER, его псионическое дальнобойное оружие (PSYCHIC ranged weapon) получает правило Сбалансированный (Balanced).</p>
+          </article>
+          <article class="card">
+            <h3 id="savage-herd">Дикая стая (Savage Herd)</h3>
+            <p>Оружие ближнего боя дружеских оперативников WARPCOVEN TZAANGOR получает правило Точный 1 (Accurate 1). Если такой оперативник получает помощь (assisted) от дружеского оперативника WARPCOVEN или сражается, находясь в пределах 6" и в линии видимости дружеского SORCERER, его оружие ближнего боя также получает правило Жестокий (Severe).</p>
+          </article>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <section>
+        <h2 id="firefight-ploys" class="section-title">Плои перестрелки (Firefight Ploys)</h2>
+        <div class="cards">
+          <article class="card">
+            <h3 id="all-is-dust">«Лишь пыль» (All Is Dust)</h3>
+            <p>Используйте плой, когда бросок атаки наносит обычный урон (Normal Dmg) дружескому оперативнику WARPCOVEN RUBRIC MARINE. Этот бросок наносит лишь 1 урон.</p>
+          </article>
+          <article class="card">
+            <h3 id="capricious-plan">Капризный план (Capricious Plan)</h3>
+            <p>Используйте плой в конце активации дружеского оперативника WARPCOVEN SORCERER. Этот оперативник может сразу выполнить бесплатное действие Бросок (Dash) даже если другие эффекты это запрещают, либо вы можете сменить его приказ.</p>
+          </article>
+          <article class="card">
+            <h3 id="psychic-cabal">Псионическая кабала (Psychic Cabal)</h3>
+            <p>Используйте плой при активации дружеского оперативника WARPCOVEN SORCERER. Выберите другого дружеского SORCERER в пределах 9" и в линии видимости. Выберите одно уникальное псионическое действие (PSYCHIC unique action) или псионическое дальнобойное оружие на его дата-карте: первый оперативник получает его до конца активации. Нельзя выбирать оружие, которым второй оперативник уже пользовался в этом ходе; второй также не может использовать выбранное оружие в текущем ходе.</p>
+          </article>
+          <article class="card">
+            <h3 id="mutant-herd">Мутировавшая стая (Mutant Herd)</h3>
+            <p>Используйте плой при активации дружеского оперативника WARPCOVEN TZAANGOR. Выберите другого готового дружеского TZAANGOR в пределах 2" и в линии видимости — его можно активировать сразу же, выполняя действия попеременно в любом порядке. После расходования обоих оперативников ход переходит сопернику.</p>
+          </article>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <section>
+        <h2 id="faction-equipment" class="section-title">Снаряжение фракции (Faction Equipment)</h2>
+        <div class="cards">
+          <article class="card">
+            <h3 id="ensorcelled-rounds">Зачарованные патроны (Ensorcelled Rounds)</h3>
+            <p>Инферно-болтганы, инферно-болт-пистолеты и автопистолеты дружеских оперативников WARPCOVEN получают правило Разрушительный 1 (Devastating 1).</p>
+          </article>
+          <article class="card">
+            <h3 id="daemonmaw-weapons">Оружие с демонической пастью (Daemonmaw Weapons)</h3>
+            <p>Добавьте 1 к характеристике Атаки (Attacks) оружия ближнего боя дружеских оперативников WARPCOVEN RUBRIC MARINE. Когда такой оперативник контратакует (retaliates), его оружие ближнего боя также получает правило Точный 1 (Accurate 1).</p>
+          </article>
+          <article class="card">
+            <h3 id="arcane-robes">Арканные одеяния (Arcane Robes)</h3>
+            <p>Раз за игровой ход, когда бросок атаки должен нанести критический урон (Critical Dmg) дружескому оперативнику WARPCOVEN SORCERER, можно применить это правило: вместо критического урона бросок наносит обычный урон.</p>
+          </article>
+          <article class="card">
+            <h3 id="sorcerous-scrolls">Колдовские свитки (Sorcerous Scrolls)</h3>
+            <p>Раз за битву, когда дружеский оперативник WARPCOVEN SORCERER активируется или контратакует, выберите новый дар Тзинча (BOON OF TZEENTCH) для него до конца битвы (предыдущие теряются). Нельзя выбрать дар, который уже есть у другого дружеского оперативника. Если вы выбираете «Эхо Варпа» (Echoes from the Warp) во время контратаки, можно сразу сменить приказ и выполнить бесплатное действие.</p>
+          </article>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <section>
+        <h2 id="datacards" class="section-title">Датакарты (Datacards)</h2>
+        <div class="cards">
+          <article class="card">
+            <h3 id="sorcerer-destiny">Колдун судьбы (Sorcerer of Destiny)</h3>
+            <p>Колдуны командуют рубриками как марионетками, направляя их искажённой волей Тзинча. Носитель судьбы разрушает врагов смертоносными лучами и проклятиями.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">3+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">14</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Смертельный взгляд (Doombolt)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/2</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Разрушительный 2 (Devastating 2), Смертельный 5+ (Lethal 5+)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Инферно-болт-пистолет (Inferno bolt pistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 8", Пробитие 1 (Piercing 1)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Варппламенный пистолет (Warpflame pistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 2+ • УРОН 3/3</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 6", Пробитие 1 (Piercing 1), Струя 1" (Torrent 1")</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Силовой посох (Force stave)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/6</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Шок (Shock)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Просперинский копеш (Prosperine khopesh)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/6</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Смертельный 5+ (Lethal 5+), Сбалансированный (Balanced)</div>
+              </div>
+            </div>
+            <p><strong>«Защита судьбой» (Protected by Fate, 1AP, PSYCHIC):</strong> выберите дружеского оперативника WARPCOVEN в линии видимости. До начала следующей активации этого колдуна, пока цель жива и действие не повторено, при стрельбе по ней вы можете перебросить любое количество кубов защиты.</p>
+            <p><strong>«Расторгнуть судьбу» (Ravage Destiny, 1AP, PSYCHIC):</strong> выберите вражеского оперативника в пределах 9" и в линии видимости. До следующей активации этого колдуна, пока действие не повторено и цель жива, соперник обязан перебрасывать результаты 6 на кубах атаки при стрельбе, сражении и контратаке этой целью; при определении контроля маркеров считайте её характеристику действий (APL) на 1 меньше (это не изменение характеристики).</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, HERETIC ASTARTES, PSYKER, SORCERER, DESTINY. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="sorcerer-tempyrion">Колдун Темпириона (Sorcerer of Tempyrion)</h3>
+            <p>Мастер временных потоков исцеляет воинов и перемещает их через разрывы реальности, действуя как щит и копьё ковена.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">3+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">14</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Флюксовый залп (Fluxblast)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Взрыв 2" (Blast 2"), Рвущий (Rending)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Инферно-болт-пистолет (Inferno bolt pistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 8", Пробитие 1 (Piercing 1)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Варппламенный пистолет (Warpflame pistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 2+ • УРОН 3/3</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 6", Пробитие 1 (Piercing 1), Струя 1" (Torrent 1")</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Силовой посох (Force stave)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/6</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Шок (Shock)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Просперинский копеш (Prosperine khopesh)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/6</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Смертельный 5+ (Lethal 5+), Сбалансированный (Balanced)</div>
+              </div>
+            </div>
+            <p><strong>«Ритуал восстановления» (Reconstitution Ritual, 1AP, PSYCHIC):</strong> выберите дружеского оперативника WARPCOVEN в линии видимости и в пределах 6". Он восстанавливает до 2D3 потерянных ран. Нельзя выполнять действие, если оно уже применялось дружеским оперативником в текущем ходе.</p>
+            <p><strong>«Темпоральный поток» (Temporal Flux, 1AP, PSYCHIC):</strong> выберите дружеского оперативника WARPCOVEN в линии видимости и в пределах 6" и разместите маркер «Темпоральный поток» (Temporal Flux marker) в его зоне контроля. В конце следующей активации цели, если она жива и полностью в пределах 6" от маркера, уберите её с поля и установите в допустимой точке так, чтобы маркер находился в её зоне контроля, затем удалите маркер. Если к концу активации условия не выполнены (или оперативник выведен из строя), маркер просто удаляется. Нельзя использовать действие, если маркер уже на поле.</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, HERETIC ASTARTES, PSYKER, SORCERER, TEMPYRION. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="sorcerer-warpfire">Колдун Варппламени (Sorcerer of Warpfire)</h3>
+            <p>Владыка варп-пламени превращает врагов в пылающие факелы и выжигает их разум, насылая безумие и хаос.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">3+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">14</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Огненная буря (Firestorm)</span>
+                  <span class="weapon-profile">АТК 5 • ПОП 4+ • УРОН 2/3</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Насыщение (Saturate), «Искать свет» (Seek Light), Струя 2" (Torrent 2")</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Инферно-болт-пистолет (Inferno bolt pistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 8", Пробитие 1 (Piercing 1)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Выжигание разума (Mindburn)</span>
+                  <span class="weapon-profile">АТК 5 • ПОП 4+ • УРОН 1/1</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Смертельный 5+ (Lethal 5+), Насыщение (Saturate), «Искать свет» (Seek Light), «Выжигание разума» (Mindburn*)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Варппламенный пистолет (Warpflame pistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 2+ • УРОН 3/3</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 6", Пробитие 1 (Piercing 1), Струя 1" (Torrent 1")</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Силовой посох (Force stave)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/6</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Псионика (PSYCHIC), Шок (Shock)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Просперинский копеш (Prosperine khopesh)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/6</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Смертельный 5+ (Lethal 5+), Сбалансированный (Balanced)</div>
+              </div>
+            </div>
+            <p><em>* «Выжигание разума» (Mindburn):</em> в шаге «Разрешение кубов атаки» (Resolve Attack Dice), если вы наносите урон критическими успехами, цель получает ваш жетон «Выжигание разума» до конца своей следующей активации, пока жива или пока оружие не используется вновь. Пока жетон активен, характеристика Попадание (Hit) её оружия ухудшается на 1 (не складывается с состоянием ранения).</p>
+            <p><strong>«Вспыхни!» (Alight, 1AP, PSYCHIC):</strong> выберите вражеского оперативника в линии видимости. До следующей активации колдуна, пока цель жива и действие не повторено, она имеет ваш жетон «Воспламенён» (Alight). Когда дружеский оперативник WARPCOVEN стреляет, сражается или контратакует против цели с этим жетоном, его оружие получает правило Неумолимый (Ceaseless).</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, HERETIC ASTARTES, PSYKER, SORCERER, WARPFIRE. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="rubric-marine-gunner">Рубрик-марин оружейник (Rubric Marine Gunner)</h3>
+            <p>Закованные в руны доспехи удерживают тяжёлые орудия, выплёвывая потоки варп-пламени и раскалённых снарядов.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">5"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">3+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">14</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Душекосный канон, точечный огонь (Soulreaper cannon, focused)</span>
+                  <span class="weapon-profile">АТК 5 • ПОП 3+ • УРОН 4/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Пробитие 1 (Piercing 1)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Душекосный канон, веерный огонь (Soulreaper cannon, sweeping)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Пробитие 1 (Piercing 1), Струя 1" (Torrent 1")</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Варппламер (Warpflamer)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 2+ • УРОН 4/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 8", Насыщение (Saturate), Пробитие 1 (Piercing 1), Струя 2" (Torrent 2")</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Кулаки (Fists)</span>
+                  <span class="weapon-profile">АТК 3 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> —</div>
+              </div>
+            </div>
+            <p><strong>«Колдовской автоматон» (Sorcerous Automata):</strong> когда оперативник активируется, уменьшите его APL на 1 до конца активации, если в пределах 9" нет дружеского WARPCOVEN SORCERER.</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, HERETIC ASTARTES, RUBRIC MARINE, GUNNER. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="rubric-icon-bearer">Рубрик-марин знаменосец (Rubric Marine Icon Bearer)</h3>
+            <p>Носитель икон обращает силу Тзинча в защитные чары, усиливая союзников и подавляя волю врагов.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">5"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">3+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">14</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Инферно-болтган (Inferno boltgun)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Пробитие 1 (Piercing 1)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Кулаки (Fists)</span>
+                  <span class="weapon-profile">АТК 3 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> —</div>
+              </div>
+            </div>
+            <p><strong>«Колдовской автоматон» (Sorcerous Automata):</strong> при активации уменьшите APL на 1 до конца активации, если рядом нет дружеского SORCERER в пределах 9".</p>
+            <p><strong>«Знаменосец» (Icon Bearer):</strong> при определении контроля маркера считайте APL этого оперативника на 1 выше (это не изменение характеристики, эффекты складываются).</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, HERETIC ASTARTES, RUBRIC MARINE, ICON BEARER. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="rubric-warrior">Рубрик-марин воин (Rubric Marine Warrior)</h3>
+            <p>Безмолвные оболочки, наполненные варп-пылью, методично обстреливают врага инферно-болтами.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">3</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">5"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">3+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">14</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Инферно-болтган (Inferno boltgun)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Пробитие 1 (Piercing 1)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Кулаки (Fists)</span>
+                  <span class="weapon-profile">АТК 3 • ПОП 3+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> —</div>
+              </div>
+            </div>
+            <p><strong>«Колдовской автоматон» (Sorcerous Automata):</strong> при активации уменьшите APL на 1 до конца активации, если в пределах 9" нет дружеского SORCERER.</p>
+            <p><strong>«Медленный и целеустремлённый» (Slow and Purposeful):</strong> когда оперативник стреляет и не выполнял действия Рывок (Charge) или Перестроение (Reposition) в эту активацию (или если это контратака), его дальнобойное оружие получает правило Неумолимый (Ceaseless). После стрельбы он всё ещё может выполнить эти действия.</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, HERETIC ASTARTES, RUBRIC MARINE, WARRIOR. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="tzaangor-champion">Тзаангор-чемпион (Tzaangor Champion)</h3>
+            <p>Эти зверолюди сражаются двуручным оружием, разя врагов с яростью и точностью, достойной благословения Тзинча.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">5+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">10</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Двуручный топор (Greataxe)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Жестокий (Brutal), Смертельный 5+ (Lethal 5+)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Двуручный клинок (Greatblade)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 3+ • УРОН 4/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Смертельный 5+ (Lethal 5+), Рвущий (Rending)</div>
+              </div>
+            </div>
+            <p><strong>«Свирепая жестокость» (Savage Brutality):</strong> впервые в каждую активацию, когда оперативник выполняет действие Сражение (Fight) и остаётся в строю, он может сразу выполнить ещё одно бесплатное действие Fight (цель можно выбрать заново).</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, TZAANGOR, CHAMPION. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="tzaangor-horn-bearer">Тзаангор-рогач (Tzaangor Horn Bearer)</h3>
+            <p>Оглушительные трубные сигналы ускоряют стаю, зовя мутировавших воинов в бой.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">5+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">9</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Кинжал (Dagger)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 4+ • УРОН 3/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> —</div>
+              </div>
+            </div>
+            <p><strong>«Брейрог» (Brayhorn, 0AP):</strong> до шага Подготовки (Ready step) следующей Стратегической фазы увеличьте характеристику Move дружеских оперативников WARPCOVEN TZAANGOR на 1". Нельзя выполнять действие, находясь в зоне контроля врага.</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, TZAANGOR, HORN BEARER. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="tzaangor-icon-bearer">Тзаангор-знаменосец (Tzaangor Icon Bearer)</h3>
+            <p>Священные хоругви тзаангоров привлекают внимание Тзинча, одаривая стаю непостоянными благословениями.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">5+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">9</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Кинжал (Dagger)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 4+ • УРОН 3/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> —</div>
+              </div>
+            </div>
+            <p><strong>«Хоругвь стаи» (Herd Banner):</strong> когда бросок атаки наносит обычный урон 3+ дружескому оперативнику WARPCOVEN TZAANGOR в пределах 3" и в линии видимости знаменосца, уменьшите нанесённый урон на 1.</p>
+            <p><strong>«Знаменосец» (Icon Bearer):</strong> считайте APL этого оперативника на 1 выше при определении контроля маркеров (эффекты складываются).</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, TZAANGOR, ICON BEARER. Основание ⌀32 мм.</p>
+          </article>
+
+          <article class="card">
+            <h3 id="tzaangor-warrior">Тзаангор-воин (Tzaangor Warrior)</h3>
+            <p>Мутировавшие служители Тзинча рвутся в бой с ритуальными клинками, щитами и цепным оружием.</p>
+            <div class="stat-grid">
+              <div class="stat-item"><span class="stat-label">ДЕЙСТВИЯ (APL)</span><span class="stat-value">2</span></div>
+              <div class="stat-item"><span class="stat-label">ДВИЖЕНИЕ (Move)</span><span class="stat-value">6"</span></div>
+              <div class="stat-item"><span class="stat-label">СПАСБРОСОК (Save)</span><span class="stat-value">5+</span></div>
+              <div class="stat-item"><span class="stat-label">РАНЫ (Wounds)</span><span class="stat-value">9</span></div>
+            </div>
+            <div class="weapon-list">
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Автопистолет (Autopistol)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 4+ • УРОН 2/3</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Дальность 8"</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Цепной меч (Chainsword)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 4+ • УРОН 4/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> —</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Клинок и щит тзаангоров (Tzaangor blade &amp; shield)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 4+ • УРОН 3/4</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Щит (Shield*)</div>
+              </div>
+              <div class="weapon-item">
+                <div class="weapon-header">
+                  <span class="weapon-name">Парные клинки тзаангоров (Tzaangor blades)</span>
+                  <span class="weapon-profile">АТК 4 • ПОП 4+ • УРОН 4/5</span>
+                </div>
+                <div class="weapon-rules"><strong>Правила:</strong> Сбалансированный (Balanced)</div>
+              </div>
+            </div>
+            <p><em>*Щит (Shield):</em> оперативник имеет спасбросок 4+, а в ближнем бою каждое блокирование засчитывается как блок двух успехов.</p>
+            <p><strong>«Охотники за реликвиями» (Relic Hunters):</strong> раз за битву один дружеский WARPCOVEN TZAANGOR WARRIOR может выполнить Pick Up Marker, Place Marker или миссионное действие на 1 AP дешевле, если он находится в территории соперника.</p>
+            <p><strong>Ключевые слова:</strong> WARPCOVEN, CHAOS, TZAANGOR, WARRIOR. Основание ⌀32 мм.</p>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <nav class="page-nav" aria-label="Навигация по странице" data-page-toc data-toc-scope=".sheet" data-toc-target=".section-title, .cards .card h3" data-toc-prefix="warpcoven" data-toc-levels=".section-title:2; .cards .card h3:3">
+      <h2>Разделы</h2>
+      <ul class="page-nav-list" data-page-toc-list></ul>
+    </nav>
+  </div>
+</main>
+
+<script src="scripts.js" defer></script>
+</body>
+</html>
