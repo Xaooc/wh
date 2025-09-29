@@ -36,6 +36,18 @@ const KILL_TEAM_LIBRARY = [
     focus: ['Стрельба', 'Поддержка', 'Маркерсветы']
   },
   {
+    key: 'elucidian-starstriders',
+    name: 'Элусидианские Старстрайдеры',
+    originalName: 'Elucidian Starstriders',
+    faction: 'Империум',
+    alignment: 'Империум',
+    href: 'elucidian-starstriders-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Элусидианские Старстрайдеры (Elucidian Starstriders)',
+    summary: 'Килл-тим вольного торговца с упором на гибкие сделки и орбитальную поддержку.',
+    focus: ['Стрельба', 'Поддержка', 'Манёвры']
+  },
+  {
     key: 'adepta-sororitas-novitiate',
     name: 'Новициаты Сороритас ',
     originalName: 'Adepta Sororitas Novitiate',
@@ -60,6 +72,30 @@ const KILL_TEAM_LIBRARY = [
     focus: ['Стойкость', 'Рукопашный бой', 'Зоны заражения']
   },
   {
+    key: 'warpcoven',
+    name: 'Варпковен',
+    originalName: 'Warp Coven',
+    faction: 'Тысяча Сынов',
+    alignment: 'Хаос',
+    href: 'warpcoven-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Варпковен (Warp Coven)',
+    summary: 'Ковен колдунов Тысячи Сынов, сочетающий псионику рубриков и натиск тзаангоров.',
+    focus: ['Псионика', 'Стрельба', 'Контроль']
+  },
+  {
+    key: 'nemesis-claw',
+    name: 'Коготь Немезиды',
+    originalName: 'Nemesis Claw',
+    faction: 'Ночные Лорды',
+    alignment: 'Хаос',
+    href: 'nemesis-claw-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Коготь Немезиды (Nemesis Claw)',
+    summary: 'Культ Ночных Лордов, сочетающий удары из тьмы, давление страхом и гибкое применение Астартес-приёмов.',
+    focus: ['Рукопашный бой', 'Психологическое давление', 'Манёвренность']
+  },
+  {
     key: 'kommandos',
     name: 'Коммандосы',
     originalName: 'Kommandos',
@@ -70,6 +106,30 @@ const KILL_TEAM_LIBRARY = [
     navLabel: 'Коммандосы (Kommandos)',
     summary: 'Грубые, но изобретательные орки-диверсанты с упором на скрытность.',
     focus: ['Маскировка', 'Взрывы', 'Рукопашный бой']
+  },
+  {
+    key: 'wrecka-krew',
+    name: 'Разносчики',
+    originalName: 'Wrecka Krew',
+    faction: 'Орки',
+    alignment: 'Ксенос',
+    href: 'wrecka-krew-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Разносчики (Wrecka Krew)',
+    summary: 'Орочий отряд танкоубийц, накапливающих очки «Разгрома» и усиливающих взрывы.',
+    focus: ['Взрывы', 'Рукопашный бой', 'Синергия очков']
+  },
+  {
+    key: 'hearthkyn-salvagers',
+    name: 'Хэрткин-спасатели',
+    originalName: 'Hearthkyn Salvagers',
+    faction: 'Лиги Вотан',
+    alignment: 'Ксенос',
+    href: 'hearthkyn-salvagers-cheatsheet.html',
+    status: 'available',
+    navLabel: 'Хэрткин-спасатели (Hearthkyn Salvagers)',
+    summary: 'Команда спасателей Лиг Вотан, полагающаяся на жетоны «обиды» и усиление ближнего боя.',
+    focus: ['Стойкость', 'Синергия жетонов', 'Контроль целей']
   },
   {
     key: 'inquisitorial-agents',
