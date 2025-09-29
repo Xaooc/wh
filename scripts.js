@@ -795,6 +795,25 @@ function initPageToolbar() {
     }
 
     updateSections();
+
+    const toolbarDefault = (toolbar.getAttribute('data-toolbar-default') || 'collapsed').toLowerCase();
+    const shouldCollapseInitially = toolbarDefault !== 'expanded';
+    if (shouldCollapseInitially && meta.sections.length) {
+      let changed = false;
+      meta.sections.forEach((section) => {
+        if (!section || typeof section.isExpanded !== 'function' || typeof section.setExpanded !== 'function') {
+          return;
+        }
+        if (section.isExpanded()) {
+          section.setExpanded(false);
+          changed = true;
+        }
+      });
+      if (changed && meta.statsNode) {
+        meta.statsNode.textContent = `0 из ${meta.sections.length} секций раскрыто`;
+      }
+    }
+
     updateStats();
 
     meta.updateSections = () => {
