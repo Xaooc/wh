@@ -453,24 +453,38 @@ function updateStats(pc_color)
   notify(pc_color,table.concat(statsub,", "))
 end
 
--- ===== KTMT: спавн маршрута и конусов =====
+-- ===== KTMT: спавн маршрута и конусов (инициализация переменных ДО onLoad внешних скриптов) =====
+local function _prefix_vars(vars)
+  if not vars then return "" end
+  local xs={}
+  for k,v in pairs(vars) do
+    local line=nil
+    if type(v)=="string" then
+      line=string.format('%s=%q',k,v)
+    elseif type(v)=="number" then
+      line=string.format('%s=%s',k,v)
+    elseif type(v)=="boolean" then
+      line=string.format('%s=%s',k,tostring(v))
+    else
+      line=string.format('%s=%s',k,JSON.encode(v))
+    end
+    table.insert(xs,line)
+  end
+  -- защитные заглушки, если внешний код ожидает таблицы
+  table.insert(xs,'pc=nil')
+  return table.concat(xs,"\n").."\n"
+end
+
 local function _ktmt_spawn(objData, modelData, scriptUrl, vars, physics)
   local o = spawnObject(objData)
   o.setCustomObject(modelData)
   if physics then for k,v in pairs(physics) do o[k]=v end end
 
-  -- критично: сначала задать переменные, потом заливать скрипт, чтобы onLoad не ушёл в self.destruct
-  if vars then for k,v in pairs(vars) do pcall(function() o.setVar(k,v) end) end end
-
   WebRequest.get(scriptUrl, function(req)
-    local script = req.text or ""
-    o.setLuaScript(script)
-    -- дубль-задание после загрузки скрипта на случай, если окружение перезаписалось
-    if vars then
-      Wait.frames(function()
-        for k,v in pairs(vars) do pcall(function() o.setVar(k,v) end) end
-      end, 1)
-    end
+    local raw = req.text or ""
+    local prefix = _prefix_vars(vars)
+    -- ВАЖНО: передаём переменные в том же скрипте, чтобы onLoad внешнего кода увидел их сразу
+    o.setLuaScript(prefix .. raw)
   end)
 
   return o
