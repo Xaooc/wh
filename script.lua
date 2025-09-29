@@ -50,14 +50,13 @@ measureColor=nil
 measureRange=0
 lastRange=-1
 
--- из описания: кеш и маппинг
 parsedWeaponsCache={}
 weaponBtnMap={}
 
 local HEX_R="1E87FF"
 local HEX_M="F4641D"
 
--- ====== FIX: авто-гидратация W и ран ======
+-- авто-гидратация W/wounds
 local function parseWFromDesc()
   local desc = self.getDescription() or ""
   local n = desc:match("%[84E680%]W%[%-%]%s*%[ffffff%]%s*(%d+)")
@@ -84,16 +83,12 @@ local function hydrateStats()
   if W>0 then
     state.stats.W=W
     if not curW or curW==0 or curW>W then
-      if nCur and nCur>0 and nCur<=W then
-        state.wounds=nCur
-      else
-        state.wounds=W
-      end
+      if nCur and nCur>0 and nCur<=W then state.wounds=nCur else state.wounds=W end
     end
   end
 end
--- ==========================================
 
+-- уведомление
 function notify(p, msg)
   local color=nil
   if type(p)=="string" then color=p elseif type(p)=="userdata" and p.color then color=p.color end
@@ -181,7 +176,7 @@ function callback_orders(player,value,id)
   refreshUI() refreshWounds() saveState()
 end
 
--- парсинг оружия из описания
+-- парсинг оружия
 local function parseWeaponsFromDescription()
   local desc=self.getDescription() or ""
   local weapons,lines={},{}
@@ -320,9 +315,7 @@ function refreshUI()
     <Image id="ktcnid-status-order" image="]]..getCurrentOrder()..[[" rectAlignment="MiddleRight" width="55" height="55" offsetXY="]]..off_order..[[ 0" active="true" onClick="callback_orders" />
   </Panel>
 
-  <!-- Кружки оружия -->
   <HorizontalLayout spacing="5" width="@totalWeapons" height="24" offsetXY="]]..circOffset(66,270)..[[">--@WeaponsPlaceholder</HorizontalLayout>
-
   <HorizontalLayout spacing="3" width="@totalAtt" height="30" offsetXY="]]..circOffset(135,270)..[[">--@AttachmentPlaceholder</HorizontalLayout>
 </Panel>]]
 
@@ -336,12 +329,10 @@ function refreshUI()
     return [[
 <Panel id="]]..id..[[" width="22" height="22" onClick="callback_weaponBtn">
   <Panel width="22" height="22" rectAlignment="MiddleCenter" raycastTarget="false">
-    <Mask type="circle"/>
-    <Panel width="22" height="22" color="#000000" raycastTarget="false"/>
+    <Mask type="circle"/><Panel width="22" height="22" color="#000000" raycastTarget="false"/>
   </Panel>
   <Panel width="20" height="20" rectAlignment="MiddleCenter" raycastTarget="false">
-    <Mask type="circle"/>
-    <Panel width="20" height="20" color="#]]..hex..[[" raycastTarget="false"/>
+    <Mask type="circle"/><Panel width="20" height="20" color="#]]..hex..[[" raycastTarget="false"/>
   </Panel>
   <Text text="]]..label..[[" rectAlignment="MiddleCenter" color="#ffffff" fontSize="12" raycastTarget="false"/>
 </Panel> --@WeaponsPlaceholder]]
@@ -455,25 +446,39 @@ function updateStats(pc_color)
   notify(pc_color,table.concat(statsub,", "))
 end
 
--- ===== Интеграция функционала Script2 (KTMT маршруты и конусы) =====
--- Без привязки к игроку. Никаких self.setLock/interactive=false.
--- Спавним рядом с миниатюрой. Исправлены опечатки nil/fresnel_strength.
-local function _ktmt_spawn(objData, modelData, scriptUrl, vars, physics)
+-- ===== ЛОКАЛЬНЫЕ скрипты для LOS-конусов =====
+local LOS_CONE_OFF_SCRIPT = [[
+function onLoad()
+  self.setName("LOS Cone: Offensive")
+  self.addTag("KTUI_LOS")
+  self.addContextMenuItem("Delete", function() self.destruct() end)
+  self.addContextMenuItem("Rotate +15°", function() local r=self.getRotation(); self.setRotationSmooth({r.x,r.y+15,r.z}) end)
+  self.addContextMenuItem("Rotate -15°", function() local r=self.getRotation(); self.setRotationSmooth({r.x,r.y-15,r.z}) end)
+  self.addContextMenuItem("Length +10%", function() local s=self.getScale(); self.setScale({s.x*1.1,s.y,s.z*1.1}) end)
+  self.addContextMenuItem("Length -10%", function() local s=self.getScale(); self.setScale({s.x*0.9,s.y,s.z*0.9}) end)
+end
+]]
+
+local LOS_CONE_DEF_SCRIPT = [[
+function onLoad()
+  self.setName("LOS Cone: Defensive")
+  self.addTag("KTUI_LOS")
+  self.addContextMenuItem("Delete", function() self.destruct() end)
+  self.addContextMenuItem("Rotate +15°", function() local r=self.getRotation(); self.setRotationSmooth({r.x,r.y+15,r.z}) end)
+  self.addContextMenuItem("Rotate -15°", function() local r=self.getRotation(); self.setRotationSmooth({r.x,r.y-15,r.z}) end)
+end
+]]
+
+-- универсальный спавн Custom_Model с локальным скриптом
+local function spawn_custom_with_script(objData, modelData, script_str, physics)
   local o = spawnObject(objData)
   o.setCustomObject(modelData)
-  if physics then
-    for k,v in pairs(physics) do o[k]=v end
-  end
-  WebRequest.get(scriptUrl, function(req)
-    local script = req.text or ""
-    o.setLuaScript(script)
-    if vars then
-      for k,v in pairs(vars) do o.setVar(k,v) end
-    end
-  end)
+  if physics then for k,v in pairs(physics) do o[k]=v end end
+  o.setLuaScript(script_str or "")
   return o
 end
 
+-- KTMT: маршрут
 function agregaRuta()
   local pos = self.getPosition()
   local rot = self.getRotation()
@@ -497,14 +502,11 @@ function agregaRuta()
     angular_drag=0.1, bounciness=0,
     dynamic_friction=0.7, drag=0.1, mass=1, static_friction=1
   }
-  local o = _ktmt_spawn(
-    objData, modelData,
-    "https://raw.githubusercontent.com/Ixidior/KTMT/main/Node",
-    { GUIDModel=self.getGUID(), GUIDNodPrev=self.getGUID() },
-    phys
-  )
+  local o = spawn_custom_with_script(objData, modelData, "", phys)
+  -- по желанию можно загрузить логику узлов через WebRequest, но необязательно
 end
 
+-- LOS (Offensive) — фикс: локальный скрипт, нет авто-удаления
 function agregaCono()
   local pos = self.getPosition()
   local rot = self.getRotation()
@@ -528,14 +530,10 @@ function agregaCono()
     dynamic_friction=1, drag=120, mass=10, static_friction=1,
     use_gravity=false
   }
-  local o = _ktmt_spawn(
-    objData, modelData,
-    "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/ScriptCono",
-    { GUIDModel=self.getGUID() },
-    phys
-  )
+  spawn_custom_with_script(objData, modelData, LOS_CONE_OFF_SCRIPT, phys)
 end
 
+-- LOS (Defensive) — тоже локальный
 function agregaConoR()
   local pos = self.getPosition()
   local rot = self.getRotation()
@@ -559,14 +557,9 @@ function agregaConoR()
     dynamic_friction=1, drag=120, mass=10, static_friction=1,
     use_gravity=true
   }
-  local o = _ktmt_spawn(
-    objData, modelData,
-    "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/ScriptConoR",
-    { GUIDModel=self.getGUID() },
-    phys
-  )
+  spawn_custom_with_script(objData, modelData, LOS_CONE_DEF_SCRIPT, phys)
 end
--- ===== конец интеграции Script2 =====
+-- ===== конец LOS =====
 
 function onLoad(ls)
   loadState()
@@ -574,7 +567,6 @@ function onLoad(ls)
   state.attachments=state.attachments or {}
   state.info=state.info or {weapons={},categories={}}
   state.stats=state.stats or {}
-
   hydrateStats()
 
   self.addContextMenuItem("Engage",function(pc) setEngage() end)
@@ -585,7 +577,7 @@ function onLoad(ls)
   self.addContextMenuItem("Update stats",updateStats)
   self.addContextMenuItem("Change UI position",function(pc) state.isHorizontal=not (state.isHorizontal==true) refreshUI() end)
 
-  -- Меню из Script2
+  -- KTMT меню
   self.addContextMenuItem("Movement", function(pc) agregaRuta() end)
   self.addContextMenuItem("LOS (Offensive)", function(pc) agregaCono() end)
   self.addContextMenuItem("LOS (Defensive)", function(pc) agregaConoR() end)
