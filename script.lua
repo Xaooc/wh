@@ -56,7 +56,7 @@ weaponBtnMap={}
 local HEX_R="1E87FF"
 local HEX_M="F4641D"
 
--- ====== авто-гидратация W и ран ======
+-- === авто-гидратация W и ран ===
 local function parseWFromDesc()
   local desc = self.getDescription() or ""
   local n = desc:match("%[84E680%]W%[%-%]%s*%[ffffff%]%s*(%d+)")
@@ -91,7 +91,7 @@ local function hydrateStats()
     end
   end
 end
--- =====================================
+-- ================================
 
 function notify(p, msg)
   local color=nil
@@ -180,7 +180,7 @@ function callback_orders(player,value,id)
   refreshUI() refreshWounds() saveState()
 end
 
--- парсинг оружия из описания (старый и новый форматы)
+-- парсинг оружия
 local function parseWeaponsFromDescription()
   local desc=self.getDescription() or ""
   local weapons,lines={},{}
@@ -204,7 +204,11 @@ local function parseWeaponsFromDescription()
     elseif line:find("%[F4641D%]%s*M%[%-%]") then t="M" end
 
     if t then
-      local name=line:gsub("^%s*",""):gsub("%[1E87FF%]%s*R%[%-%]%s*",""):gsub("%[F4641D%]%s*M%[%-%]%s*","")
+      local name=line
+        :gsub("^%s*","")
+        :gsub("%[1E87FF%]%s*R%[%-%]%s*","")
+        :gsub("%[F4641D%]%s*M%[%-%]%s*","")
+
       local A,BS,D,SR="",0,"",""
       if i+1<=#lines then
         local l2=lines[i+1]
@@ -215,12 +219,21 @@ local function parseWeaponsFromDescription()
       if i+2<=#lines then
         local l3=lines[i+2]
         if l3:find("%[84E680%]SR%[%-%]") or l3:find("%[84E680%]WR%[%-%]") then
-          SR = l3:gsub("^%s*",""):gsub("%[84E680%]SR%[%-%]%s*:%s*",""):gsub("%[84E680%]WR%[%-%]%s*:%s*","")
+          SR = l3
+            :gsub("^%s*","")
+            :gsub("%[84E680%]SR%[%-%]%s*:%s*","")
+            :gsub("%[84E680%]WR%[%-%]%s*:%s*","")
         end
       end
+
       table.insert(weapons,{
         type=t, name=name,
-        stats={["A"]=A, ["ATK"]=A, ["WS/BS"]=BS, ["HIT"]=BS, ["D"]=D, ["DMG"]=D, ["SR"]=SR, ["WR"]=SR}
+        stats={
+          ["A"]=A, ["ATK"]=A,
+          ["WS/BS"]=BS, ["HIT"]=BS,
+          ["D"]=D, ["DMG"]=D,
+          ["SR"]=SR, ["WR"]=SR
+        }
       })
     end
     i=i+1
@@ -231,6 +244,7 @@ end
 function callback_weaponBtn(player_color,_value,id)
   local idx=weaponBtnMap[id] if not idx then return end
   local weapon=parsedWeaponsCache[idx] if not weapon then return end
+
   local prefix=(weapon.type=="R") and "[1E87FF]R[-]" or "[F4641D]M[-]"
   local name=prefix.." "..weapon.name
   local A=weapon.stats["A"] or 0
@@ -240,6 +254,7 @@ function callback_weaponBtn(player_color,_value,id)
   local SR=weapon.stats["SR"] or ""
   notify(player_color,string.format("Profile: %s  [84E680]A[-] %d  [84E680]WS/BS[-] %d+  [84E680]D[-] %s",name,A,bs,D))
   if SR~="" then notify(player_color,"[84E680]SR[-]: "..SR) end
+
   local roller=nil
   for _,obj in ipairs(getAllObjects()) do if obj.hasTag("KTUIDiceRoller") then roller=obj end end
   if not roller then return end
@@ -339,7 +354,8 @@ function refreshUI()
       xml=xml:gsub("--@WeaponsPlaceholder",circle(id,hex,tostring(k)))
     end
   end
-  addGroup(rList,HEX_R); addGroup(mList,HEX_M)
+  addGroup(rList,HEX_R)
+  addGroup(mList,HEX_M)
 
   local totalWeapons=(#rList+#mList)*28
 
@@ -437,18 +453,26 @@ function updateStats(pc_color)
   notify(pc_color,table.concat(statsub,", "))
 end
 
--- ===== KTMT: надёжный спавнер =====
+-- ===== KTMT: спавн маршрута и конусов =====
 local function _ktmt_spawn(objData, modelData, scriptUrl, vars, physics)
   local o = spawnObject(objData)
   o.setCustomObject(modelData)
   if physics then for k,v in pairs(physics) do o[k]=v end end
-  -- ВАЖНО: сначала переменные, потом скрипт и reload
-  if vars then for k,v in pairs(vars) do o.setVar(k,v) end end
+
+  -- критично: сначала задать переменные, потом заливать скрипт, чтобы onLoad не ушёл в self.destruct
+  if vars then for k,v in pairs(vars) do pcall(function() o.setVar(k,v) end) end end
+
   WebRequest.get(scriptUrl, function(req)
     local script = req.text or ""
     o.setLuaScript(script)
-    o.reload() -- гарантируем корректный onLoad с уже установленными var
+    -- дубль-задание после загрузки скрипта на случай, если окружение перезаписалось
+    if vars then
+      Wait.frames(function()
+        for k,v in pairs(vars) do pcall(function() o.setVar(k,v) end) end
+      end, 1)
+    end
   end)
+
   return o
 end
 
@@ -460,7 +484,7 @@ function agregaRuta()
     type="Custom_Model",
     scale={1,1,1},
     rotation={rot.x,rot.y,rot.z},
-    position={pos.x+1.0, pos.y+1.0, pos.z}
+    position={pos.x+1.0, pos.y+0.2, pos.z}
   }
   local modelData = {
     mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/main/"..tostring(baseX).."MM.obj",
@@ -483,14 +507,14 @@ function agregaRuta()
   )
 end
 
-function agregaCono() -- LOS Offensive
+function agregaCono()
   local pos = self.getPosition()
   local rot = self.getRotation()
   local objData = {
     type="Custom_Model",
     scale={1,1,1},
     rotation={rot.x,rot.y,rot.z},
-    position={pos.x+1.2, pos.y+1.0, pos.z}
+    position={pos.x+1.2, pos.y+0.2, pos.z}
   }
   local modelData = {
     mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE.obj",
@@ -514,14 +538,14 @@ function agregaCono() -- LOS Offensive
   )
 end
 
-function agregaConoR() -- LOS Defensive
+function agregaConoR()
   local pos = self.getPosition()
   local rot = self.getRotation()
   local objData = {
     type="Custom_Model",
     scale={1,1,1},
     rotation={rot.x,rot.y,rot.z},
-    position={pos.x+1.2, pos.y+1.0, pos.z}
+    position={pos.x+1.2, pos.y+0.2, pos.z}
   }
   local modelData = {
     mesh     = "https://raw.githubusercontent.com/Ixidior/KTMT/refs/heads/main/CONE.obj",
@@ -563,7 +587,6 @@ function onLoad(ls)
   self.addContextMenuItem("Update stats",updateStats)
   self.addContextMenuItem("Change UI position",function(pc) state.isHorizontal=not (state.isHorizontal==true) refreshUI() end)
 
-  -- Меню KTMT
   self.addContextMenuItem("Movement", function(pc) agregaRuta() end)
   self.addContextMenuItem("LOS (Offensive)", function(pc) agregaCono() end)
   self.addContextMenuItem("LOS (Defensive)", function(pc) agregaConoR() end)
