@@ -237,6 +237,7 @@ let rosterTacOpsMap = new Map();
 let rosterCritOpsMap = new Map();
 let rosterOpsRendered = false;
 
+
 function isFileProtocol() {
   return typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
 }
@@ -280,6 +281,7 @@ function fetchTextResource(url, label = 'ресурс') {
     return response.text();
   });
 }
+
 
 function registerPageNavController(id, controller) {
   if (!id || !controller) {
@@ -3318,7 +3320,9 @@ async function loadRosterTeamDocument(team) {
   if (rosterTeamDocumentCache.has(team.key)) {
     return rosterTeamDocumentCache.get(team.key);
   }
+
   const textContent = await fetchTextResource(team.href, 'лист килл-тима');
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(textContent, 'text/html');
   rosterTeamDocumentCache.set(team.key, doc);
@@ -3344,7 +3348,9 @@ async function loadRosterTeamData(team) {
 
 async function loadRosterUniversalEquipment() {
   if (!rosterUniversalEquipmentPromise) {
+
     rosterUniversalEquipmentPromise = fetchTextResource('unique-equipment.html', 'универсальное снаряжение')
+
       .then((textContent) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(textContent, 'text/html');
@@ -3360,7 +3366,9 @@ async function loadRosterUniversalEquipment() {
 
 async function loadRosterTacOps() {
   if (!rosterTacOpsPromise) {
+
     rosterTacOpsPromise = fetchTextResource('TACOP.html', 'Tac Ops')
+
       .then((textContent) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(textContent, 'text/html');
@@ -3376,7 +3384,9 @@ async function loadRosterTacOps() {
 
 async function loadRosterCritOps() {
   if (!rosterCritOpsPromise) {
+
     rosterCritOpsPromise = fetchTextResource('critop.html', 'Crit Ops')
+
       .then((textContent) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(textContent, 'text/html');
@@ -3981,10 +3991,12 @@ function initRosterBuilderPage() {
       if (requestId !== currentRequestId) {
         return;
       }
+
       const advice = isFileProtocol()
         ? 'Браузер блокирует чтение соседних файлов при открытии напрямую. Запустите сайт через локальный сервер, например командой «python -m http.server» в папке проекта.'
         : 'Попробуйте обновить страницу чуть позже.';
       setStatus(`Не удалось загрузить данные. ${advice}`);
+
     }
   };
 
