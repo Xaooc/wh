@@ -199,6 +199,12 @@ const NAV_SECTIONS = [
     ]
   },
   {
+    label: 'Инструменты',
+    links: [
+      { key: 'roster', href: 'roster.html', label: 'Ростер килл-тимов' }
+    ]
+  },
+  {
     label: 'Kill teams',
     links: buildKillTeamNavLinks(KILL_TEAM_LIBRARY)
   },
@@ -218,6 +224,62 @@ const collapsibleContentAnchors = new Set();
 const pageNavControllers = new Map();
 let pageNavIdCounter = 0;
 const pageToolbars = new Set();
+
+const ROSTER_STORAGE_KEY = 'ktRosterState.v1';
+const rosterTeamDocumentCache = new Map();
+const rosterTeamDataCache = new Map();
+let rosterUniversalEquipmentPromise = null;
+let rosterTacOpsPromise = null;
+let rosterCritOpsPromise = null;
+let rosterTacOpsData = [];
+let rosterCritOpsData = [];
+let rosterTacOpsMap = new Map();
+let rosterCritOpsMap = new Map();
+let rosterOpsRendered = false;
+
+function isFileProtocol() {
+  return typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+}
+
+function fetchTextResource(url, label = 'ресурс') {
+  if (!url) {
+    return Promise.reject(new Error(`Не указан путь к «${label}».`));
+  }
+
+  if (isFileProtocol()) {
+    return new Promise((resolve, reject) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'text';
+        if (typeof xhr.overrideMimeType === 'function') {
+          xhr.overrideMimeType('text/plain; charset=utf-8');
+        }
+        xhr.onload = () => {
+          const status = xhr.status === 0 ? 200 : xhr.status;
+          if (status >= 200 && status < 300) {
+            resolve(xhr.responseText || '');
+          } else {
+            reject(new Error(`${label} недоступен (статус ${xhr.status || 0}).`));
+          }
+        };
+        xhr.onerror = () => {
+          reject(new Error(`Не удалось загрузить ${label} по адресу ${url}.`));
+        };
+        xhr.send();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  return fetch(url).then((response) => {
+    if (!response.ok) {
+      throw new Error(`${label} недоступен (статус ${response.status}).`);
+    }
+    return response.text();
+  });
+}
 
 function registerPageNavController(id, controller) {
   if (!id || !controller) {
@@ -3031,6 +3093,1006 @@ const PAGE_INITIALIZERS = (() => {
   return { add, run };
 })();
 
+
+// Работа с локальным хранилищем ростера
+function readRosterStorage() {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return { activeTeam: '', teams: {} };
+  }
+  const raw = window.localStorage.getItem(ROSTER_STORAGE_KEY);
+  if (!raw) {
+    return { activeTeam: '', teams: {} };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    const activeTeam = typeof parsed.activeTeam === 'string' ? parsed.activeTeam : '';
+    const teams = parsed.teams && typeof parsed.teams === 'object' ? parsed.teams : {};
+    return { activeTeam, teams };
+  } catch (error) {
+    console.error('Не удалось прочитать сохранённый ростер:', error);
+    return { activeTeam: '', teams: {} };
+  }
+}
+
+function writeRosterStorage(data) {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return;
+  }
+  try {
+    window.localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Не удалось сохранить состояние ростера:', error);
+  }
+}
+
+function createEmptyRosterTeamState() {
+  return {
+    equipment: { faction: [], universal: [] },
+    ploys: { strategy: [], firefight: [] },
+    critOp: '',
+    tacOp: ''
+  };
+}
+
+function normalizeRosterTeamState(state) {
+  if (!state || typeof state !== 'object') {
+    return createEmptyRosterTeamState();
+  }
+  const result = createEmptyRosterTeamState();
+  const eq = state.equipment && typeof state.equipment === 'object' ? state.equipment : {};
+  const ploys = state.ploys && typeof state.ploys === 'object' ? state.ploys : {};
+  const unique = (list) => Array.isArray(list) ? Array.from(new Set(list.filter(Boolean))) : [];
+  result.equipment.faction = unique(eq.faction);
+  result.equipment.universal = unique(eq.universal);
+  result.ploys.strategy = unique(ploys.strategy);
+  result.ploys.firefight = unique(ploys.firefight);
+  result.critOp = typeof state.critOp === 'string' ? state.critOp : '';
+  result.tacOp = typeof state.tacOp === 'string' ? state.tacOp : '';
+  return result;
+}
+
+function getRosterTeamState(storage, teamKey) {
+  if (!teamKey) {
+    return createEmptyRosterTeamState();
+  }
+  if (!storage.teams[teamKey]) {
+    storage.teams[teamKey] = createEmptyRosterTeamState();
+  } else {
+    storage.teams[teamKey] = normalizeRosterTeamState(storage.teams[teamKey]);
+  }
+  return storage.teams[teamKey];
+}
+
+// Подчищаем узлы, чтобы безопасно использовать HTML с других страниц
+function sanitizeRosterNode(node) {
+  if (!node) {
+    return null;
+  }
+  const clone = node.cloneNode(true);
+  if (clone.removeAttribute) {
+    clone.removeAttribute('id');
+    clone.removeAttribute('data-favorite-id');
+  }
+  if (clone.querySelectorAll) {
+    clone.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+    clone.querySelectorAll('[data-favorite-id]').forEach((element) => element.removeAttribute('data-favorite-id'));
+    clone.querySelectorAll('.favorite-toggle').forEach((element) => element.remove());
+    clone.querySelectorAll('script').forEach((element) => element.remove());
+  }
+  return clone;
+}
+
+function rosterNodeToHTML(node, options = {}) {
+  const clone = sanitizeRosterNode(node);
+  if (!clone) {
+    return '';
+  }
+  if (options.removeFirstHeading) {
+    const heading = clone.querySelector('h3');
+    if (heading) {
+      heading.remove();
+    }
+  }
+  return clone.innerHTML.trim();
+}
+
+function rosterExtractSummary(node) {
+  if (!node) {
+    return '';
+  }
+  const summaryNode = node.querySelector('p');
+  if (!summaryNode) {
+    return '';
+  }
+  const text = (summaryNode.textContent || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= 160) {
+    return text;
+  }
+  return `${text.slice(0, 157)}…`;
+}
+
+// Извлекаем ключевые блоки из переведённых листов килл-тимов
+function parseRosterOperatives(doc) {
+  if (!doc) {
+    return [];
+  }
+  const cards = Array.from(doc.querySelectorAll('#datacards .card'));
+  const used = new Set();
+  return cards.map((card) => {
+    const titleNode = card.querySelector('h3');
+    const title = titleNode ? (titleNode.textContent || '').trim() : 'Оперативник';
+    const id = generateUniqueValue(card.id || slugify(title) || 'operative', used);
+    return {
+      id,
+      title,
+      summary: rosterExtractSummary(card),
+      html: rosterNodeToHTML(card, { removeFirstHeading: true })
+    };
+  });
+}
+
+function parseRosterEquipment(doc) {
+  if (!doc) {
+    return [];
+  }
+  const cards = Array.from(doc.querySelectorAll('#faction-equipment .card'));
+  const used = new Set();
+  return cards.map((card) => {
+    const titleNode = card.querySelector('h3');
+    const title = titleNode ? (titleNode.textContent || '').trim() : 'Снаряжение';
+    const id = generateUniqueValue(card.id || slugify(title) || 'equipment', used);
+    return { id, title, html: rosterNodeToHTML(card) };
+  });
+}
+
+function parseRosterPloys(doc) {
+  const build = (selector) => {
+    const cards = Array.from(doc.querySelectorAll(selector));
+    const used = new Set();
+    return cards.map((card) => {
+      const titleNode = card.querySelector('h3');
+      const title = titleNode ? (titleNode.textContent || '').trim() : 'Приём';
+      const id = generateUniqueValue(card.id || slugify(title) || 'ploy', used);
+      return { id, title, html: rosterNodeToHTML(card) };
+    });
+  };
+  if (!doc) {
+    return { strategy: [], firefight: [] };
+  }
+  return {
+    strategy: build('#strategy-ploys .card'),
+    firefight: build('#firefight-ploys .card')
+  };
+}
+
+function parseRosterUniversalEquipment(doc) {
+  if (!doc) {
+    return [];
+  }
+  const cards = Array.from(doc.querySelectorAll('.equipment .equipment-card'));
+  const used = new Set();
+  return cards.map((card) => {
+    const titleNode = card.querySelector('.title');
+    const title = titleNode ? (titleNode.textContent || '').trim() : 'Снаряжение';
+    const id = generateUniqueValue(card.id || slugify(title) || 'ue', used);
+    return { id, title, html: rosterNodeToHTML(card) };
+  });
+}
+
+function parseRosterTacOps(doc) {
+  if (!doc) {
+    return [];
+  }
+  const cards = Array.from(doc.querySelectorAll('.tacops .card'));
+  const used = new Set();
+  return cards.map((card) => {
+    const titleNode = card.querySelector('.title');
+    const title = titleNode ? (titleNode.textContent || '').trim() : 'Tac Op';
+    const typeNode = card.querySelector('.badge.type');
+    const type = typeNode ? (typeNode.textContent || '').trim() : 'Tac Op';
+    const id = generateUniqueValue(card.id || slugify(`${type}-${title}`) || 'tacop', used);
+    return { id, title, type, html: rosterNodeToHTML(card) };
+  });
+}
+
+function parseRosterCritOps(doc) {
+  if (!doc) {
+    return [];
+  }
+  const cards = Array.from(doc.querySelectorAll('.critop .card-critop'));
+  const used = new Set();
+  return cards.map((card) => {
+    const titleNode = card.querySelector('.title');
+    const title = titleNode ? (titleNode.textContent || '').trim() : 'Crit Op';
+    const typeNode = card.querySelector('.badge.type');
+    const type = typeNode ? (typeNode.textContent || '').trim() : 'Crit Op';
+    const id = generateUniqueValue(card.id || slugify(title) || 'critop', used);
+    return { id, title, type, html: rosterNodeToHTML(card) };
+  });
+}
+
+async function loadRosterTeamDocument(team) {
+  if (!team || !team.href) {
+    throw new Error('Не указан путь к листу килл-тима.');
+  }
+  if (rosterTeamDocumentCache.has(team.key)) {
+    return rosterTeamDocumentCache.get(team.key);
+  }
+  const textContent = await fetchTextResource(team.href, 'лист килл-тима');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(textContent, 'text/html');
+  rosterTeamDocumentCache.set(team.key, doc);
+  return doc;
+}
+
+async function loadRosterTeamData(team) {
+  if (!team) {
+    return { operatives: [], equipment: [], ploys: { strategy: [], firefight: [] } };
+  }
+  if (rosterTeamDataCache.has(team.key)) {
+    return rosterTeamDataCache.get(team.key);
+  }
+  const doc = await loadRosterTeamDocument(team);
+  const data = {
+    operatives: parseRosterOperatives(doc),
+    equipment: parseRosterEquipment(doc),
+    ploys: parseRosterPloys(doc)
+  };
+  rosterTeamDataCache.set(team.key, data);
+  return data;
+}
+
+async function loadRosterUniversalEquipment() {
+  if (!rosterUniversalEquipmentPromise) {
+    rosterUniversalEquipmentPromise = fetchTextResource('unique-equipment.html', 'универсальное снаряжение')
+      .then((textContent) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(textContent, 'text/html');
+        return parseRosterUniversalEquipment(doc);
+      })
+      .catch((error) => {
+        console.error('Ошибка загрузки универсального снаряжения:', error);
+        return [];
+      });
+  }
+  return rosterUniversalEquipmentPromise;
+}
+
+async function loadRosterTacOps() {
+  if (!rosterTacOpsPromise) {
+    rosterTacOpsPromise = fetchTextResource('TACOP.html', 'Tac Ops')
+      .then((textContent) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(textContent, 'text/html');
+        return parseRosterTacOps(doc);
+      })
+      .catch((error) => {
+        console.error('Ошибка загрузки Tac Ops:', error);
+        return [];
+      });
+  }
+  return rosterTacOpsPromise;
+}
+
+async function loadRosterCritOps() {
+  if (!rosterCritOpsPromise) {
+    rosterCritOpsPromise = fetchTextResource('critop.html', 'Crit Ops')
+      .then((textContent) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(textContent, 'text/html');
+        return parseRosterCritOps(doc);
+      })
+      .catch((error) => {
+        console.error('Ошибка загрузки Crit Ops:', error);
+        return [];
+      });
+  }
+  return rosterCritOpsPromise;
+}
+
+function ensureRosterOpsData() {
+  if (rosterTacOpsData.length && rosterCritOpsData.length) {
+    return Promise.resolve({ tacOps: rosterTacOpsData, critOps: rosterCritOpsData });
+  }
+  return Promise.all([loadRosterTacOps(), loadRosterCritOps()]).then(([tacOps, critOps]) => {
+    rosterTacOpsData = tacOps || [];
+    rosterCritOpsData = critOps || [];
+    rosterTacOpsMap = new Map(rosterTacOpsData.map((item) => [item.id, item]));
+    rosterCritOpsMap = new Map(rosterCritOpsData.map((item) => [item.id, item]));
+    return { tacOps: rosterTacOpsData, critOps: rosterCritOpsData };
+  });
+}
+
+function renderRosterOpsSelectors(critSelect, tacSelect) {
+  const render = (select, items, placeholder) => {
+    if (!select) {
+      return;
+    }
+    select.innerHTML = '';
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = placeholder;
+    select.appendChild(emptyOption);
+    const groups = new Map();
+    items.forEach((item) => {
+      const groupKey = item.type || 'Прочее';
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, []);
+      }
+      groups.get(groupKey).push(item);
+    });
+    groups.forEach((list, label) => {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = label;
+      list
+        .slice()
+        .sort((a, b) => a.title.localeCompare(b.title, 'ru'))
+        .forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.title;
+          optgroup.appendChild(option);
+        });
+      select.appendChild(optgroup);
+    });
+  };
+  render(critSelect, rosterCritOpsData, '— Не выбрано —');
+  render(tacSelect, rosterTacOpsData, '— Не выбрано —');
+}
+
+function renderRosterOptionList(container, items, config) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = '';
+  if (!items || !items.length) {
+    const empty = document.createElement('p');
+    empty.className = 'roster-empty';
+    empty.textContent = config && config.emptyText ? config.emptyText : 'Данные не найдены.';
+    container.appendChild(empty);
+    return;
+  }
+  items.forEach((item) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'roster-option';
+    wrapper.dataset.optionId = item.id;
+
+    const label = document.createElement('label');
+    label.className = 'roster-option__label';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.dataset.optionId = item.id;
+    checkbox.checked = Boolean(config && typeof config.isChecked === 'function' && config.isChecked(item.id));
+    checkbox.addEventListener('change', () => {
+      if (config && typeof config.onChange === 'function') {
+        config.onChange(item, checkbox.checked);
+      }
+    });
+
+    const name = document.createElement('span');
+    name.className = 'roster-option__name';
+    name.textContent = item.title;
+
+    label.appendChild(checkbox);
+    label.appendChild(name);
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'roster-option__toggle';
+    toggle.textContent = 'Подробнее';
+    toggle.setAttribute('aria-expanded', 'false');
+
+    const content = document.createElement('div');
+    content.className = 'roster-option__content';
+    content.innerHTML = item.html;
+    content.hidden = true;
+
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      toggle.textContent = expanded ? 'Подробнее' : 'Скрыть';
+      content.hidden = expanded;
+    });
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(toggle);
+    wrapper.appendChild(content);
+    container.appendChild(wrapper);
+  });
+}
+
+function renderRosterOperatives(container, operatives) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = '';
+  if (!operatives || !operatives.length) {
+    const empty = document.createElement('p');
+    empty.className = 'roster-empty';
+    empty.textContent = 'Для выбранного килл-тима нет датакарт.';
+    container.appendChild(empty);
+    return;
+  }
+  operatives.forEach((operative) => {
+    const details = document.createElement('details');
+    details.className = 'roster-operative';
+    details.dataset.operativeId = operative.id;
+
+    const summary = document.createElement('summary');
+    const name = document.createElement('span');
+    name.className = 'roster-operative__name';
+    name.textContent = operative.title;
+    summary.appendChild(name);
+    if (operative.summary) {
+      const summaryText = document.createElement('span');
+      summaryText.className = 'roster-operative__summary-text';
+      summaryText.textContent = operative.summary;
+      summary.appendChild(summaryText);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'roster-operative__body';
+    body.innerHTML = operative.html;
+
+    details.appendChild(summary);
+    details.appendChild(body);
+    container.appendChild(details);
+  });
+}
+
+function updateRosterEquipmentSelectedList(container, equipmentState, dataMaps) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = '';
+  const titles = [];
+  (equipmentState.faction || []).forEach((id) => {
+    const item = dataMaps.faction.get(id);
+    if (item) {
+      titles.push(item.title);
+    }
+  });
+  (equipmentState.universal || []).forEach((id) => {
+    const item = dataMaps.universal.get(id);
+    if (item) {
+      titles.push(item.title);
+    }
+  });
+  if (!titles.length) {
+    const empty = document.createElement('li');
+    empty.className = 'roster-empty';
+    empty.textContent = 'Пока ничего не выбрано.';
+    container.appendChild(empty);
+    return;
+  }
+  titles.forEach((title) => {
+    const li = document.createElement('li');
+    li.textContent = title;
+    container.appendChild(li);
+  });
+}
+
+function updateRosterPloysSelectedList(container, ployState, dataMaps) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = '';
+  const entries = [];
+  (ployState.strategy || []).forEach((id) => {
+    const item = dataMaps.strategy.get(id);
+    if (item) {
+      entries.push(`Стратегический: ${item.title}`);
+    }
+  });
+  (ployState.firefight || []).forEach((id) => {
+    const item = dataMaps.firefight.get(id);
+    if (item) {
+      entries.push(`Боевой: ${item.title}`);
+    }
+  });
+  if (!entries.length) {
+    const empty = document.createElement('li');
+    empty.className = 'roster-empty';
+    empty.textContent = 'Вы пока не отметили плои.';
+    container.appendChild(empty);
+    return;
+  }
+  entries.forEach((text) => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    container.appendChild(li);
+  });
+}
+
+function updateRosterOpsPreview(map, id, container, emptyText) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = '';
+  if (!id) {
+    const empty = document.createElement('p');
+    empty.className = 'roster-empty';
+    empty.textContent = emptyText;
+    container.appendChild(empty);
+    return;
+  }
+  const item = map.get(id);
+  if (!item) {
+    const missing = document.createElement('p');
+    missing.className = 'roster-empty';
+    missing.textContent = 'Описание недоступно.';
+    container.appendChild(missing);
+    return;
+  }
+  container.innerHTML = item.html;
+}
+
+// Главный инициализатор страницы ростера
+function initRosterBuilderPage() {
+  const root = document.querySelector('[data-roster-root]');
+  if (!root) {
+    return;
+  }
+  const teamSelect = root.querySelector('[data-roster-team]');
+  const statusNode = root.querySelector('[data-roster-status]');
+  const operativesContainer = root.querySelector('[data-roster-operatives]');
+  const factionEquipmentContainer = root.querySelector('[data-roster-equipment-faction]');
+  const universalEquipmentContainer = root.querySelector('[data-roster-equipment-universal]');
+  const equipmentSelectedList = root.querySelector('[data-roster-equipment-selected]');
+  const strategyContainer = root.querySelector('[data-roster-ploys-strategy]');
+  const firefightContainer = root.querySelector('[data-roster-ploys-firefight]');
+  const ploysSelectedList = root.querySelector('[data-roster-ploys-selected]');
+  const critOpSelect = root.querySelector('[data-roster-critop]');
+  const tacOpSelect = root.querySelector('[data-roster-tacop]');
+  const critOpPreview = root.querySelector('[data-roster-critop-preview]');
+  const tacOpPreview = root.querySelector('[data-roster-tacop-preview]');
+  const resetTeamButton = root.querySelector('[data-roster-reset-team]');
+  const clearEquipmentButton = root.querySelector('[data-roster-clear-equipment]');
+  const clearPloysButton = root.querySelector('[data-roster-clear-ploys]');
+  const clearOpsButton = root.querySelector('[data-roster-clear-ops]');
+  const tabsContainer = root.querySelector('[data-roster-tabs]');
+  const tabButtons = tabsContainer ? Array.from(tabsContainer.querySelectorAll('[data-roster-tab]')) : [];
+  const panels = new Map();
+  root.querySelectorAll('[data-roster-panel]').forEach((panel) => {
+    const key = panel.dataset.rosterPanel;
+    if (!key) {
+      return;
+    }
+    panels.set(key, panel);
+  });
+
+  let activePanelKey = '';
+
+  const setActivePanel = (panelKey, { focusTab = false } = {}) => {
+    if (!panelKey || panelKey === activePanelKey || !panels.has(panelKey)) {
+      return;
+    }
+    activePanelKey = panelKey;
+    panels.forEach((panel, key) => {
+      const isActive = key === panelKey;
+      panel.classList.toggle('is-active', isActive);
+      panel.toggleAttribute('hidden', !isActive);
+      if (isActive) {
+        panel.setAttribute('tabindex', '0');
+      } else {
+        panel.removeAttribute('tabindex');
+      }
+    });
+    tabButtons.forEach((button) => {
+      const isActive = button.dataset.rosterTab === panelKey;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      button.setAttribute('tabindex', isActive ? '0' : '-1');
+      if (isActive && focusTab) {
+        button.focus();
+      }
+    });
+  };
+
+  if (tabsContainer && tabButtons.length) {
+    tabsContainer.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      const button = target.closest('[data-roster-tab]');
+      if (!button || !tabsContainer.contains(button)) {
+        return;
+      }
+      const key = button.dataset.rosterTab;
+      if (key) {
+        setActivePanel(key);
+      }
+    });
+
+    tabsContainer.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+        return;
+      }
+      const currentIndex = tabButtons.findIndex((button) => button.dataset.rosterTab === activePanelKey);
+      if (currentIndex === -1) {
+        return;
+      }
+      const delta = event.key === 'ArrowLeft' ? -1 : 1;
+      const nextIndex = (currentIndex + delta + tabButtons.length) % tabButtons.length;
+      const nextButton = tabButtons[nextIndex];
+      const nextKey = nextButton.dataset.rosterTab;
+      if (nextKey) {
+        event.preventDefault();
+        setActivePanel(nextKey, { focusTab: true });
+      }
+    });
+
+    const defaultButton = tabButtons.find((button) => button.hasAttribute('data-roster-tab-default')) || tabButtons[0];
+    const defaultKey = defaultButton ? defaultButton.dataset.rosterTab : '';
+    if (defaultKey) {
+      setActivePanel(defaultKey);
+    }
+  }
+
+  if (!teamSelect) {
+    return;
+  }
+
+  const setStatus = (message) => {
+    if (statusNode) {
+      statusNode.textContent = message || '';
+    }
+  };
+
+  const showDefaultState = () => {
+    if (operativesContainer) {
+      operativesContainer.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Выберите килл-тим, чтобы увидеть список оперативников.';
+      operativesContainer.appendChild(empty);
+    }
+    if (factionEquipmentContainer) {
+      factionEquipmentContainer.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Список появится после выбора килл-тима.';
+      factionEquipmentContainer.appendChild(empty);
+    }
+    if (universalEquipmentContainer) {
+      universalEquipmentContainer.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.className = 'roster-empty';
+      empty.textContent = rosterUniversalEquipmentPromise ? 'Список появится после выбора килл-тима.' : 'Загрузка универсального снаряжения…';
+      universalEquipmentContainer.appendChild(empty);
+    }
+    if (equipmentSelectedList) {
+      equipmentSelectedList.innerHTML = '';
+      const empty = document.createElement('li');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Пока ничего не выбрано.';
+      equipmentSelectedList.appendChild(empty);
+    }
+    if (strategyContainer) {
+      strategyContainer.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Список будет доступен после выбора килл-тима.';
+      strategyContainer.appendChild(empty);
+    }
+    if (firefightContainer) {
+      firefightContainer.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Список будет доступен после выбора килл-тима.';
+      firefightContainer.appendChild(empty);
+    }
+    if (ploysSelectedList) {
+      ploysSelectedList.innerHTML = '';
+      const empty = document.createElement('li');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Вы пока не отметили плои.';
+      ploysSelectedList.appendChild(empty);
+    }
+    if (critOpSelect) {
+      critOpSelect.value = '';
+    }
+    if (tacOpSelect) {
+      tacOpSelect.value = '';
+    }
+    updateRosterOpsPreview(rosterCritOpsMap, '', critOpPreview, 'Выберите Crit Op, чтобы увидеть подробности.');
+    updateRosterOpsPreview(rosterTacOpsMap, '', tacOpPreview, 'Выберите Tac Op, чтобы прочитать условия.');
+  };
+
+  let storage = readRosterStorage();
+  const availableTeams = KILL_TEAM_LIBRARY.filter((team) => team && team.status !== 'planned' && team.href);
+  const teamMap = new Map();
+  availableTeams.forEach((team) => {
+    if (!team) {
+      return;
+    }
+    teamMap.set(team.key, team);
+    const option = document.createElement('option');
+    option.value = team.key;
+    option.textContent = team.name;
+    teamSelect.appendChild(option);
+  });
+
+  let currentTeamKey = '';
+  let currentTeamState = null;
+  let currentTeamData = null;
+  let currentUniversalEquipment = [];
+  let currentRequestId = 0;
+  let equipmentMaps = { faction: new Map(), universal: new Map() };
+  let ploysMaps = { strategy: new Map(), firefight: new Map() };
+
+  const persistState = () => {
+    writeRosterStorage(storage);
+  };
+
+  const applyOpsFromState = () => {
+    ensureRosterOpsData()
+      .then(() => {
+        if (!rosterOpsRendered) {
+          renderRosterOpsSelectors(critOpSelect, tacOpSelect);
+          rosterOpsRendered = true;
+        }
+        if (critOpSelect) {
+          critOpSelect.value = currentTeamState && currentTeamState.critOp ? currentTeamState.critOp : '';
+        }
+        if (tacOpSelect) {
+          tacOpSelect.value = currentTeamState && currentTeamState.tacOp ? currentTeamState.tacOp : '';
+        }
+        updateRosterOpsPreview(rosterCritOpsMap, critOpSelect ? critOpSelect.value : '', critOpPreview, 'Выберите Crit Op, чтобы увидеть подробности.');
+        updateRosterOpsPreview(rosterTacOpsMap, tacOpSelect ? tacOpSelect.value : '', tacOpPreview, 'Выберите Tac Op, чтобы прочитать условия.');
+      })
+      .catch((error) => {
+        console.error('Не удалось подготовить списки операций:', error);
+      });
+  };
+
+  const renderTeamView = (team, data, universalEquipment, teamState) => {
+    currentTeamData = data;
+    currentUniversalEquipment = universalEquipment;
+    currentTeamState = teamState;
+
+    renderRosterOperatives(operativesContainer, data.operatives);
+
+    equipmentMaps = {
+      faction: new Map(data.equipment.map((item) => [item.id, item])),
+      universal: new Map(universalEquipment.map((item) => [item.id, item]))
+    };
+    renderRosterOptionList(factionEquipmentContainer, data.equipment, {
+      emptyText: 'У выбранного килл-тима нет фракционного снаряжения.',
+      isChecked: (id) => currentTeamState.equipment.faction.includes(id),
+      onChange: (item, checked) => {
+        const list = currentTeamState.equipment.faction;
+        if (checked) {
+          if (!list.includes(item.id)) {
+            list.push(item.id);
+          }
+        } else {
+          const index = list.indexOf(item.id);
+          if (index !== -1) {
+            list.splice(index, 1);
+          }
+        }
+        updateRosterEquipmentSelectedList(equipmentSelectedList, currentTeamState.equipment, equipmentMaps);
+        persistState();
+      }
+    });
+    renderRosterOptionList(universalEquipmentContainer, universalEquipment, {
+      emptyText: 'Список универсального снаряжения недоступен.',
+      isChecked: (id) => currentTeamState.equipment.universal.includes(id),
+      onChange: (item, checked) => {
+        const list = currentTeamState.equipment.universal;
+        if (checked) {
+          if (!list.includes(item.id)) {
+            list.push(item.id);
+          }
+        } else {
+          const index = list.indexOf(item.id);
+          if (index !== -1) {
+            list.splice(index, 1);
+          }
+        }
+        updateRosterEquipmentSelectedList(equipmentSelectedList, currentTeamState.equipment, equipmentMaps);
+        persistState();
+      }
+    });
+    updateRosterEquipmentSelectedList(equipmentSelectedList, currentTeamState.equipment, equipmentMaps);
+
+    ploysMaps = {
+      strategy: new Map(data.ploys.strategy.map((item) => [item.id, item])),
+      firefight: new Map(data.ploys.firefight.map((item) => [item.id, item]))
+    };
+    renderRosterOptionList(strategyContainer, data.ploys.strategy, {
+      emptyText: 'Стратегических плоек не найдено.',
+      isChecked: (id) => currentTeamState.ploys.strategy.includes(id),
+      onChange: (item, checked) => {
+        const list = currentTeamState.ploys.strategy;
+        if (checked) {
+          if (!list.includes(item.id)) {
+            list.push(item.id);
+          }
+        } else {
+          const index = list.indexOf(item.id);
+          if (index !== -1) {
+            list.splice(index, 1);
+          }
+        }
+        updateRosterPloysSelectedList(ploysSelectedList, currentTeamState.ploys, ploysMaps);
+        persistState();
+      }
+    });
+    renderRosterOptionList(firefightContainer, data.ploys.firefight, {
+      emptyText: 'Боевых плоек не найдено.',
+      isChecked: (id) => currentTeamState.ploys.firefight.includes(id),
+      onChange: (item, checked) => {
+        const list = currentTeamState.ploys.firefight;
+        if (checked) {
+          if (!list.includes(item.id)) {
+            list.push(item.id);
+          }
+        } else {
+          const index = list.indexOf(item.id);
+          if (index !== -1) {
+            list.splice(index, 1);
+          }
+        }
+        updateRosterPloysSelectedList(ploysSelectedList, currentTeamState.ploys, ploysMaps);
+        persistState();
+      }
+    });
+    updateRosterPloysSelectedList(ploysSelectedList, currentTeamState.ploys, ploysMaps);
+
+    applyOpsFromState();
+  };
+
+  const handleTeamChange = async (teamKey) => {
+    currentTeamKey = teamKey;
+    if (!teamKey) {
+      storage.activeTeam = '';
+      persistState();
+      showDefaultState();
+      setStatus('Выберите килл-тим, чтобы загрузить данные.');
+      return;
+    }
+    const team = teamMap.get(teamKey);
+    if (!team) {
+      setStatus('Не удалось найти выбранный килл-тим.');
+      return;
+    }
+    const requestId = ++currentRequestId;
+    setStatus(`Загружаем данные для команды «${team.name}»…`);
+    try {
+      const [teamData, universalEquipment] = await Promise.all([
+        loadRosterTeamData(team),
+        loadRosterUniversalEquipment()
+      ]);
+      if (requestId !== currentRequestId) {
+        return;
+      }
+      storage.teams = storage.teams || {};
+      const teamState = getRosterTeamState(storage, teamKey);
+      storage.activeTeam = teamKey;
+      persistState();
+      renderTeamView(team, teamData, universalEquipment, teamState);
+      setStatus(`Загружены материалы для команды «${team.name}».`);
+    } catch (error) {
+      console.error('Не удалось загрузить данные килл-тима:', error);
+      if (requestId !== currentRequestId) {
+        return;
+      }
+      const advice = isFileProtocol()
+        ? 'Браузер блокирует чтение соседних файлов при открытии напрямую. Запустите сайт через локальный сервер, например командой «python -m http.server» в папке проекта.'
+        : 'Попробуйте обновить страницу чуть позже.';
+      setStatus(`Не удалось загрузить данные. ${advice}`);
+    }
+  };
+
+  teamSelect.addEventListener('change', (event) => {
+    handleTeamChange(event.target.value);
+  });
+
+  if (resetTeamButton) {
+    resetTeamButton.addEventListener('click', () => {
+      if (!currentTeamKey || !currentTeamData) {
+        return;
+      }
+      storage.teams[currentTeamKey] = createEmptyRosterTeamState();
+      const teamState = getRosterTeamState(storage, currentTeamKey);
+      persistState();
+      renderTeamView(teamMap.get(currentTeamKey), currentTeamData, currentUniversalEquipment, teamState);
+      setStatus('Выбор для текущей команды сброшен.');
+    });
+  }
+
+  if (clearEquipmentButton) {
+    clearEquipmentButton.addEventListener('click', () => {
+      if (!currentTeamState || !currentTeamData) {
+        return;
+      }
+      currentTeamState.equipment.faction = [];
+      currentTeamState.equipment.universal = [];
+      persistState();
+      renderTeamView(teamMap.get(currentTeamKey), currentTeamData, currentUniversalEquipment, currentTeamState);
+      setStatus('Список снаряжения очищен.');
+    });
+  }
+
+  if (clearPloysButton) {
+    clearPloysButton.addEventListener('click', () => {
+      if (!currentTeamState || !currentTeamData) {
+        return;
+      }
+      currentTeamState.ploys.strategy = [];
+      currentTeamState.ploys.firefight = [];
+      persistState();
+      renderTeamView(teamMap.get(currentTeamKey), currentTeamData, currentUniversalEquipment, currentTeamState);
+      setStatus('Плои сброшены.');
+    });
+  }
+
+  if (clearOpsButton) {
+    clearOpsButton.addEventListener('click', () => {
+      if (!currentTeamState) {
+        return;
+      }
+      currentTeamState.critOp = '';
+      currentTeamState.tacOp = '';
+      persistState();
+      applyOpsFromState();
+      setStatus('Операции очищены.');
+    });
+  }
+
+  if (critOpSelect) {
+    critOpSelect.addEventListener('change', () => {
+      if (!currentTeamState) {
+        return;
+      }
+      currentTeamState.critOp = critOpSelect.value;
+      persistState();
+      updateRosterOpsPreview(rosterCritOpsMap, critOpSelect.value, critOpPreview, 'Выберите Crit Op, чтобы увидеть подробности.');
+    });
+  }
+
+  if (tacOpSelect) {
+    tacOpSelect.addEventListener('change', () => {
+      if (!currentTeamState) {
+        return;
+      }
+      currentTeamState.tacOp = tacOpSelect.value;
+      persistState();
+      updateRosterOpsPreview(rosterTacOpsMap, tacOpSelect.value, tacOpPreview, 'Выберите Tac Op, чтобы прочитать условия.');
+    });
+  }
+
+  showDefaultState();
+  ensureRosterOpsData().then(() => {
+    if (!rosterOpsRendered) {
+      renderRosterOpsSelectors(critOpSelect, tacOpSelect);
+      rosterOpsRendered = true;
+    }
+  });
+
+  loadRosterUniversalEquipment().then((items) => {
+    if (!currentTeamKey && universalEquipmentContainer && items.length) {
+      universalEquipmentContainer.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.className = 'roster-empty';
+      empty.textContent = 'Список появится после выбора килл-тима.';
+      universalEquipmentContainer.appendChild(empty);
+    }
+  });
+
+  const initialTeamKey = storage.activeTeam && teamMap.has(storage.activeTeam) ? storage.activeTeam : '';
+  if (initialTeamKey) {
+    teamSelect.value = initialTeamKey;
+    handleTeamChange(initialTeamKey);
+  } else {
+    setStatus('Выберите килл-тим, чтобы загрузить данные.');
+  }
+}
+
 registerFavoritesConfig('necron', { selectors: ['.sheet .section-title'] });
 registerFavoritesConfig('equipment', { selectors: ['.equipment-card'] });
 registerFavoritesConfig('critops', { selectors: ['.critop .card-critop'] });
@@ -3042,6 +4104,7 @@ PAGE_INITIALIZERS.add('common', initFavoritesModule);
 PAGE_INITIALIZERS.add('common', initPageTocFromMarkup);
 PAGE_INITIALIZERS.add('common', initPageToolbar);
 PAGE_INITIALIZERS.add('home', initKillTeamLibrary);
+PAGE_INITIALIZERS.add('roster', initRosterBuilderPage);
 
 document.addEventListener('DOMContentLoaded', () => {
   renderGlobalNav();

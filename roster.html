@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ростер килл-тимов</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-roster" data-page="roster">
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Kill Team HQ</a>
+    <nav class="site-nav" aria-label="Основная навигация" data-nav></nav>
+  </div>
+</header>
+<main class="page page--roster" data-roster-root>
+  <header class="page-hero page-hero--split roster-hero">
+    <div class="page-hero__header">
+      <p class="page-hero__eyebrow">Интерактивный лист</p>
+      <h1 class="page-hero__title">Ростер килл-тимов</h1>
+      <p class="page-hero__subtitle">Быстрый подбор оперативников, снаряжения, плоек и задач</p>
+    </div>
+    <div class="page-hero__body">
+      <p class="page-hero__lead">Выберите один из переведённых килл-тимов, чтобы увидеть карточки оперативников, подготовить комплект снаряжения и выбрать тактические задачи. Все данные подтягиваются прямо из переведённых листов и справочников.</p>
+      <div class="roster-hero__controls">
+        <label class="roster-hero__label" for="roster-team-select">Выбор килл-тима</label>
+        <select class="roster-hero__select" id="roster-team-select" data-roster-team>
+          <option value="">— Выберите команду из списка —</option>
+        </select>
+        <button class="button button--ghost" type="button" data-roster-reset-team>Сбросить выбор текущей команды</button>
+      </div>
+      <p class="roster-status" data-roster-status>Выберите килл-тим, чтобы загрузить данные.</p>
+    </div>
+    <dl class="page-hero__meta">
+      <div class="page-hero__stat">
+        <dt>Оперативники</dt>
+        <dd>Карточки с подсказками</dd>
+        <small>Сводка характеристик и оружия, раскрывающаяся по клику.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Снаряжение</dt>
+        <dd>Фракционное и универсальное</dd>
+        <small>Отмечайте нужные позиции и смотрите описание рядом.</small>
+      </div>
+      <div class="page-hero__stat">
+        <dt>Плои и Tac Ops</dt>
+        <dd>Готовый список</dd>
+        <small>Быстрый доступ к переведённым правилам и задачам.</small>
+      </div>
+    </dl>
+  </header>
+
+  <nav class="roster-tabs" data-roster-tabs role="tablist" aria-label="Разделы ростера">
+    <button class="roster-tabs__tab is-active" type="button" id="roster-tab-operatives" role="tab" aria-selected="true" aria-controls="roster-panel-operatives" data-roster-tab="operatives" data-roster-tab-default>Оперативники</button>
+    <button class="roster-tabs__tab" type="button" id="roster-tab-equipment" role="tab" aria-selected="false" aria-controls="roster-panel-equipment" data-roster-tab="equipment">Снаряжение</button>
+    <button class="roster-tabs__tab" type="button" id="roster-tab-ploys" role="tab" aria-selected="false" aria-controls="roster-panel-ploys" data-roster-tab="ploys">Плои</button>
+    <button class="roster-tabs__tab" type="button" id="roster-tab-ops" role="tab" aria-selected="false" aria-controls="roster-panel-ops" data-roster-tab="ops">Операции</button>
+  </nav>
+
+  <section class="roster-section is-active" id="roster-panel-operatives" role="tabpanel" aria-labelledby="roster-tab-operatives" data-roster-panel="operatives">
+    <header class="roster-section__header">
+      <div>
+        <h2>Оперативники</h2>
+        <p>Нажмите на карточку, чтобы развернуть подробности по оружию, ключевым словам и уникальным действиям.</p>
+      </div>
+    </header>
+    <div class="roster-section__body" data-roster-operatives>
+      <p class="roster-empty">Выберите килл-тим, чтобы увидеть список оперативников.</p>
+    </div>
+  </section>
+
+  <section class="roster-section" id="roster-panel-equipment" role="tabpanel" aria-labelledby="roster-tab-equipment" data-roster-panel="equipment" hidden>
+    <header class="roster-section__header">
+      <div>
+        <h2>Снаряжение</h2>
+        <p>Отметьте нужные элементы. Фракционные позиции берутся из листа выбранного килл-тима, универсальные — из справочника.</p>
+      </div>
+      <button class="button button--ghost" type="button" data-roster-clear-equipment>Сбросить выбор снаряжения</button>
+    </header>
+    <div class="roster-section__body roster-section__body--with-sidebar">
+      <div class="roster-columns">
+        <article class="roster-column">
+          <h3 class="roster-column__title">Фракционные</h3>
+          <div class="roster-options" data-roster-equipment-faction>
+            <p class="roster-empty">Список появится после выбора килл-тима.</p>
+          </div>
+        </article>
+        <article class="roster-column">
+          <h3 class="roster-column__title">Универсальные</h3>
+          <div class="roster-options" data-roster-equipment-universal>
+            <p class="roster-empty">Загрузка универсального снаряжения…</p>
+          </div>
+        </article>
+      </div>
+      <aside class="roster-selected">
+        <h4>Выбрано</h4>
+        <ul class="roster-selected__list" data-roster-equipment-selected>
+          <li class="roster-empty">Пока ничего не выбрано.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="roster-section" id="roster-panel-ploys" role="tabpanel" aria-labelledby="roster-tab-ploys" data-roster-panel="ploys" hidden>
+    <header class="roster-section__header">
+      <div>
+        <h2>Плои</h2>
+        <p>Выберите актуальные стратегические и боевые плои. Описание каждой карточки можно развернуть рядом.</p>
+      </div>
+      <button class="button button--ghost" type="button" data-roster-clear-ploys>Сбросить выбор плоек</button>
+    </header>
+    <div class="roster-section__body roster-section__body--with-sidebar">
+      <div class="roster-columns">
+        <article class="roster-column">
+          <h3 class="roster-column__title">Стратегические</h3>
+          <div class="roster-options" data-roster-ploys-strategy>
+            <p class="roster-empty">Список будет доступен после выбора килл-тима.</p>
+          </div>
+        </article>
+        <article class="roster-column">
+          <h3 class="roster-column__title">Боевые</h3>
+          <div class="roster-options" data-roster-ploys-firefight>
+            <p class="roster-empty">Список будет доступен после выбора килл-тима.</p>
+          </div>
+        </article>
+      </div>
+      <aside class="roster-selected">
+        <h4>Отмеченные плои</h4>
+        <ul class="roster-selected__list" data-roster-ploys-selected>
+          <li class="roster-empty">Вы пока не отметили плои.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="roster-section" id="roster-panel-ops" role="tabpanel" aria-labelledby="roster-tab-ops" data-roster-panel="ops" hidden>
+    <header class="roster-section__header">
+      <div>
+        <h2>Операции</h2>
+        <p>Выберите критическую и тактическую операцию. Описание карточки отобразится сразу под списком.</p>
+      </div>
+      <button class="button button--ghost" type="button" data-roster-clear-ops>Сбросить операции</button>
+    </header>
+    <div class="roster-section__body roster-ops">
+      <div class="roster-ops__group">
+        <label class="roster-ops__label" for="roster-critop-select">Crit Op</label>
+        <select class="roster-ops__select" id="roster-critop-select" data-roster-critop>
+          <option value="">— Не выбрано —</option>
+        </select>
+        <div class="roster-ops__preview" data-roster-critop-preview>
+          <p class="roster-empty">Выберите Crit Op, чтобы увидеть подробности.</p>
+        </div>
+      </div>
+      <div class="roster-ops__group">
+        <label class="roster-ops__label" for="roster-tacop-select">Tac Op</label>
+        <select class="roster-ops__select" id="roster-tacop-select" data-roster-tacop>
+          <option value="">— Не выбрано —</option>
+        </select>
+        <div class="roster-ops__preview" data-roster-tacop-preview>
+          <p class="roster-empty">Выберите Tac Op, чтобы прочитать условия.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="scripts.js" defer></script>
+</body>
+</html>
