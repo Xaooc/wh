@@ -237,6 +237,52 @@ let rosterTacOpsMap = new Map();
 let rosterCritOpsMap = new Map();
 let rosterOpsRendered = false;
 
+
+function isFileProtocol() {
+  return typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+}
+
+function fetchTextResource(url, label = 'ресурс') {
+  if (!url) {
+    return Promise.reject(new Error(`Не указан путь к «${label}».`));
+  }
+
+  if (isFileProtocol()) {
+    return new Promise((resolve, reject) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'text';
+        if (typeof xhr.overrideMimeType === 'function') {
+          xhr.overrideMimeType('text/plain; charset=utf-8');
+        }
+        xhr.onload = () => {
+          const status = xhr.status === 0 ? 200 : xhr.status;
+          if (status >= 200 && status < 300) {
+            resolve(xhr.responseText || '');
+          } else {
+            reject(new Error(`${label} недоступен (статус ${xhr.status || 0}).`));
+          }
+        };
+        xhr.onerror = () => {
+          reject(new Error(`Не удалось загрузить ${label} по адресу ${url}.`));
+        };
+        xhr.send();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  return fetch(url).then((response) => {
+    if (!response.ok) {
+      throw new Error(`${label} недоступен (статус ${response.status}).`);
+    }
+    return response.text();
+  });
+}
+
+
 function registerPageNavController(id, controller) {
   if (!id || !controller) {
     return;
@@ -3274,11 +3320,9 @@ async function loadRosterTeamDocument(team) {
   if (rosterTeamDocumentCache.has(team.key)) {
     return rosterTeamDocumentCache.get(team.key);
   }
-  const response = await fetch(team.href);
-  if (!response.ok) {
-    throw new Error(`Не удалось загрузить лист команды: ${response.status}`);
-  }
-  const textContent = await response.text();
+
+  const textContent = await fetchTextResource(team.href, 'лист килл-тима');
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(textContent, 'text/html');
   rosterTeamDocumentCache.set(team.key, doc);
@@ -3304,13 +3348,9 @@ async function loadRosterTeamData(team) {
 
 async function loadRosterUniversalEquipment() {
   if (!rosterUniversalEquipmentPromise) {
-    rosterUniversalEquipmentPromise = fetch('unique-equipment.html')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Не удалось загрузить универсальное снаряжение: ${response.status}`);
-        }
-        return response.text();
-      })
+
+    rosterUniversalEquipmentPromise = fetchTextResource('unique-equipment.html', 'универсальное снаряжение')
+
       .then((textContent) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(textContent, 'text/html');
@@ -3326,13 +3366,9 @@ async function loadRosterUniversalEquipment() {
 
 async function loadRosterTacOps() {
   if (!rosterTacOpsPromise) {
-    rosterTacOpsPromise = fetch('TACOP.html')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Не удалось загрузить Tac Ops: ${response.status}`);
-        }
-        return response.text();
-      })
+
+    rosterTacOpsPromise = fetchTextResource('TACOP.html', 'Tac Ops')
+
       .then((textContent) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(textContent, 'text/html');
@@ -3348,13 +3384,9 @@ async function loadRosterTacOps() {
 
 async function loadRosterCritOps() {
   if (!rosterCritOpsPromise) {
-    rosterCritOpsPromise = fetch('critop.html')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Не удалось загрузить Crit Ops: ${response.status}`);
-        }
-        return response.text();
-      })
+
+    rosterCritOpsPromise = fetchTextResource('critop.html', 'Crit Ops')
+
       .then((textContent) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(textContent, 'text/html');
@@ -3959,7 +3991,12 @@ function initRosterBuilderPage() {
       if (requestId !== currentRequestId) {
         return;
       }
-      setStatus('Не удалось загрузить данные. Попробуйте обновить страницу.');
+
+      const advice = isFileProtocol()
+        ? 'Браузер блокирует чтение соседних файлов при открытии напрямую. Запустите сайт через локальный сервер, например командой «python -m http.server» в папке проекта.'
+        : 'Попробуйте обновить страницу чуть позже.';
+      setStatus(`Не удалось загрузить данные. ${advice}`);
+
     }
   };
 
