@@ -1,170 +1,14 @@
-const KILL_TEAM_LIBRARY = [
-  {
-    key: 'necron',
-    name: 'Иеротековый Круг',
-    originalName: 'Hierotek Circle',
-    faction: 'Некроны',
-    alignment: 'Ксенос',
-    href: 'necron-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Иеротек Круг (Hierotek Circle)',
-    summary: 'Элитный отряд некронов с акцентом на стойкость и контроль поля боя.',
-    focus: ['Стойкость', 'Поддержка', 'Стрельба']
-  },
-  {
-    key: 'vespid',
-    name: 'Веспид-Стингвинг',
-    originalName: 'Vespid Stingwing',
-    faction: 'Тау',
-    alignment: 'Ксенос',
-    href: 'vespid-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Веспид-Стингвинг (Vespid Stingwing)',
-    summary: 'Подвижная команда разведчиков-снайперов Империи Тау, полагающаяся на манёвры.',
-    focus: ['Мобильность', 'Стрельба', 'Альфа-удары']
-  },
-  {
-    key: 'pathfinder',
-    name: 'Патфайндеры Т\'ау',
-    originalName: 'Pathfinder Kill Team',
-    faction: 'Империя Т\'ау',
-    alignment: 'Ксенос',
-    href: 'pathfinder-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Патфайндеры Т\'ау (Pathfinder Kill Team)',
-    summary: 'Разведывательный отряд Т\'ау, сочетающий маркерсветы и поддержку дронов.',
-    focus: ['Стрельба', 'Поддержка', 'Маркерсветы']
-  },
-  {
-    key: 'elucidian-starstriders',
-    name: 'Элусидианские Старстрайдеры',
-    originalName: 'Elucidian Starstriders',
-    faction: 'Империум',
-    alignment: 'Империум',
-    href: 'elucidian-starstriders-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Элусидианские Старстрайдеры (Elucidian Starstriders)',
-    summary: 'Килл-тим вольного торговца с упором на гибкие сделки и орбитальную поддержку.',
-    focus: ['Стрельба', 'Поддержка', 'Манёвры']
-  },
-  {
-    key: 'adepta-sororitas-novitiate',
-    name: 'Новициаты Сороритас ',
-    originalName: 'Adepta Sororitas Novitiate',
-    faction: 'Адепта Сороритас',
-    alignment: 'Империум',
-    href: 'adepta-sororitas-novitiate-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Новициаты Сороритас (Adepta Sororitas Novitiate)',
-    summary: 'Актуализированная версия листа с переработанными профилями и доктринами.',
-    focus: ['Поддержка', 'Гибкость', 'Контроль миссий']
-  },
-  {
-    key: 'plague-marines',
-    name: 'Чумные морпехи',
-    originalName: 'Plague Marines',
-    faction: 'Гвардия Смерти',
-    alignment: 'Хаос',
-    href: 'plague-marines-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Чумные морпехи (Plague Marines)',
-    summary: 'Непробиваемые воины Нургла, доминирующие в затяжных схватках.',
-    focus: ['Стойкость', 'Рукопашный бой', 'Зоны заражения']
-  },
-  {
-    key: 'warpcoven',
-    name: 'Варпковен',
-    originalName: 'Warp Coven',
-    faction: 'Тысяча Сынов',
-    alignment: 'Хаос',
-    href: 'warpcoven-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Варпковен (Warp Coven)',
-    summary: 'Ковен колдунов Тысячи Сынов, сочетающий псионику рубриков и натиск тзаангоров.',
-    focus: ['Псионика', 'Стрельба', 'Контроль']
-  },
-  {
-    key: 'nemesis-claw',
-    name: 'Коготь Немезиды',
-    originalName: 'Nemesis Claw',
-    faction: 'Ночные Лорды',
-    alignment: 'Хаос',
-    href: 'nemesis-claw-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Коготь Немезиды (Nemesis Claw)',
-    summary: 'Культ Ночных Лордов, сочетающий удары из тьмы, давление страхом и гибкое применение Астартес-приёмов.',
-    focus: ['Рукопашный бой', 'Психологическое давление', 'Манёвренность']
-  },
-  {
-    key: 'kommandos',
-    name: 'Коммандосы',
-    originalName: 'Kommandos',
-    faction: 'Орки',
-    alignment: 'Ксенос',
-    href: 'kommandos-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Коммандосы (Kommandos)',
-    summary: 'Грубые, но изобретательные орки-диверсанты с упором на скрытность.',
-    focus: ['Маскировка', 'Взрывы', 'Рукопашный бой']
-  },
-  {
-    key: 'wrecka-krew',
-    name: 'Разносчики',
-    originalName: 'Wrecka Krew',
-    faction: 'Орки',
-    alignment: 'Ксенос',
-    href: 'wrecka-krew-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Разносчики (Wrecka Krew)',
-    summary: 'Орочий отряд танкоубийц, накапливающих очки «Разгрома» и усиливающих взрывы.',
-    focus: ['Взрывы', 'Рукопашный бой', 'Синергия очков']
-  },
-  {
-    key: 'hearthkyn-salvagers',
-    name: 'Хэрткин-спасатели',
-    originalName: 'Hearthkyn Salvagers',
-    faction: 'Лиги Вотан',
-    alignment: 'Ксенос',
-    href: 'hearthkyn-salvagers-cheatsheet.html',
-    status: 'available',
-    navLabel: 'Хэрткин-спасатели (Hearthkyn Salvagers)',
-    summary: 'Команда спасателей Лиг Вотан, полагающаяся на жетоны «обиды» и усиление ближнего боя.',
-    focus: ['Стойкость', 'Синергия жетонов', 'Контроль целей']
-  },
-  {
-    key: 'inquisitorial-agents',
-    name: 'Инквизиторские агенты',
-    originalName: 'Inquisitorial Agents',
-    faction: 'Инквизиция',
-    alignment: 'Империум',
-    status: 'planned',
-    navLabel: 'Инквизиторские агенты (Inquisitorial Agents)',
-    summary: 'Заготовка для гибкой команды агентов с особыми поручениями Инквизиции.',
-    focus: ['Специалисты', 'Контроль угроз', 'Адаптация']
-  },
-  {
-    key: 'voidscarred',
-    name: 'Корсары Варпа',
-    originalName: 'Voidscarred',
-    faction: 'Эльдары',
-    alignment: 'Ксенос',
-    status: 'planned',
-    navLabel: 'Корсары Варпа (Voidscarred)',
-    summary: 'Планируемый модуль для подвижных эльдарских рейдеров, делающих ставку на хитрость.',
-    focus: ['Мобильность', 'Хитрость', 'Псионика']
-  }
-];
+const SITE_DATA_URL = 'data/site-data.json';
+let siteDataPromise = null;
+let siteDataCache = null;
+let KILL_TEAM_LIBRARY = [];
+let REFERENCE_LINKS = [];
+let PERSONAL_LINKS = [];
+let NAV_SECTIONS = [];
 
-const REFERENCE_LINKS = [
-  { key: 'rules', href: 'rule.html', label: 'Правила (Rules)' },
-  { key: 'equipment', href: 'unique-equipment.html', label: 'Уникальное снаряжение (Unique Equipment)' },
-  { key: 'tacops', href: 'TACOP.html', label: 'Tac Ops' },
-  { key: 'critops', href: 'critop.html', label: 'Критические операции (Crit Ops)' }
-];
-
-const PERSONAL_LINKS = [
-  { key: 'favorites', href: 'favorites.html', label: 'Избранное (Favorites)' }
-];
+const PAGE_LIBRARY_URL = 'data/page-library.json';
+let pageLibraryPromise = null;
+let pageLibraryCache = null;
 
 function buildKillTeamNavLinks(list) {
   const available = [];
@@ -190,33 +34,6 @@ function buildKillTeamNavLinks(list) {
 
   return available.concat(planned).map(toNavLink);
 }
-
-const NAV_SECTIONS = [
-  {
-    label: 'Обзор',
-    links: [
-      { key: 'home', href: 'index.html', label: 'Обзор Kill Team HQ' }
-    ]
-  },
-  {
-    label: 'Инструменты',
-    links: [
-      { key: 'roster', href: 'roster.html', label: 'Ростер килл-тимов' }
-    ]
-  },
-  {
-    label: 'Kill teams',
-    links: buildKillTeamNavLinks(KILL_TEAM_LIBRARY)
-  },
-  {
-    label: 'Справочники',
-    links: REFERENCE_LINKS
-  },
-  {
-    label: 'Личное',
-    links: PERSONAL_LINKS
-  }
-];
 
 const collapsibleSectionsRegistry = new Map();
 const collapsibleAnchors = new Set();
@@ -283,6 +100,181 @@ function fetchTextResource(url, label = 'ресурс') {
 }
 
 
+
+function fetchJsonResource(url, label = 'ресурс') {
+  return fetchTextResource(url, label).then((text) => {
+    if (!text) {
+      return {};
+    }
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      throw new Error(`Не удалось разобрать ${label}: ${error.message}`);
+    }
+  });
+}
+
+// Приводим загруженный JSON к ожидаемой структуре
+function normalizeSiteData(raw = {}) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const ensureArray = (value) => (Array.isArray(value) ? value.filter(Boolean) : []);
+  return {
+    killTeams: ensureArray(data.killTeams),
+    referenceLinks: ensureArray(data.referenceLinks),
+    personalLinks: ensureArray(data.personalLinks),
+    navSections: ensureArray(data.navSections)
+  };
+}
+
+function applySiteData(data) {
+  const normalized = normalizeSiteData(data);
+  const navSource = {
+    ...normalized,
+    killTeams: Array.isArray(normalized.killTeams) ? normalized.killTeams.slice() : [],
+    referenceLinks: Array.isArray(normalized.referenceLinks) ? normalized.referenceLinks.slice() : [],
+    personalLinks: Array.isArray(normalized.personalLinks) ? normalized.personalLinks.slice() : []
+  };
+  KILL_TEAM_LIBRARY = navSource.killTeams;
+  REFERENCE_LINKS = navSource.referenceLinks;
+  PERSONAL_LINKS = navSource.personalLinks;
+  NAV_SECTIONS = resolveNavSections(navSource);
+  return navSource;
+}
+
+function loadSiteData() {
+  if (siteDataCache) {
+    return Promise.resolve(siteDataCache);
+  }
+  if (!siteDataPromise) {
+    siteDataPromise = fetchJsonResource(SITE_DATA_URL, 'данные сайта')
+      .then((data) => {
+        const normalized = applySiteData(data);
+        siteDataCache = normalized;
+        return siteDataCache;
+      })
+      .catch((error) => {
+        siteDataPromise = null;
+        throw error;
+      });
+  }
+  return siteDataPromise;
+}
+
+function withSiteData(onSuccess, onError) {
+  return loadSiteData()
+    .then((data) => {
+      if (typeof onSuccess === 'function') {
+        onSuccess(data);
+      }
+    })
+    .catch((error) => {
+      console.error('Не удалось загрузить общие данные сайта:', error);
+      if (typeof onError === 'function') {
+        onError(error);
+      }
+    });
+}
+
+function normalizePageLibrary(raw = {}) {
+  const map = new Map();
+  if (!raw || typeof raw !== 'object') {
+    return map;
+  }
+  const pages = raw.pages && typeof raw.pages === 'object' ? raw.pages : {};
+  Object.keys(pages).forEach((key) => {
+    const value = pages[key];
+    if (!value || typeof value !== 'object') {
+      return;
+    }
+    const entry = {
+      key,
+      file: typeof value.file === 'string' ? value.file : '',
+      mainHtml: typeof value.mainHtml === 'string' ? value.mainHtml : ''
+    };
+    map.set(key, entry);
+  });
+  return map;
+}
+
+function loadPageLibrary() {
+  if (pageLibraryCache) {
+    return Promise.resolve(pageLibraryCache);
+  }
+  if (!pageLibraryPromise) {
+    pageLibraryPromise = fetchJsonResource(PAGE_LIBRARY_URL, 'контент страниц')
+      .then((data) => {
+        pageLibraryCache = normalizePageLibrary(data);
+        return pageLibraryCache;
+      })
+      .catch((error) => {
+        pageLibraryPromise = null;
+        throw error;
+      });
+  }
+  return pageLibraryPromise;
+}
+
+function setPagePlaceholder(container, text) {
+  if (!container) {
+    return;
+  }
+  const placeholder = container.querySelector('[data-page-placeholder]');
+  if (!placeholder) {
+    return;
+  }
+  if (typeof text === 'string') {
+    placeholder.textContent = text;
+  }
+}
+
+function renderPageContentFromLibrary(pageKey) {
+  const container = document.querySelector('[data-page-content]');
+  if (!container) {
+    return Promise.resolve(null);
+  }
+  if (!pageKey) {
+    setPagePlaceholder(container, 'Страница не содержит данных для генерации.');
+    return Promise.resolve(null);
+  }
+  return loadPageLibrary()
+    .then((library) => {
+      if (!library || typeof library.get !== 'function') {
+        setPagePlaceholder(container, 'Библиотека страниц недоступна.');
+        return null;
+      }
+      const entry = library.get(pageKey);
+      if (entry && entry.mainHtml) {
+        container.innerHTML = entry.mainHtml;
+        return entry;
+      }
+      setPagePlaceholder(container, 'Для этой страницы пока нет данных.');
+      return null;
+    })
+    .catch((error) => {
+      setPagePlaceholder(container, 'Не удалось загрузить содержимое страницы.');
+      throw error;
+    });
+}
+
+function resolveNavSections(data) {
+  const sections = Array.isArray(data.navSections) ? data.navSections.filter(Boolean) : [];
+  return sections
+    .map((section) => {
+      const result = { label: section && section.label ? section.label : 'Навигация', links: [] };
+      if (section && Array.isArray(section.links) && section.links.length) {
+        result.links = section.links.filter(Boolean);
+        return result;
+      }
+      const source = section ? section.linksSource : '';
+      if (source === 'killTeams') {
+        result.links = buildKillTeamNavLinks(data.killTeams || []);
+      } else if (source && Array.isArray(data[source])) {
+        result.links = data[source].filter(Boolean);
+      }
+      return result;
+    })
+    .filter((section) => Array.isArray(section.links) && section.links.length);
+}
 function registerPageNavController(id, controller) {
   if (!id || !controller) {
     return;
@@ -304,216 +296,235 @@ function notifyPageNavControllers(id, expanded) {
     }
   });
 }
+
 function renderGlobalNav() {
   const nav = document.querySelector('[data-nav]');
   if (!nav) {
     return;
   }
-  nav.innerHTML = '';
-  const currentPage = document.body.dataset.page || '';
 
-  if (!nav.id) {
-    nav.id = 'global-site-nav';
-  }
+  withSiteData((data) => {
+    nav.innerHTML = '';
+    const currentPage = document.body.dataset.page || '';
 
-  const brand = document.querySelector('.brand');
-  if (brand && brand.tagName === 'A') {
-    brand.setAttribute('href', 'index.html');
-  }
-
-  const navParent = nav.parentElement;
-  let menuToggle = null;
-  if (navParent) {
-    menuToggle = navParent.querySelector('[data-nav-toggle]');
-    if (!menuToggle) {
-      menuToggle = document.createElement('button');
-      menuToggle.type = 'button';
-      menuToggle.className = 'site-nav__menu-toggle';
-      menuToggle.setAttribute('data-nav-toggle', 'true');
-      menuToggle.setAttribute('aria-expanded', 'false');
-      menuToggle.setAttribute('aria-controls', nav.id);
-      menuToggle.innerHTML = '<span class="site-nav__menu-icon" aria-hidden="true"></span><span class="site-nav__menu-label">Меню</span>';
-      navParent.insertBefore(menuToggle, nav);
-    } else {
-      menuToggle.setAttribute('aria-controls', nav.id);
+    if (!nav.id) {
+      nav.id = 'global-site-nav';
     }
-  }
 
-  const sectionControllers = [];
-
-  const closeAllSections = (exceptController = null) => {
-    sectionControllers.forEach((controller) => {
-      if (controller !== exceptController) {
-        controller.setOpen(false);
-      }
-    });
-  };
-
-  const closeMobileMenu = () => {
-    if (!nav.classList.contains('is-open')) {
-      closeAllSections();
-      return;
+    const brand = document.querySelector('.brand');
+    if (brand && brand.tagName === 'A') {
+      brand.setAttribute('href', 'index.html');
     }
-    nav.classList.remove('is-open');
-    closeAllSections();
-    if (menuToggle) {
-      menuToggle.classList.remove('is-active');
-      menuToggle.setAttribute('aria-expanded', 'false');
+
+    const navParent = nav.parentElement;
+    let menuToggle = null;
+    if (navParent) {
+      menuToggle = navParent.querySelector('[data-nav-toggle]');
+      if (!menuToggle) {
+        menuToggle = document.createElement('button');
+        menuToggle.type = 'button';
+        menuToggle.className = 'site-nav__menu-toggle';
+        menuToggle.setAttribute('data-nav-toggle', 'true');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-controls', nav.id);
+        menuToggle.innerHTML = '<span class="site-nav__menu-icon" aria-hidden="true"></span><span class="site-nav__menu-label">Меню</span>';
+        navParent.insertBefore(menuToggle, nav);
+      } else {
+        menuToggle.setAttribute('aria-controls', nav.id);
+      }
     }
-  };
 
-  if (menuToggle && !menuToggle.dataset.navReady) {
-    menuToggle.addEventListener('click', () => {
-      const isOpen = nav.classList.toggle('is-open');
-      menuToggle.classList.toggle('is-active', isOpen);
-      menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      if (!isOpen) {
-        closeAllSections();
-      }
-    });
-    menuToggle.dataset.navReady = 'true';
-  }
+    const sectionControllers = [];
 
-  const desktopMedia = typeof window !== 'undefined' && window.matchMedia
-    ? window.matchMedia('(min-width: 900px)')
-    : null;
-
-  if (desktopMedia && !nav.dataset.navMediaBound) {
-    const handleViewportChange = (event) => {
-      if (event.matches) {
-        closeMobileMenu();
-      }
+    const closeAllSections = (exceptController = null) => {
+      sectionControllers.forEach((controller) => {
+        if (controller !== exceptController) {
+          controller.setOpen(false);
+        }
+      });
     };
-    if (typeof desktopMedia.addEventListener === 'function') {
-      desktopMedia.addEventListener('change', handleViewportChange);
-    } else if (typeof desktopMedia.addListener === 'function') {
-      desktopMedia.addListener(handleViewportChange);
-    }
-    nav.dataset.navMediaBound = 'true';
-  }
 
-  if (!nav.dataset.navOutsideBound) {
-    document.addEventListener('click', (event) => {
-      if (!nav.contains(event.target) && (!menuToggle || event.target !== menuToggle)) {
+    const closeMobileMenu = () => {
+      if (!nav.classList.contains('is-open')) {
         closeAllSections();
-        if (!nav.classList.contains('is-open')) {
-          return;
-        }
-        if (menuToggle) {
-          menuToggle.classList.remove('is-active');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-        nav.classList.remove('is-open');
-      }
-    });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        closeMobileMenu();
-      }
-    });
-    nav.dataset.navOutsideBound = 'true';
-  }
-
-  NAV_SECTIONS.forEach((section, index) => {
-    if (!section || !Array.isArray(section.links) || !section.links.length) {
-      return;
-    }
-
-    const sectionNode = document.createElement('div');
-    sectionNode.className = 'site-nav__section';
-    sectionNode.setAttribute('data-nav-section', 'true');
-
-    const trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.className = 'site-nav__trigger';
-    const panelId = `${nav.id}-panel-${index + 1}`;
-    trigger.setAttribute('aria-controls', panelId);
-    trigger.setAttribute('aria-expanded', 'false');
-    trigger.innerHTML = `<span class="site-nav__trigger-label">${section.label || 'Навигация'}</span><span class="site-nav__trigger-icon" aria-hidden="true"></span>`;
-    sectionNode.appendChild(trigger);
-
-    const panel = document.createElement('div');
-    panel.className = 'site-nav__panel';
-    panel.id = panelId;
-
-    const list = document.createElement('ul');
-    list.className = 'site-nav__list';
-
-    section.links.forEach((link) => {
-      if (!link) {
         return;
       }
-      const item = document.createElement('li');
-      item.className = 'site-nav__item';
-
-      const isDisabled = !link.href || link.status === 'planned';
-      const node = document.createElement(isDisabled ? 'span' : 'a');
-      node.className = 'site-nav__link';
-      node.textContent = link.label;
-      if (link.key) {
-        node.dataset.navKey = link.key;
-      }
-      if (!isDisabled) {
-        node.setAttribute('href', link.href);
-        if (link.key === currentPage) {
-          node.setAttribute('aria-current', 'page');
-        }
-        node.addEventListener('click', () => {
-          closeMobileMenu();
-        });
-      } else {
-        node.classList.add('site-nav__link--disabled');
-        node.setAttribute('aria-disabled', 'true');
-      }
-      if (link.badge) {
-        const badge = document.createElement('span');
-        badge.className = 'site-nav__badge';
-        badge.textContent = link.badge;
-        node.appendChild(badge);
-      }
-      item.appendChild(node);
-      list.appendChild(item);
-    });
-
-    if (!list.childElementCount) {
-      return;
-    }
-
-    panel.appendChild(list);
-    sectionNode.appendChild(panel);
-    nav.appendChild(sectionNode);
-
-    let isOpen = false;
-    const controller = {
-      setOpen(open) {
-        const shouldOpen = Boolean(open);
-        if (isOpen === shouldOpen) {
-          return;
-        }
-        isOpen = shouldOpen;
-        sectionNode.classList.toggle('is-open', isOpen);
-        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      },
-      isOpen() {
-        return isOpen;
+      nav.classList.remove('is-open');
+      closeAllSections();
+      if (menuToggle) {
+        menuToggle.classList.remove('is-active');
+        menuToggle.setAttribute('aria-expanded', 'false');
       }
     };
 
-    trigger.addEventListener('click', (event) => {
-      event.preventDefault();
-      const nextState = !controller.isOpen();
-      if (nextState) {
-        closeAllSections(controller);
-      }
-      controller.setOpen(nextState);
-    });
-
-    sectionControllers.push(controller);
-
-    const shouldAutoOpen = section.links.some((link) => link && link.key === currentPage);
-    if (shouldAutoOpen) {
-      controller.setOpen(true);
+    if (menuToggle && !menuToggle.dataset.navReady) {
+      menuToggle.addEventListener('click', () => {
+        const isOpen = nav.classList.toggle('is-open');
+        menuToggle.classList.toggle('is-active', isOpen);
+        menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (!isOpen) {
+          closeAllSections();
+        }
+      });
+      menuToggle.dataset.navReady = 'true';
     }
+
+    const desktopMedia = typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(min-width: 900px)')
+      : null;
+
+    if (desktopMedia && !nav.dataset.navMediaBound) {
+      const handleViewportChange = (event) => {
+        if (event.matches) {
+          closeMobileMenu();
+        }
+      };
+      if (typeof desktopMedia.addEventListener === 'function') {
+        desktopMedia.addEventListener('change', handleViewportChange);
+      } else if (typeof desktopMedia.addListener === 'function') {
+        desktopMedia.addListener(handleViewportChange);
+      }
+      nav.dataset.navMediaBound = 'true';
+    }
+
+    if (!nav.dataset.navOutsideBound) {
+      document.addEventListener('click', (event) => {
+        if (!nav.contains(event.target) && (!menuToggle || event.target !== menuToggle)) {
+          closeAllSections();
+          if (!nav.classList.contains('is-open')) {
+            return;
+          }
+          if (menuToggle) {
+            menuToggle.classList.remove('is-active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+          }
+          nav.classList.remove('is-open');
+        }
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMobileMenu();
+        }
+      });
+      nav.dataset.navOutsideBound = 'true';
+    }
+
+    const sections = NAV_SECTIONS.length ? NAV_SECTIONS : resolveNavSections(data);
+    if (!sections.length) {
+      const empty = document.createElement('p');
+      empty.className = 'site-nav__empty';
+      empty.textContent = 'Меню будет доступно позже.';
+      nav.appendChild(empty);
+      return;
+    }
+
+    sections.forEach((section, index) => {
+      if (!section || !Array.isArray(section.links) || !section.links.length) {
+        return;
+      }
+
+      const sectionNode = document.createElement('div');
+      sectionNode.className = 'site-nav__section';
+      sectionNode.setAttribute('data-nav-section', 'true');
+
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'site-nav__trigger';
+      const panelId = `${nav.id}-panel-${index + 1}`;
+      trigger.setAttribute('aria-controls', panelId);
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.innerHTML = `<span class="site-nav__trigger-label">${section.label || 'Навигация'}</span><span class="site-nav__trigger-icon" aria-hidden="true"></span>`;
+      sectionNode.appendChild(trigger);
+
+      const panel = document.createElement('div');
+      panel.className = 'site-nav__panel';
+      panel.id = panelId;
+
+      const list = document.createElement('ul');
+      list.className = 'site-nav__list';
+
+      section.links.forEach((link) => {
+        if (!link) {
+          return;
+        }
+        const item = document.createElement('li');
+        item.className = 'site-nav__item';
+
+        const isDisabled = !link.href || link.status === 'planned';
+        const node = document.createElement(isDisabled ? 'span' : 'a');
+        node.className = 'site-nav__link';
+        node.textContent = link.label;
+        if (link.key) {
+          node.dataset.navKey = link.key;
+        }
+        if (!isDisabled) {
+          node.setAttribute('href', link.href);
+          if (link.key === currentPage) {
+            node.setAttribute('aria-current', 'page');
+          }
+          node.addEventListener('click', () => {
+            closeMobileMenu();
+          });
+        } else {
+          node.classList.add('site-nav__link--disabled');
+          node.setAttribute('aria-disabled', 'true');
+        }
+        if (link.badge) {
+          const badge = document.createElement('span');
+          badge.className = 'site-nav__badge';
+          badge.textContent = link.badge;
+          node.appendChild(badge);
+        }
+        item.appendChild(node);
+        list.appendChild(item);
+      });
+
+      if (!list.childElementCount) {
+        return;
+      }
+
+      panel.appendChild(list);
+      sectionNode.appendChild(panel);
+      nav.appendChild(sectionNode);
+
+      let isOpen = false;
+      const controller = {
+        setOpen(open) {
+          const shouldOpen = Boolean(open);
+          if (isOpen === shouldOpen) {
+            return;
+          }
+          isOpen = shouldOpen;
+          sectionNode.classList.toggle('is-open', isOpen);
+          trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        },
+        isOpen() {
+          return isOpen;
+        }
+      };
+
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        const nextState = !controller.isOpen();
+        if (nextState) {
+          closeAllSections(controller);
+        }
+        controller.setOpen(nextState);
+      });
+
+      sectionControllers.push(controller);
+
+      const shouldAutoOpen = section.links.some((link) => link && link.key === currentPage);
+      if (shouldAutoOpen) {
+        controller.setOpen(true);
+      }
+    });
+  }, () => {
+    nav.innerHTML = '';
+    const fallback = document.createElement('p');
+    fallback.className = 'site-nav__empty';
+    fallback.textContent = 'Не удалось загрузить меню.';
+    nav.appendChild(fallback);
   });
 }
 
@@ -2046,118 +2057,91 @@ function loadRuleResolver() {
 
 (function initWeaponTooltips() {
   document.addEventListener('DOMContentLoaded', () => {
-    const ruleNodes = Array.from(document.querySelectorAll('.weapon-rule'));
-    if (!ruleNodes.length) {
+    const nodesWithDescriptions = Array.from(document.querySelectorAll('[data-description]'));
+    if (!nodesWithDescriptions.length) {
       return;
     }
 
-    loadRuleResolver()
-      .then((resolver) => {
-        if (!resolver) {
-          return;
-        }
+    const tooltip = document.createElement('div');
+    tooltip.id = 'weapon-rule-tooltip';
+    tooltip.className = 'weapon-tooltip';
+    tooltip.setAttribute('role', 'tooltip');
+    document.body.appendChild(tooltip);
 
-        const nodesWithDescriptions = [];
+    let activeNode = null;
 
-        ruleNodes.forEach((node) => {
-          const ruleKey = node.dataset.rule || '';
-          const description = resolver.describe(ruleKey, node);
-          if (!description) {
-            return;
-          }
-          node.setAttribute('data-description', description);
-          node.setAttribute('aria-label', description);
-          nodesWithDescriptions.push(node);
-        });
+    const hideTooltip = () => {
+      tooltip.classList.remove('is-visible');
+      tooltip.style.left = '-9999px';
+      tooltip.style.top = '-9999px';
+      activeNode = null;
+    };
 
-        if (!nodesWithDescriptions.length) {
-          return;
-        }
+    const placeTooltip = (x, y) => {
+      const tooltipRect = tooltip.getBoundingClientRect();
+      const margin = 14;
+      let left = x + margin;
+      let top = y + margin;
 
-        const tooltip = document.createElement('div');
-        tooltip.id = 'weapon-rule-tooltip';
-        tooltip.className = 'weapon-tooltip';
-        tooltip.setAttribute('role', 'tooltip');
-        document.body.appendChild(tooltip);
+      if (left + tooltipRect.width > window.innerWidth - 8) {
+        left = x - tooltipRect.width - margin;
+      }
+      if (left < 8) {
+        left = 8;
+      }
 
-        let activeNode = null;
+      if (top + tooltipRect.height > window.innerHeight - 8) {
+        top = y - tooltipRect.height - margin;
+      }
+      if (top < 8) {
+        top = 8;
+      }
 
-        const hideTooltip = () => {
-          tooltip.classList.remove('is-visible');
-          tooltip.style.left = '-9999px';
-          tooltip.style.top = '-9999px';
-          activeNode = null;
-        };
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    };
 
-        const placeTooltip = (x, y) => {
-          const tooltipRect = tooltip.getBoundingClientRect();
-          const margin = 14;
-          let left = x + margin;
-          let top = y + margin;
+    const showTooltip = (node, event) => {
+      const text = node.getAttribute('data-description');
+      if (!text) {
+        return;
+      }
+      tooltip.textContent = text;
+      tooltip.classList.add('is-visible');
+      activeNode = node;
+      if (event && event.type.startsWith('mouse')) {
+        placeTooltip(event.clientX, event.clientY);
+      } else {
+        const rect = node.getBoundingClientRect();
+        placeTooltip(rect.left + rect.width / 2, rect.top);
+      }
+    };
 
-          if (left + tooltipRect.width > window.innerWidth - 8) {
-            left = x - tooltipRect.width - margin;
-          }
-          if (left < 8) {
-            left = 8;
-          }
+    const moveTooltip = (event) => {
+      if (!activeNode) {
+        return;
+      }
+      placeTooltip(event.clientX, event.clientY);
+    };
 
-          if (top + tooltipRect.height > window.innerHeight - 8) {
-            top = y - tooltipRect.height - margin;
-          }
-          if (top < 8) {
-            top = 8;
-          }
-
-          tooltip.style.left = `${left}px`;
-          tooltip.style.top = `${top}px`;
-        };
-
-        const showTooltip = (node, event) => {
-          const text = node.getAttribute('data-description');
-          if (!text) {
-            return;
-          }
-          tooltip.textContent = text;
-          tooltip.classList.add('is-visible');
-          activeNode = node;
-          if (event && event.type.startsWith('mouse')) {
-            placeTooltip(event.clientX, event.clientY);
-          } else {
-            const rect = node.getBoundingClientRect();
-            placeTooltip(rect.left + rect.width / 2, rect.top);
-          }
-        };
-
-        const moveTooltip = (event) => {
-          if (!activeNode) {
-            return;
-          }
-          placeTooltip(event.clientX, event.clientY);
-        };
-
-        nodesWithDescriptions.forEach((node) => {
-          node.setAttribute('aria-describedby', 'weapon-rule-tooltip');
-          node.addEventListener('mouseenter', (event) => {
-            showTooltip(node, event);
-          });
-          node.addEventListener('mouseleave', hideTooltip);
-          node.addEventListener('mousemove', moveTooltip);
-          node.addEventListener('focus', (event) => {
-            showTooltip(node, event);
-          });
-          node.addEventListener('blur', hideTooltip);
-        });
-
-        document.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape') {
-            hideTooltip();
-          }
-        });
-      })
-      .catch((error) => {
-        console.warn('Не удалось инициализировать подсказки по правилам оружия:', error);
+    nodesWithDescriptions.forEach((node) => {
+      node.setAttribute('aria-describedby', 'weapon-rule-tooltip');
+      node.addEventListener('mouseenter', (event) => {
+        showTooltip(node, event);
       });
+      node.addEventListener('mouseleave', hideTooltip);
+      node.addEventListener('mousemove', moveTooltip);
+      node.addEventListener('focus', (event) => {
+        showTooltip(node, event);
+      });
+      node.addEventListener('blur', hideTooltip);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        hideTooltip();
+      }
+    });
   });
 })();
 
@@ -4119,9 +4103,18 @@ PAGE_INITIALIZERS.add('home', initKillTeamLibrary);
 PAGE_INITIALIZERS.add('roster', initRosterBuilderPage);
 
 document.addEventListener('DOMContentLoaded', () => {
-  renderGlobalNav();
   const pageKey = document.body.dataset.page || '';
-  PAGE_INITIALIZERS.run(pageKey);
+  const siteDataReady = loadSiteData().catch((error) => {
+    console.error('Не удалось подготовить данные сайта:', error);
+  });
+  const pageContentReady = renderPageContentFromLibrary(pageKey).catch((error) => {
+    console.error('Не удалось отрисовать содержимое страницы из библиотеки:', error);
+  });
+
+  Promise.allSettled([siteDataReady, pageContentReady]).then(() => {
+    renderGlobalNav();
+    PAGE_INITIALIZERS.run(pageKey);
+  });
 });
 
 
